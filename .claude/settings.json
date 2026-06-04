@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [],
+    "PreToolUse": [],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": []
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "agent-skills@addy-agent-skills": true
+  }
+}

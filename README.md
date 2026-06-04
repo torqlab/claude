@@ -1,0 +1,281 @@
+# TORQ Claude Configuration Collection
+
+A shared collection of Claude configurations, skills, hooks, and conventions for the TORQ project. This repository provides a unified set of AI development tools used across multiple TORQ repositories via symlinks.
+
+## Overview
+
+This is a **project-level Claude collection** that serves as a centralized source of truth for Claude development practices. Every TORQ repository can reference this collection via a symlink, ensuring consistent configurations, skills, and conventions across all projects.
+
+**Key purpose**: Enable standardized AI-driven development workflows, code generation, and automation while maintaining quality standards through shared hooks, rules, and custom skills.
+
+## What's Included
+
+### 📦 Skills
+
+This collection includes both **NPM-based open-source skills** and **custom project-specific skills**.
+
+| Skill | Type | Purpose | Source |
+|-------|------|---------|--------|
+| **pr-open** | Custom | Create pull requests on GitHub directly from changelog entries with branch validation and smart defaults | [./.claude/skills/pr-open/SKILL.md](./.claude/skills/pr-open/SKILL.md) |
+| **create-changelog** | Custom | Generate accurate changelog entries following Keep a Changelog standard based on git diffs | [./.claude/skills/create-changelog/SKILL.md](./.claude/skills/create-changelog/SKILL.md) |
+| **github-mcp-setup** | Custom | Configure GitHub MCP (Model Context Protocol) for GitHub automation with GitHub App authentication | [./.claude/skills/github-mcp-setup/SKILL.md](./.claude/skills/github-mcp-setup/SKILL.md) |
+| **frontend-design** | Open-source | Build distinctive, production-grade UI components with cohesive aesthetic direction | [anthropics/skills](https://github.com/anthropics/skills) |
+| **skill-creator** | Open-source | Create, test, and iteratively improve new Claude skills with comprehensive evaluation workflows | [anthropics/skills](https://github.com/anthropics/skills) |
+| **ship** | Agent Skill | Run pre-launch checklist via parallel fan-out to specialist personas | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **code-simplify** | Agent Skill | Simplify code for clarity and maintainability without changing behavior | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **review** | Agent Skill | Conduct five-axis code review (correctness, readability, architecture, security, performance) | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **spec** | Agent Skill | Start spec-driven development with structured specifications before coding | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **plan** | Agent Skill | Break work into small verifiable tasks with acceptance criteria and dependencies | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **build** | Agent Skill | Implement tasks incrementally with build, test, verify, and commit cycles | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **test** | Agent Skill | Run TDD workflow with failing tests first for bugs and features | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **idea-refine** | Agent Skill | Refine raw ideas into sharp, actionable concepts through divergent and convergent thinking | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **using-agent-skills** | Agent Skill | Discover and invoke available agent skills from this collection | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **debugging-and-error-recovery** | Agent Skill | Guide systematic root-cause debugging and error recovery workflows | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **interview-me** | Agent Skill | Extract actual user wants vs. assumed requirements through structured interviews | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **frontend-ui-engineering** | Agent Skill | Build production-quality user interfaces with careful attention to design | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **context-engineering** | Agent Skill | Optimize agent context setup for better output quality and relevance | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **deprecation-and-migration** | Agent Skill | Manage deprecation workflows and guide safe migration strategies | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **ci-cd-and-automation** | Agent Skill | Automate CI/CD pipeline setup and orchestration | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **security-and-hardening** | Agent Skill | Harden code against vulnerabilities and OWASP top 10 threats | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **code-review-and-quality** | Agent Skill | Conduct multi-axis code review for quality and correctness | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **api-and-interface-design** | Agent Skill | Design stable APIs and module boundaries with careful consideration of interfaces | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **spec-driven-development** | Agent Skill | Create detailed specifications before implementing code changes | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **incremental-implementation** | Agent Skill | Deliver changes incrementally with small, verifiable steps | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **shipping-and-launch** | Agent Skill | Prepare applications for production launch with comprehensive checklists | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **planning-and-task-breakdown** | Agent Skill | Break work into ordered tasks with dependencies and acceptance criteria | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **documentation-and-adrs** | Agent Skill | Record architectural decisions and create documentation | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **performance-optimization** | Agent Skill | Optimize application performance through profiling and targeted improvements | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **source-driven-development** | Agent Skill | Ground implementation decisions in official documentation and specifications | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **test-driven-development** | Agent Skill | Drive development with tests as primary design tool | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **git-workflow-and-versioning** | Agent Skill | Structure git workflow practices and semantic versioning | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **doubt-driven-development** | Agent Skill | Subject non-trivial decisions to fresh-context adversarial review | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **code-simplification** | Agent Skill | Simplify code for clarity and maintainability without changing behavior | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **browser-testing-with-devtools** | Agent Skill | Test applications in real browsers via Chrome DevTools MCP | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+
+### 🔧 Hooks
+
+Automated hooks that run during Claude Code development:
+
+- **`blockDangerousCommands.js`** - Prevents execution of unsafe git commands
+- **`tdd.js`** - Test-driven development hook for PreToolUse events
+- **`verifyCode.sh`** - Code verification for PostToolUse events
+- **`tddLineBudget.sh`** - Line budget enforcement for TDD compliance
+- **`initSession.sh`** - Session initialization hook
+
+### 📋 Rules & Conventions
+
+Project-specific rules enforced across all repositories:
+
+- **`project-conventions.md`** - Coding standards (const over let, arrow functions, JSDoc requirements, no nested functions)
+- **`openspec-workflow.md`** - OpenSpec workflow for planning and breaking changes
+
+## Quick Start: Using This Collection in Your Project
+
+### Step 1: Create a Symlink to `.claude`
+
+From any TORQ repository, create a symlink to this collection's `.claude` directory:
+
+```bash
+# From your-torq-repo/ directory
+ln -s /path/to/torq/claude/.claude .claude
+```
+
+Or use a relative path if torq/claude is a sibling:
+
+```bash
+ln -s ../claude/.claude .claude
+```
+
+### Step 2: Verify the Symlink
+
+Confirm the symlink works:
+
+```bash
+ls -l .claude
+# Should show: .claude -> /path/to/torq/claude/.claude
+```
+
+### Step 3: Skills are Ready to Use
+
+Claude Code will automatically discover and load:
+- All custom skills from `.claude/skills/`
+- All open-source skills from `skills-lock.json`
+- All hooks from `.claude/hooks/` and settings in `.claude/settings.json`
+
+No additional setup needed — start using Claude Code as normal!
+
+## Adding Skills to This Collection
+
+### Open-Source Skills (from NPM)
+
+Skills from Anthropic's [anthropics/skills](https://github.com/anthropics/skills) are managed via `skills-lock.json`:
+
+```json
+{
+  "version": 1,
+  "skills": {
+    "my-skill": {
+      "source": "anthropics/skills",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/my-skill/SKILL.md"
+    }
+  }
+}
+```
+
+### Custom Project-Specific Skills
+
+Add custom skills to `.claude/skills/<skill-name>/`:
+
+```
+.claude/skills/my-skill/
+├── SKILL.md                 # Main skill definition
+├── references/              # Documentation files
+│   ├── guide.md
+│   └── examples.md
+├── scripts/                 # Reusable helper scripts
+│   └── helper.py
+└── assets/                  # Templates, icons, etc.
+```
+
+**SKILL.md frontmatter** (required):
+```yaml
+---
+name: my-skill
+description: When to use this skill and what it does. Make descriptions clear about trigger contexts.
+license: MIT
+metadata:
+  author: Your Name
+---
+```
+
+## Project Standards
+
+This collection enforces consistent development practices:
+
+### Code Conventions
+- **Use `const`** instead of `let` — enforced
+- **Arrow functions only** — `const fn = () => {}`
+- **JSDoc required** for all functions
+- **No nested functions** — top-level only
+- **No early returns** — use if...else chains
+
+### Development Workflow
+- Run `bun run test` after code changes
+- Run `bun run lint` for formatting
+- Use OpenSpec for planning major changes or breaking changes
+
+### Changelog Management
+Use the `create-changelog` skill to generate entries:
+```bash
+/create-changelog
+```
+
+Then open a PR with `pr-open`:
+```bash
+/pr-open
+```
+
+## Repository Structure
+
+```
+torq/claude/
+├── .claude/
+│   ├── skills/              # Custom project-specific skills
+│   │   ├── pr-open/
+│   │   ├── create-changelog/
+│   │   ├── github-mcp-setup/
+│   │   └── skill-creator/
+│   ├── hooks/               # Development hooks
+│   ├── rules/               # Project conventions & workflows
+│   └── settings.json        # Hook configuration
+├── README.md                # This file
+├── AGENTS.md                # Agent setup guide
+├── package.json             # Project metadata
+└── skills-lock.json         # Open-source skills registry
+```
+
+## Integration with Other TORQ Repos
+
+Every TORQ repository should:
+
+1. **Create a symlink** to `.claude`:
+   ```bash
+   ln -s ../claude/.claude .claude
+   ```
+
+2. **Add to .gitignore** (if not already included):
+   ```
+   # Claude Code
+   .claude
+   ```
+
+3. **Commit .claude as a symlink** (recommended for teams):
+   ```bash
+   git add .claude
+   git commit -m "Add Claude configuration collection via symlink"
+   ```
+
+All skills, hooks, and configurations are now available in that repository.
+
+## Key Skills Overview
+
+### 📝 Frontend Design
+Build production-grade UIs with distinctive aesthetics:
+```
+/frontend-design
+```
+Creates HTML/React components with cohesive visual direction, custom typography, animations, and attention to design details.
+
+### 🔄 Create Changelog
+Generate accurate changelogs from git diffs:
+```
+/create-changelog
+```
+Analyzes code changes and creates SemVer-based changelog entries following Keep a Changelog standard.
+
+### 🚀 PR Open
+Create pull requests directly from changelog:
+```
+/pr-open
+```
+Automates PR creation with branch validation, smart defaults, and changelog-driven formatting.
+
+### 🛠️ GitHub MCP Setup
+Configure GitHub automation:
+```
+/github-mcp-setup
+```
+Complete GitHub App setup workflow for GitHub MCP integration with fine-grained permissions.
+
+### 🎯 Skill Creator
+Build new Claude skills:
+```
+/skill-creator
+```
+Full workflow for creating skills: drafting, testing, evaluation, iteration, and description optimization.
+
+## Support & Contributions
+
+**For issues or questions**:
+- Check existing skills in `./.claude/skills/*/SKILL.md`
+- Review project conventions in `./.claude/rules/`
+- Refer to OpenSpec workflow at `./.claude/rules/openspec-workflow.md`
+
+**To add a new skill**:
+1. Create a directory in `./.claude/skills/<skill-name>/`
+2. Write `SKILL.md` with proper frontmatter
+3. Include documentation in `references/` and helper scripts in `scripts/`
+4. Test with the `skill-creator` skill
+
+## Version & Metadata
+
+**Repository**: [@torqlab/claude](https://github.com/torqlab/claude)  
+**License**: MIT  
+**Maintainer**: Mr.B.Lab  
+**Node**: 24.x
+
+---
+
+**Last updated**: 2026-06-04

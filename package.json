@@ -1,0 +1,27 @@
+{
+  "name": "@torqlab/claude",
+  "version": "1.0.0",
+  "description": "This repository contains a project-level Claude collection: skills, hooks, and other useful things for the agentic development.",
+  "license": "MIT",
+  "author": {
+    "name": "Bohdan Balov",
+    "email": "balovbohdan@gmail.com",
+    "url": "https://balov.dev"
+  },
+  "keywords": [
+    "strava",
+    "torq",
+    "claude"
+  ],
+  "engines": {
+    "node": "24.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/torqlab/claude.git"
+  },
+  "homepage": "https://github.com/torqlab/claude",
+  "bugs": {
+    "url": "https://github.com/torqlab/claude/issues"
+  }
+}
