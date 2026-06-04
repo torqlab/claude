@@ -62,36 +62,54 @@ Claude Code settings and plugins:
 
 ## Quick Start: Using This Collection in Your Project
 
-### Step 1: Create a Symlink to `.claude`
+### Installation
 
-From any TORQ repository, create a symlink to this collection's `.claude` directory:
+Every TORQ repository can use this collection via a **symlink to `.claude`**. This ensures consistent configurations, skills, and conventions across all projects.
+
+#### Step 1: Create the Symlink
+
+From your TORQ repository directory, create a symlink to this collection's `.claude` directory:
 
 ```bash
-# From your-torq-repo/ directory
+# Absolute path
 ln -s /path/to/torq/claude/.claude .claude
-```
 
-Or use a relative path if torq/claude is a sibling:
-
-```bash
+# Or relative path (if torq/claude is a sibling)
 ln -s ../claude/.claude .claude
 ```
 
-### Step 2: Verify the Symlink
+#### Step 2: Verify the Symlink
 
 Confirm the symlink works:
 
 ```bash
 ls -l .claude
-# Should show: .claude -> /path/to/torq/claude/.claude
+# Should show: .claude -> ../claude/.claude (or absolute path)
 ```
 
-### Step 3: Skills are Ready to Use
+#### Step 3: Configure Git (Optional but Recommended)
+
+Add `.claude` to `.gitignore`:
+
+```gitignore
+# Claude Code
+.claude
+```
+
+Then optionally commit the symlink itself (Git handles symlinks correctly):
+
+```bash
+git add .claude
+git commit -m "Add Claude configuration collection via symlink"
+```
+
+#### Step 4: Skills and Plugins Ready to Use
 
 Claude Code will automatically discover and load:
-- All custom skills from `.claude/skills/`
-- All open-source skills from `skills-lock.json`
-- All hooks from `.claude/hooks/` and settings in `.claude/settings.json`
+- ✅ All custom skills from `.claude/skills/`
+- ✅ All open-source skills from `skills-lock.json`
+- ✅ All enabled plugins (agent-skills@addy-agent-skills)
+- ✅ Settings from `.claude/settings.json`
 
 No additional setup needed — start using Claude Code as normal!
 
@@ -141,45 +159,6 @@ metadata:
 ---
 ```
 
-## Project Standards
-
-This collection enforces consistent development practices:
-
-### Code Conventions
-- **Use `const`** instead of `let` — enforced
-- **Arrow functions only** — `const fn = () => {}`
-- **JSDoc required** for all functions
-- **No nested functions** — top-level only
-- **No early returns** — use if...else chains
-
-### Project Standards
-
-This collection enforces consistent development practices:
-
-### Code Conventions
-These are recommendations for projects using this collection:
-- **Use `const`** for all variable declarations
-- **Arrow functions only** — `const fn = () => {}`
-- **JSDoc recommended** for complex functions
-- **Clear naming** for functions and variables
-
-### Development Workflow
-- Create feature branches with descriptive names
-- Use `create-changelog` to document changes
-- Use `pr-open` to create pull requests
-- Test before merging
-
-### Changelog Management
-Use the `create-changelog` skill to generate entries:
-```bash
-/create-changelog
-```
-
-Then open a PR with `pr-open`:
-```bash
-/pr-open
-```
-
 ## Repository Structure
 
 ```
@@ -198,29 +177,6 @@ torq/claude/
 ├── skills-lock.json         # Open-source skills registry
 └── .nvmrc                   # Node version specification
 ```
-
-## Integration with Other TORQ Repos
-
-Every TORQ repository should:
-
-1. **Create a symlink** to `.claude`:
-   ```bash
-   ln -s ../claude/.claude .claude
-   ```
-
-2. **Add to .gitignore** (if not already included):
-   ```
-   # Claude Code
-   .claude
-   ```
-
-3. **Commit .claude as a symlink** (recommended for teams):
-   ```bash
-   git add .claude
-   git commit -m "Add Claude configuration collection via symlink"
-   ```
-
-All skills, plugins, and configurations are now available in that repository.
 
 ## Key Skills Overview
 
