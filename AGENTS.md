@@ -211,26 +211,19 @@ Runs comprehensive security analysis:
 
 ## Project Conventions
 
-All code in TORQ repositories must follow these standards:
+This collection recommends consistent development practices:
 
-**Coding Standards** (`./.claude/rules/project-conventions.md`):
-- ✅ `const` only (no `let`)
+**Code Standards**:
+- ✅ `const` for variable declarations
 - ✅ Arrow functions: `const fn = () => {}`
-- ✅ JSDoc for all functions
-- ✅ No nested functions — top-level only
-- ✅ No early returns — if/else chains
-- ✅ Module-scoped types with prefixes
-
-**Workflow** (`./.claude/rules/openspec-workflow.md`):
-- Use OpenSpec for planning and major changes
-- Specifications go in `/openspec/specs/`
-- Changes documented in `/openspec/changes/`
-- Project context at `/openspec/project.md`
+- ✅ Clear function naming
+- ✅ Modular code structure
 
 **Quality Checks**:
-- Run `bun run test` after changes
-- Run `bun run lint` before committing
-- Hooks automatically verify code quality
+- Write clear, testable code
+- Document complex logic
+- Test before merging
+- Use agent skills for code review when needed
 
 ## How to Update This README
 
@@ -259,8 +252,7 @@ ls -l .claude
 
 This single symlink gives you:
 - ✅ All custom skills
-- ✅ All hooks for development
-- ✅ All project conventions & rules
+- ✅ All agent skills plugins
 - ✅ Settings and configurations
 
 ### No Additional Setup
@@ -268,8 +260,8 @@ This single symlink gives you:
 Once the symlink is created, Claude Code automatically:
 1. Discovers all skills from `./.claude/skills/`
 2. Loads open-source skills from `skills-lock.json`
-3. Applies hooks from settings
-4. Enforces project rules
+3. Loads enabled plugins from settings
+4. Applies configurations
 
 ## Adding New Skills to This Collection
 
@@ -367,12 +359,11 @@ ls -l .claude
 3. Restart Claude Code to reload skills
 4. Review `.claude/settings.json` for hook errors
 
-### Hooks Not Running
+### Plugin Configuration Issues
 
-1. Check hook configuration in `.claude/settings.json`
-2. Verify hook scripts exist in `.claude/hooks/`
-3. Make hook scripts executable: `chmod +x .claude/hooks/*.sh`
-4. Check permissions: `ls -la .claude/hooks/`
+1. Check plugin configuration in `.claude/settings.json`
+2. Verify enabled plugins: `"enabledPlugins": { "agent-skills@addy-agent-skills": true }`
+3. Restart Claude Code to reload plugins
 
 ## Agent Skills Plugin (@addy-agent-skills)
 
@@ -415,9 +406,7 @@ This collection includes the complete **@addy-agent-skills** plugin suite — 30
 
 - **Skills Registry**: `./skills-lock.json` — Open-source skills from anthropics/skills
 - **Agent Skills Plugin**: `@addy-agent-skills/agent-skills` — 30+ specialized development skills
-- **Conventions**: `./.claude/rules/project-conventions.md` — Coding standards
-- **Workflows**: `./.claude/rules/openspec-workflow.md` — Planning & breaking changes
-- **Settings**: `./.claude/settings.json` — Hook configuration
+- **Settings**: `./.claude/settings.json` — Plugin configuration
 
 ## Support
 

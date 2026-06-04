@@ -52,22 +52,13 @@ This collection includes both **NPM-based open-source skills** and **custom proj
 | **code-simplification** | Agent Skill | Simplify code for clarity and maintainability without changing behavior | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
 | **browser-testing-with-devtools** | Agent Skill | Test applications in real browsers via Chrome DevTools MCP | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
 
-### 🔧 Hooks
+### 🔧 Configuration
 
-Automated hooks that run during Claude Code development:
+Claude Code settings and plugins:
 
-- **`blockDangerousCommands.js`** - Prevents execution of unsafe git commands
-- **`tdd.js`** - Test-driven development hook for PreToolUse events
-- **`verifyCode.sh`** - Code verification for PostToolUse events
-- **`tddLineBudget.sh`** - Line budget enforcement for TDD compliance
-- **`initSession.sh`** - Session initialization hook
-
-### 📋 Rules & Conventions
-
-Project-specific rules enforced across all repositories:
-
-- **`project-conventions.md`** - Coding standards (const over let, arrow functions, JSDoc requirements, no nested functions)
-- **`openspec-workflow.md`** - OpenSpec workflow for planning and breaking changes
+- **`.claude/settings.json`** - Plugin configuration (agent-skills@addy-agent-skills enabled)
+- **`.claude/settings.local.json`** - Local development overrides
+- **`skills-lock.json`** - Pinned versions of open-source skills from anthropics/skills
 
 ## Quick Start: Using This Collection in Your Project
 
@@ -161,10 +152,22 @@ This collection enforces consistent development practices:
 - **No nested functions** — top-level only
 - **No early returns** — use if...else chains
 
+### Project Standards
+
+This collection enforces consistent development practices:
+
+### Code Conventions
+These are recommendations for projects using this collection:
+- **Use `const`** for all variable declarations
+- **Arrow functions only** — `const fn = () => {}`
+- **JSDoc recommended** for complex functions
+- **Clear naming** for functions and variables
+
 ### Development Workflow
-- Run `bun run test` after code changes
-- Run `bun run lint` for formatting
-- Use OpenSpec for planning major changes or breaking changes
+- Create feature branches with descriptive names
+- Use `create-changelog` to document changes
+- Use `pr-open` to create pull requests
+- Test before merging
 
 ### Changelog Management
 Use the `create-changelog` skill to generate entries:
@@ -186,14 +189,14 @@ torq/claude/
 │   │   ├── pr-open/
 │   │   ├── create-changelog/
 │   │   ├── github-mcp-setup/
-│   │   └── skill-creator/
-│   ├── hooks/               # Development hooks
-│   ├── rules/               # Project conventions & workflows
-│   └── settings.json        # Hook configuration
+│   │   └── skill-creator/   # Imported from anthropics/skills
+│   ├── settings.json        # Plugin configuration
+│   └── settings.local.json  # Local overrides
 ├── README.md                # This file
 ├── AGENTS.md                # Agent setup guide
 ├── package.json             # Project metadata
-└── skills-lock.json         # Open-source skills registry
+├── skills-lock.json         # Open-source skills registry
+└── .nvmrc                   # Node version specification
 ```
 
 ## Integration with Other TORQ Repos
@@ -217,7 +220,7 @@ Every TORQ repository should:
    git commit -m "Add Claude configuration collection via symlink"
    ```
 
-All skills, hooks, and configurations are now available in that repository.
+All skills, plugins, and configurations are now available in that repository.
 
 ## Key Skills Overview
 
@@ -260,8 +263,8 @@ Full workflow for creating skills: drafting, testing, evaluation, iteration, and
 
 **For issues or questions**:
 - Check existing skills in `./.claude/skills/*/SKILL.md`
-- Review project conventions in `./.claude/rules/`
-- Refer to OpenSpec workflow at `./.claude/rules/openspec-workflow.md`
+- Review skill documentation in each skill's folder
+- For agent-skills, see [https://github.com/addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main)
 
 **To add a new skill**:
 1. Create a directory in `./.claude/skills/<skill-name>/`
