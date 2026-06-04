@@ -6,6 +6,8 @@ A shared collection of Claude configurations, skills, hooks, and conventions for
 
 This is a **project-level Claude collection** that serves as a centralized source of truth for Claude development practices. Every TORQ repository can reference this collection via a symlink, ensuring consistent configurations, skills, and conventions across all projects.
 
+**Primary Development Methodology**: This collection uses **Addy Osmani's agent-skills workflow** as the foundation for structured, collaborative development. This proven framework breaks work into clear phases with specialized agents, testing strategies, and quality gates—enabling faster iteration while maintaining code quality and reliability.
+
 **Key purpose**: Enable standardized AI-driven development workflows, code generation, and automation while maintaining quality standards through shared hooks, rules, and custom skills.
 
 ## What's Included
@@ -110,6 +112,90 @@ Claude Code will automatically discover and load:
 - ✅ All open-source skills from `skills-lock.json`
 - ✅ All enabled plugins (agent-skills@addy-agent-skills)
 - ✅ Settings from `.claude/settings.json`
+
+No additional setup needed — start using Claude Code as normal!
+
+## 🎯 Addy Osmani Workflow: Primary Development Methodology
+
+This collection implements **Addy Osmani's agent-skills framework** as the core development workflow. This structured approach breaks complex work into clear phases with specialized agents, ensuring quality, testing, and iterative improvement at each stage.
+
+### Core Workflow Phases
+
+| Phase | Agent Skill | Purpose | Command |
+|-------|-------------|---------|---------|
+| **Idea Refinement** | `/idea-refine` | Refine raw concepts into sharp, actionable requirements | `/idea-refine` |
+| **Requirements** | `/interview-me` | Extract actual user needs vs. assumed requirements | `/interview-me` |
+| **Specification** | `/spec` or `/spec-driven-development` | Write detailed specs before coding begins | `/spec` |
+| **Planning** | `/plan` or `/planning-and-task-breakdown` | Break work into ordered tasks with dependencies | `/plan` |
+| **Implementation** | `/build` or `/incremental-implementation` | Implement tasks incrementally with validation | `/build` |
+| **Testing** | `/test` or `/test-driven-development` | TDD workflow with failing tests first | `/test` |
+| **Code Review** | `/review` or `/code-review-and-quality` | Five-axis review (correctness, readability, architecture, security, performance) | `/review` |
+| **Launch** | `/ship` or `/shipping-and-launch` | Pre-launch checklist and production readiness | `/ship` |
+
+### Essential Commands & Shortcuts
+
+**Start with requirements:**
+```bash
+/spec          # Spec-driven development - write before coding
+/interview-me  # Extract real requirements
+/idea-refine   # Refine vague ideas into actionable specs
+```
+
+**Implement & build:**
+```bash
+/plan          # Break spec into ordered tasks
+/build         # Implement incrementally
+/test          # Run TDD workflow (failing tests first)
+```
+
+**Quality gates:**
+```bash
+/review        # Five-axis code review
+/ship          # Pre-launch checklist
+```
+
+**Supporting tools:**
+```bash
+/source-driven-development    # Ground decisions in documentation
+/doubt-driven-development     # Adversarial review of decisions
+/debugging-and-error-recovery # Systematic debugging
+/performance-optimization     # Profile and optimize
+/security-and-hardening       # Vulnerability hardening
+```
+
+### Typical Development Flow
+
+```
+1. Start with unclear requirements
+   → /interview-me or /idea-refine
+   
+2. Write specification
+   → /spec
+   
+3. Plan the work
+   → /plan (breaks into tasks)
+   
+4. Build incrementally
+   → /build (implement → test → verify → commit)
+   
+5. Code review
+   → /review (five-axis review)
+   
+6. Launch
+   → /ship (pre-launch checklist)
+```
+
+### When to Use Each Agent
+
+- **Uncertain requirements?** Start with `/interview-me` or `/idea-refine`
+- **Starting new feature?** Use `/spec` to write requirements first
+- **Have specs/requirements?** Use `/plan` to break into tasks
+- **Implementing a task?** Use `/build` for incremental cycles
+- **Bug or test failure?** Use `/test` for TDD or `/debugging-and-error-recovery`
+- **Before merge?** Use `/review` for quality gate
+- **Going to production?** Use `/ship` for final checklist
+
+**Reference**: [Addy Osmani's agent-skills repository](https://github.com/addyosmani/agent-skills)
 
 No additional setup needed — start using Claude Code as normal!
 
