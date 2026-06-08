@@ -70,9 +70,9 @@ This links your branch history to your issue tracker and makes it easy to trace 
 
 ---
 
-## Complete Development Workflow
+## Local Development Workflow
 
-This is the end-to-end workflow from starting work on a feature to pushing commits for release.
+This covers the essential local work: creating a branch and writing commits with proper conventional format.
 
 ### 1. Create a Feature Branch
 
@@ -93,11 +93,11 @@ git checkout -b fix/42-resolve-race-condition origin/main
 git checkout -b chore/123-upgrade-dependencies origin/main
 ```
 
-**Why base on `main`?** Ensures your branch includes all latest changes and release commits from the main branch, preventing conflicts and merge issues later.
+**Why base on `main`?** Ensures your branch includes all latest changes and release commits, preventing conflicts when your work is integrated.
 
-### 2. Make Changes and Commit
+### 2. Commit with Conventional Format
 
-Write code, tests, and documentation with proper conventional commit messages:
+Write commits following the conventional commits standard with task ID references:
 
 ```bash
 # Stage your changes
@@ -120,111 +120,60 @@ Closes #55"
 - ✓ Body explains *why*, not just *what*
 - ✓ Footer references the issue: `Closes #X` or `Fixes #X`
 
-### 3. Push to Remote
+### Multiple Commits on a Branch
 
-When ready to create a pull request or share your work:
-
-```bash
-# Push your branch to remote
-git push origin <type>/<task-id>-<description>
-```
-
-**Or use the shorthand if git tracks the branch:**
-```bash
-git push -u origin HEAD
-```
-
-The `-u` flag sets the upstream branch, so future `git push` commands work without specifying the remote.
-
-**What happens on push:**
-- GitHub sees your branch with the task ID in the name
-- Commits with `Closes #X` are linked to the issue
-- CI/CD workflows may trigger (e.g., tests, linting)
-- Your branch is ready for a pull request
-
-### 4. Create a Pull Request
+Make multiple commits as you work. semantic-release analyzes all commits since the last release:
 
 ```bash
-# Option A: Via GitHub CLI
-gh pr create --title "feat(api): add rate limiting support" \
-  --body "Implements exponential backoff for API rate limits.
+git commit -m "feat(api, #55): add rate limiting support
+
+Implements exponential backoff logic.
 
 Closes #55"
 
-# Option B: Via GitHub web interface
-# Open https://github.com/org/repo/pull/new/<branch-name>
+git commit -m "test(api, #55): add rate limiting tests
+
+Tests for backoff behavior under load."
+
+git commit -m "docs(api, #55): document rate limiting
+
+Adds configuration guide and examples."
 ```
 
-**PR best practices:**
-- Use the same conventional format as commit messages
-- Reference the task in the description
-- Link related issues with `Closes #55`, `Fixes #42`
-- Request reviews from team members
+When merged, semantic-release will:
+- See all three commits
+- Recognize `feat` triggers a MINOR version bump
+- Include all commits in the changelog
+- Close issue #55 (from the first commit's footer)
 
-### 5. Code Review and Merge
-
-```bash
-# After approval, merge to main
-# (via GitHub UI or command line)
-```
-
-**Automatic on merge:**
-- semantic-release analyzes commits since last release
-- Determines version bump based on commit types
-- Updates CHANGELOG.md with auto-generated notes
-- Publishes to npm (if applicable)
-- Creates GitHub release with release notes
-- Closes linked issues automatically
-
-### Complete Example Workflow
+### Example Local Workflow
 
 ```bash
 # 1. Start from main
 git fetch origin
 git checkout -b feat/55-rate-limiting origin/main
 
-# 2. Make changes
+# 2. Make changes and commit
 echo "rate limit logic" > src/rate-limiter.ts
 git add src/rate-limiter.ts
-
-# 3. Commit with conventional format
 git commit -m "feat(api, #55): add rate limiting support
 
-Implements exponential backoff for API rate limits.
+Implements exponential backoff.
 
 Closes #55"
 
-# 4. Push to remote
-git push -u origin feat/55-rate-limiting
+# 3. Add tests
+echo "tests" > src/rate-limiter.test.ts
+git add src/rate-limiter.test.ts
+git commit -m "test(api, #55): add rate limiting tests"
 
-# 5. Create PR (via GitHub UI or CLI)
-gh pr create --title "feat(api, #55): add rate limiting support" \
-  --body "Implements exponential backoff.
+# 4. Document
+echo "docs" > docs/rate-limiting.md
+git add docs/rate-limiting.md
+git commit -m "docs(api): add rate limiting guide"
 
-Closes #55"
-
-# 6. After approval, merge to main via GitHub UI
-# semantic-release automatically:
-# - Detects the feature commit
-# - Bumps MINOR version
-# - Generates changelog
-# - Publishes to npm
-# - Creates GitHub release
-# - Closes issue #55
-```
-
-### Branch Management
-
-**Keep branches clean:**
-- Delete local branch after merge: `git branch -d feat/55-rate-limiting`
-- Delete remote branch: `git push origin --delete feat/55-rate-limiting`
-- Or use GitHub UI to auto-delete on PR merge
-
-**Check your branches:**
-```bash
-git branch -a                    # List all branches
-git log --oneline -10            # View recent commits
-git log --graph --all --oneline  # Visual branch history
+# Your branch is now ready with proper commits
+git log --oneline -3
 ```
 
 ### Real-world examples
