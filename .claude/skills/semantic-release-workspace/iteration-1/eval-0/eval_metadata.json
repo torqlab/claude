@@ -1,6 +1,0 @@
-{
-  "eval_id": 0,
-  "eval_name": "commit-message-types-understanding",
-  "prompt": "I just joined a team and they use semantic-release for versioning. I need to understand how to write commit messages. What's the difference between feat, fix, and chore? When should I use each one? Can you give me examples?",
-  "assertions": []
-}

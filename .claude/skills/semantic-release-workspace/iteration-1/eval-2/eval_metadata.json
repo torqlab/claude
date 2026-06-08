@@ -1,6 +1,0 @@
-{
-  "eval_id": 2,
-  "eval_name": "migration-from-manual-releases",
-  "prompt": "Our release workflow used to be manual — we'd bump the version in package.json, write changelog entries by hand, then run npm publish. We want to switch to semantic-release. What's the migration process? What could go wrong?",
-  "assertions": []
-}
