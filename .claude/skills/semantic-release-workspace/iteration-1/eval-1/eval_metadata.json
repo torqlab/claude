@@ -1,0 +1,6 @@
+{
+  "eval_id": 1,
+  "eval_name": "oidc-publishing-explanation",
+  "prompt": "We're setting up semantic-release for the first time in our npm package. I have the basic configuration but I'm not sure if we need NPM_TOKEN or if there's a better way. What's OIDC Trusted Publishing and why should we use it instead?",
+  "assertions": []
+}

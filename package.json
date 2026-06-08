@@ -23,5 +23,8 @@
   "homepage": "https://github.com/torqlab/claude",
   "bugs": {
     "url": "https://github.com/torqlab/claude/issues"
+  },
+  "scripts": {
+    "skills:update": "npx skills update"
   }
 }

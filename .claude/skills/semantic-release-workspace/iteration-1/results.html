@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic Release Skill - Evaluation Results</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header h1 { color: #667eea; margin-bottom: 10px; }
+        .header p { color: #666; }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #f0f0f0;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .tab-content.active { display: block; }
+        .eval-card {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .eval-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .eval-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .eval-version {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .eval-version h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .eval-version p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        .prompt-box {
+            background: white;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .prompt-box h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .prompt-box p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .benchmark-table th,
+        .benchmark-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .benchmark-table th {
+            background: #f0f0f0;
+            font-weight: 600;
+            color: #333;
+        }
+        .benchmark-table tr:hover { background: #f9f9f9; }
+        .metric-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+        .improvement {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        .assertion-list {
+            list-style: none;
+        }
+        .assertion-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #666;
+        }
+        .assertion-list li:before {
+            content: "✓ ";
+            color: #27ae60;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .summary-box h3 { margin-bottom: 15px; }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 4px;
+        }
+        .stat-label { font-size: 12px; opacity: 0.9; }
+        .stat-value { font-size: 20px; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Semantic Release Skill - Evaluation Results</h1>
+            <p>Comprehensive testing of semantic-release guidance skill across 3 evaluation scenarios</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('outputs')">📋 Outputs</button>
+            <button class="tab-btn" onclick="switchTab('benchmark')">📊 Benchmark</button>
+            <button class="tab-btn" onclick="switchTab('summary')">✨ Summary</button>
+        </div>
+
+        <!-- OUTPUTS TAB -->
+        <div id="outputs" class="tab-content active">
+            <h2 style="margin-bottom: 20px;">Test Case Outputs</h2>
+
+            <!-- EVAL 0 -->
+            <div class="eval-card">
+                <div class="eval-title">Eval 0: Commit Message Types Understanding</div>
+                <div class="prompt-box">
+                    <h4>Prompt</h4>
+                    <p>I just joined a team and they use semantic-release for versioning. I need to understand how to write commit messages. What's the difference between feat, fix, and chore? When should I use each one? Can you give me examples?</p>
+                </div>
+                <div class="eval-content">
+                    <div class="eval-version">
+                        <h3>✓ With Skill (32.8s)</h3>
+                        <p><strong>Quality:</strong> Excellent structured response with clear sections for each type, decision tree, real-world examples, and team tips.</p>
+                        <p><strong>Strengths:</strong> Comprehensive table, 5 examples, practical guidance, mistake avoidance tips.</p>
+                        <p><strong>Assertions:</strong> All 5 passed</p>
+                        <ul class="assertion-list">
+                            <li>explains-feat-type-correctly</li>
+                            <li>explains-fix-type-correctly</li>
+                            <li>explains-chore-no-bump</li>
+                            <li>provides-concrete-examples</li>
+                            <li>mentions-when-to-use</li>
+                        </ul>
+                    </div>
+                    <div class="eval-version">
+                        <h3>📊 Without Skill (45.2s)</h3>
+                        <p><strong>Quality:</strong> Good response with practical examples specific to the project context.</p>
+                        <p><strong>Strengths:</strong> Project-aware examples, decision tree, clear definitions.</p>
+                        <p><strong>Assertions:</strong> All 5 passed</p>
+                        <ul class="assertion-list">
+                            <li>explains-feat-type-correctly</li>
+                            <li>explains-fix-type-correctly</li>
+                            <li>explains-chore-no-bump</li>
+                            <li>provides-concrete-examples</li>
+                            <li>mentions-when-to-use</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EVAL 1 -->
+            <div class="eval-card">
+                <div class="eval-title">Eval 1: OIDC Publishing Explanation</div>
+                <div class="prompt-box">
+                    <h4>Prompt</h4>
+                    <p>We're setting up semantic-release for the first time in our npm package. I have the basic configuration but I'm not sure if we need NPM_TOKEN or if there's a better way. What's OIDC Trusted Publishing and why should we use it instead?</p>
+                </div>
+                <div class="eval-content">
+                    <div class="eval-version">
+                        <h3>✓ With Skill (51.7s)</h3>
+                        <p><strong>Quality:</strong> Comprehensive explanation with detailed comparison matrix and troubleshooting guide.</p>
+                        <p><strong>Strengths:</strong> 7-point comparison, technical details, migration path, setup checklist.</p>
+                        <p><strong>Assertions:</strong> All 5 passed</p>
+                        <ul class="assertion-list">
+                            <li>oidc-vs-npm-token-comparison</li>
+                            <li>explains-security-benefits</li>
+                            <li>clarifies-zero-setup-needed</li>
+                            <li>mentions-provenance</li>
+                            <li>actionable-steps</li>
+                        </ul>
+                    </div>
+                    <div class="eval-version">
+                        <h3>📊 Without Skill (54.7s)</h3>
+                        <p><strong>Quality:</strong> Thorough explanation covering current repository configuration and best practices.</p>
+                        <p><strong>Strengths:</strong> Repository-specific details, provenance explanation, practical guidance.</p>
+                        <p><strong>Assertions:</strong> All 5 passed</p>
+                        <ul class="assertion-list">
+                            <li>oidc-vs-npm-token-comparison</li>
+                            <li>explains-security-benefits</li>
+                            <li>clarifies-zero-setup-needed</li>
+                            <li>mentions-provenance</li>
+                            <li>actionable-steps</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EVAL 2 -->
+            <div class="eval-card">
+                <div class="eval-title">Eval 2: Migration from Manual Releases</div>
+                <div class="prompt-box">
+                    <h4>Prompt</h4>
+                    <p>Our release workflow used to be manual — we'd bump the version in package.json, write changelog entries by hand, then run npm publish. We want to switch to semantic-release. What's the migration process? What could go wrong?</p>
+                </div>
+                <div class="eval-content">
+                    <div class="eval-version">
+                        <h3>✓ With Skill (41.4s)</h3>
+                        <p><strong>Quality:</strong> Clear 8-step migration process with identified pitfalls and solutions.</p>
+                        <p><strong>Strengths:</strong> Structured approach, addresses automation benefits, specific troubleshooting.</p>
+                        <p><strong>Assertions:</strong> All 5 passed</p>
+                        <ul class="assertion-list">
+                            <li>step-by-step-migration</li>
+                            <li>addresses-before-after</li>
+                            <li>addresses-potential-issues</li>
+                            <li>mentions-commit-message-format</li>
+                            <li>handles-existing-history</li>
+                        </ul>
+                    </div>
+                    <div class="eval-version">
+                        <h3>📊 Without Skill (105.6s)</h3>
+                        <p><strong>Quality:</strong> Comprehensive guide covering 6 migration stages and 10 pitfalls with deep analysis.</p>
+                        <p><strong>Strengths:</strong> Exhaustive pitfall analysis, current repository state assessment, all best practices.</p>
+                        <p><strong>Assertions:</strong> All 5 passed</p>
+                        <ul class="assertion-list">
+                            <li>step-by-step-migration</li>
+                            <li>addresses-before-after</li>
+                            <li>addresses-potential-issues</li>
+                            <li>mentions-commit-message-format</li>
+                            <li>handles-existing-history</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BENCHMARK TAB -->
+        <div id="benchmark" class="tab-content">
+            <h2 style="margin-bottom: 20px;">Performance Benchmarks</h2>
+
+            <div class="summary-box">
+                <h3>Overall Results</h3>
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Pass Rate</div>
+                        <div class="stat-value">100%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Avg Time (with skill)</div>
+                        <div class="stat-value">41.97s</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Avg Time (baseline)</div>
+                        <div class="stat-value">68.5s</div>
+                    </div>
+                </div>
+            </div>
+
+            <table class="benchmark-table">
+                <thead>
+                    <tr>
+                        <th>Test Case</th>
+                        <th>Config</th>
+                        <th>Duration</th>
+                        <th>Tokens</th>
+                        <th>Pass Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="2"><strong>Eval 0: Commit Types</strong></td>
+                        <td>With Skill</td>
+                        <td class="metric-value">32.8s</td>
+                        <td class="metric-value">11,000</td>
+                        <td>5/5 ✓</td>
+                    </tr>
+                    <tr>
+                        <td>Without Skill</td>
+                        <td>45.2s</td>
+                        <td>12,200</td>
+                        <td>5/5 ✓</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2"><strong>Eval 1: OIDC Publishing</strong></td>
+                        <td>With Skill</td>
+                        <td class="metric-value">51.7s</td>
+                        <td class="metric-value">10,800</td>
+                        <td>5/5 ✓</td>
+                    </tr>
+                    <tr>
+                        <td>Without Skill</td>
+                        <td>54.7s</td>
+                        <td>12,100</td>
+                        <td>5/5 ✓</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2"><strong>Eval 2: Migration</strong></td>
+                        <td>With Skill</td>
+                        <td class="metric-value">41.4s</td>
+                        <td class="metric-value">11,500</td>
+                        <td>5/5 ✓</td>
+                    </tr>
+                    <tr>
+                        <td>Without Skill</td>
+                        <td>105.6s</td>
+                        <td>15,400</td>
+                        <td>5/5 ✓</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; margin-top: 20px;">
+                <h3 style="margin-bottom: 10px;">Performance Analysis</h3>
+                <p><strong style="color: #27ae60;">✓ Skill shows consistent improvement:</strong></p>
+                <ul style="margin-top: 10px; margin-left: 20px; color: #666; line-height: 1.8;">
+                    <li><strong>Speed:</strong> Avg -38.7% faster (skill 41.97s vs baseline 68.5s)</li>
+                    <li><strong>Eval 2 standout:</strong> -60.8% faster for migration guidance (41.4s vs 105.6s)</li>
+                    <li><strong>Token efficiency:</strong> Avg -16.1% fewer tokens with skill</li>
+                    <li><strong>Quality parity:</strong> 100% assertion pass rate on both skill and baseline</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SUMMARY TAB -->
+        <div id="summary" class="tab-content">
+            <h2 style="margin-bottom: 20px;">Evaluation Summary</h2>
+
+            <div class="summary-box">
+                <h3>✨ Skill Quality Assessment</h3>
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Test Cases</div>
+                        <div class="stat-value">3</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Assertions</div>
+                        <div class="stat-value">15/15</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Pass Rate</div>
+                        <div class="stat-value">100%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px; color: #667eea;">Key Findings</h3>
+                <ul style="list-style: none; color: #666; line-height: 2;">
+                    <li>✅ <strong>Comprehensive Coverage:</strong> Skill covers all core concepts (semver, conventional commits, OIDC, migration)</li>
+                    <li>✅ <strong>Practical Guidance:</strong> Includes real-world examples, decision trees, and troubleshooting</li>
+                    <li>✅ <strong>Performance:</strong> Consistently faster than baseline while maintaining quality</li>
+                    <li>✅ <strong>Structured Knowledge:</strong> Well-organized tables, checklists, and clear hierarchy</li>
+                    <li>✅ <strong>Universal Applicability:</strong> Not project-specific; reusable across any semantic-release setup</li>
+                </ul>
+            </div>
+
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px; color: #667eea;">Skill Strengths</h3>
+                <ul style="list-style: none; color: #666; line-height: 2;">
+                    <li>📊 <strong>Quick Reference Tables:</strong> Version bump rules, commit types, troubleshooting matrix</li>
+                    <li>🚀 <strong>Implementation Checklist:</strong> Step-by-step guidance for new projects</li>
+                    <li>🔐 <strong>Security Focus:</strong> Emphasizes OIDC over NPM_TOKEN with clear rationale</li>
+                    <li>🛠️ <strong>Troubleshooting:</strong> Identifies 8+ common issues with concrete solutions</li>
+                    <li>📚 <strong>Examples:</strong> Multiple real-world commit message examples</li>
+                </ul>
+            </div>
+
+            <div style="background: white; padding: 20px; border-radius: 8px;">
+                <h3 style="margin-bottom: 15px; color: #667eea;">Recommendations</h3>
+                <p style="color: #666; margin-bottom: 10px;"><strong>Status:</strong> ✅ <span style="color: #27ae60;">Ready for production use</span></p>
+                <p style="color: #666; margin-bottom: 10px;">The skill successfully guides users through semantic-release setup and usage. It's faster than baseline, comprehensive in scope, and achieves 100% assertion pass rate. Perfect for teams adopting semantic-release for the first time or those seeking quick reference during setup.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

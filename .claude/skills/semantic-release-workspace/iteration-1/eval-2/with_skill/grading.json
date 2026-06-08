@@ -1,0 +1,29 @@
+{
+  "assertions": [
+    {
+      "text": "step-by-step-migration",
+      "passed": true,
+      "evidence": "Response provides 8 clear ordered steps: baseline version, install deps, .releaserc.json config, OIDC setup, workflow update, local test, verify release, document format"
+    },
+    {
+      "text": "addresses-before-after",
+      "passed": true,
+      "evidence": "Response contrasts manual process (error-prone, delayed, human errors) with automated (deterministic, seconds-to-minutes, audit trail)"
+    },
+    {
+      "text": "addresses-potential-issues",
+      "passed": true,
+      "evidence": "Response addresses 8 pitfalls: release not triggered, wrong version bumped, GitHub token issues, npm auth failures, inconsistent versioning, manual conflicts, branch protection, monorepo challenges"
+    },
+    {
+      "text": "mentions-commit-message-format",
+      "passed": true,
+      "evidence": "Response emphasizes Conventional Commits format and includes team documentation guidance"
+    },
+    {
+      "text": "handles-existing-history",
+      "passed": true,
+      "evidence": "Response explains that semantic-release analyzes commits since last tag and recommends backing up old changelog"
+    }
+  ]
+}

@@ -1,0 +1,217 @@
+SEMANTIC-RELEASE MIGRATION: PROCESS & POTENTIAL PITFALLS
+
+OVERVIEW
+========
+This strava-api repository has already completed migration from manual versioning to semantic-release.
+The implementation reveals the complete migration process, common challenges, and best practices.
+
+---
+
+MIGRATION PROCESS: STEP-BY-STEP
+==============================
+
+1. DEPENDENCY INSTALLATION
+   - Install semantic-release and required plugins as devDependencies:
+     * @semantic-release/commit-analyzer (analyzes commits for version bumps)
+     * @semantic-release/release-notes-generator (creates release notes)
+     * @semantic-release/changelog (auto-generates CHANGELOG.md)
+     * @semantic-release/npm (publishes to npm registry)
+     * @semantic-release/git (commits changelog and version changes)
+   - Package.json version remains in place initially; semantic-release takes over afterward
+   - Current: v1.3.1 was last manual release (frozen point)
+
+2. CONFIGURATION SETUP
+   - Create .releaserc.json with:
+     * branches: ["main"] - release only from main
+     * plugins in order: analyzer → notes-generator → changelog → npm → git
+     * changelog output file location
+     * git commit assets (package.json, CHANGELOG.md)
+     * commit message template with version and release notes
+   - Configuration is declarative and requires no code changes
+
+3. GIT HISTORY REQUIREMENTS
+   - Convert existing commits to Conventional Commits format before first run
+   - OR: Run semantic-release --dry-run to analyze without publishing
+   - OR: Use [skip release] tag in commits to prevent automatic releases
+   - Import existing changelog as CHANGELOG.backup.md (preserved for reference)
+   - Reset CHANGELOG.md for semantic-release to manage (tool overwrites manual entries)
+
+4. WORKFLOW AUTOMATION
+   - Create GitHub Actions workflow (publish.yml) that:
+     * Triggers on push to main branch
+     * Runs tests/lint/build verification first (depends on verify.yml)
+     * Checks out repo with fetch-depth: 0 (CRITICAL: needed for full git history)
+     * Sets up Node.js and npm registry
+     * Installs dependencies (using bun in this repo)
+     * Runs: npx semantic-release
+     * Provides GITHUB_TOKEN and (optionally) NPM_TOKEN via environment
+   - Workflow permissions needed:
+     * contents: write (to commit changelog and tags)
+     * id-token: write (for OIDC Trusted Publishing)
+     * issues: write (to link releases with issues)
+     * pull-requests: write (to link releases with PRs)
+
+5. AUTHENTICATION METHOD
+   - Modern approach: OIDC Trusted Publishing (no secrets stored)
+     * GitHub OIDC provider → npm registry (cryptographic token exchange)
+     * Automatic during CI (id-token: write permission)
+     * Enables package provenance signing
+   - Legacy approach: NPM_TOKEN secret (now removed from this repo)
+     * Less secure, token stored in GitHub secrets
+     * No provenance information
+
+6. TEAM TRAINING
+   - Enforce Conventional Commits format in all PRs:
+     * feat: new feature (→ minor version bump)
+     * fix: bug fix (→ patch version bump)
+     * chore: maintenance, deps, tooling (→ no bump)
+     * docs: documentation (→ no bump)
+     * refactor: code refactoring (→ no bump)
+     * test: test additions (→ no bump)
+     * perf: performance improvements (→ patch bump)
+   - Use "feat!" or "fix!" or BREAKING CHANGE footer for major version bumps
+   - Use [skip release] tag to prevent auto-release for specific commits
+
+---
+
+WHAT CAN GO WRONG: COMMON PITFALLS
+==================================
+
+1. GIT HISTORY ISSUES
+   Problem: Shallow clone (fetch-depth: 0 missing)
+   Impact: semantic-release can't analyze full commit history → releases fail or incorrect
+   Solution: Always use fetch-depth: 0 in actions/checkout
+
+   Problem: Detached HEAD state or unusual branch setup
+   Impact: semantic-release fails to identify the current branch
+   Solution: Ensure normal git state, standard branch structure
+
+2. COMMIT MESSAGE FORMAT
+   Problem: Team continues manual commit messages (not Conventional Commits)
+   Impact: Commits don't trigger version bumps → stuck at current version or manual override needed
+   Solution: Enforce format via husky pre-commit hooks and branch protection rules
+
+   Problem: Mixing old manual commits with new semantic commits
+   Impact: Release notes contain both styles, inconsistent changelog
+   Solution: Document transition point, review git history cutoff
+
+3. AUTHENTICATION FAILURES
+   Problem: NPM_TOKEN expired, missing, or invalid
+   Impact: publish fails despite correct analysis
+   Solution: Use OIDC Trusted Publishing instead (configure npm package config)
+
+   Problem: GITHUB_TOKEN insufficient permissions
+   Impact: Can't create release tags or commit changelog updates
+   Solution: Set permissions.contents: write in workflow
+
+4. CHANGELOG COLLISIONS
+   Problem: Manual CHANGELOG.md entries in main branch before automation
+   Impact: Conflicts when semantic-release tries to prepend new release notes
+   Solution: Backup manual changelog, reset file with header only, let automation take over
+
+   Problem: Multiple contributors edit CHANGELOG.md manually during transition
+   Impact: Merge conflicts, lost changelog entries
+   Solution: Stop manual CHANGELOG.md edits immediately, lock from editing
+
+5. VERSION JUMP CONFUSION
+   Problem: Last manual version was 1.3.1, first semantic release shows unexpected version
+   Impact: Looks like broken versioning, but may be correct based on commits since 1.3.1
+   Solution: Run --dry-run first to see what version would be released, document the expectation
+
+6. WORKFLOW RACE CONDITIONS
+   Problem: Multiple pushes to main create parallel semantic-release runs
+   Impact: Version conflicts, doubled releases, or lost releases
+   Solution: Use branch protection + require PR reviews before merge
+
+7. NPM REGISTRY PUBLISHING
+   Problem: package.json version already incremented somewhere
+   Impact: Conflicts with semantic-release's version increment
+   Solution: Ensure only semantic-release modifies package.json version
+
+   Problem: Publish scoped package (@torqlab/strava-api) but forgot access config
+   Impact: Publish fails due to permissions
+   Solution: Include publishConfig.access: "public" in package.json (already done in this repo)
+
+8. BUILD & TEST FAILURES
+   Problem: Build fails after merge to main → release blocked
+   Impact: Version analysis done but npm publish never reached
+   Solution: Run full verify workflow before publishing (this repo does this correctly)
+
+9. GIT COMMIT AUTHORSHIP
+   Problem: Release commits show bot account, not original team members
+   Impact: Git history and changelog appear automated/impersonal
+   Solution: Configure git user in workflow or accept bot authorship (common practice)
+
+10. ROLLBACK SCENARIOS
+    Problem: Released version has critical bug
+    Impact: Need to fix + re-release fast
+    Solution: Commit fix to main, semantic-release will auto-detect and publish new version
+             Previous version remains on npm (can use npm deprecate if needed)
+
+---
+
+CURRENT STATE IN THIS REPOSITORY
+=================================
+
+Configuration Files:
+  - .releaserc.json: Correctly configured with all plugins
+  - .github/workflows/publish.yml: Triggers semantic-release on main push
+  - .github/workflows/verify.yml: Runs tests/lint/format/build before publishing
+
+Dependencies:
+  - semantic-release@^23.0.0
+  - @semantic-release/changelog@^6.0.0
+  - @semantic-release/git@^10.0.0
+
+Documentation:
+  - SEMANTIC_RELEASE_GUIDE.md: User guide for commit format and process
+  - CHANGELOG.md: Ready for auto-generation
+  - Published to npm with provenance signing enabled
+
+Authentication:
+  - OIDC Trusted Publishing configured (no NPM_TOKEN secret needed)
+  - GitHub Actions workflow has correct permissions
+
+Last Manual Release:
+  - Version 1.3.1 (June 4, 2026)
+  - First semantic release will auto-detect version based on commits since then
+
+Migration Completed:
+  - All manual versioning steps removed
+  - All package publishing steps automated
+  - Conventional Commits enforced going forward
+
+---
+
+KEY TAKEAWAYS
+=============
+
+1. Migration is straightforward but requires careful sequencing:
+   Config → Dependencies → Workflow → First Run (--dry-run first!)
+
+2. Most failures come from commit message discipline, not the tool itself:
+   Enforce Conventional Commits early and strictly
+
+3. Test the migration with --dry-run before enabling auto-publish:
+   Verify the version bump calculation and release notes look correct
+
+4. Use OIDC Trusted Publishing for security:
+   Eliminates need for stored secrets and enables provenance
+
+5. Lock manual CHANGELOG editing immediately:
+   semantic-release assumes it owns that file going forward
+
+6. Document the last manual version and migration date:
+   Helps debug release history discrepancies later
+
+7. Monitor the first few releases carefully:
+   Watch for unexpected version jumps, failed publishes, or changelog issues
+
+8. Set up branch protection rules:
+   Require PR reviews and passing checks to prevent accidental releases to main
+
+---
+
+This implementation in strava-api is a clean, modern example of semantic-release migration.
+It demonstrates all best practices including OIDC authentication, comprehensive testing,
+and proper documentation for the development team.

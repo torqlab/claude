@@ -1,0 +1,230 @@
+SEMANTIC-RELEASE SETUP: NPM_TOKEN vs OIDC TRUSTED PUBLISHING
+
+Your Question: We're setting up semantic-release for the first time in our npm package. I have the basic configuration but I'm not sure if we need NPM_TOKEN or if there's a better way. What's OIDC Trusted Publishing and why should we use it instead?
+
+---
+
+SHORT ANSWER:
+
+Use OIDC Trusted Publishing instead of NPM_TOKEN. It's more secure, requires no secrets in your repository, and it's the modern standard that npm now recommends. It works automatically with GitHub Actions if you configure it correctly — no extra setup needed beyond what semantic-release already does.
+
+---
+
+WHAT IS OIDC TRUSTED PUBLISHING?
+
+OIDC (OpenID Connect) Trusted Publishing is a cryptographic authentication method that allows your GitHub Actions workflow to exchange an OIDC token from GitHub for a short-lived npm authentication token. Instead of storing a long-lived NPM_TOKEN secret in your repository, GitHub generates a temporary token that's only valid for that specific publish action, scoped to your exact package.
+
+Think of it like this:
+- NPM_TOKEN approach: You store a house key (permanent, works forever, shared across repos)
+- OIDC approach: GitHub issues you a temporary visitor pass (expires in minutes, works only once, tied to your address)
+
+---
+
+WHY OIDC IS BETTER THAN NPM_TOKEN:
+
+1. NO SECRETS IN GITHUB
+   - NPM_TOKEN: You must store a permanent secret in GitHub Secrets
+   - OIDC: No secrets needed — GitHub and npm handle token exchange automatically
+
+2. AUTOMATIC TOKEN SCOPE
+   - NPM_TOKEN: Single token works for all your repositories (broad scope)
+   - OIDC: Each token is automatically scoped to only this repository and package
+
+3. SHORT-LIVED TOKENS
+   - NPM_TOKEN: Valid indefinitely until manually rotated (or compromised)
+   - OIDC: Expires in minutes — useless after publish completes
+
+4. CRYPTOGRAPHIC PROOF OF ORIGIN
+   - NPM_TOKEN: npm sees a token, can't verify where it came from
+   - OIDC: npm verifies cryptographically that the publish came from YOUR repository
+
+5. AUTOMATIC ROTATION
+   - NPM_TOKEN: Manual rotation needed; easy to forget
+   - OIDC: No rotation needed — new token each time
+
+6. AUDIT TRAIL
+   - NPM_TOKEN: Limited visibility into who published what
+   - OIDC: Full audit via GitHub's OIDC provider logs
+
+7. COMPLIANCE & SECURITY STANDARDS
+   - OIDC is industry best practice and required by many compliance frameworks
+   - npm now recommends OIDC for all CI/CD publishing
+
+---
+
+HOW TO SET UP OIDC TRUSTED PUBLISHING:
+
+Step 1: Update your package.json
+
+Add the `publishConfig` section to enable provenance:
+
+```json
+{
+  "name": "@your-org/your-package",
+  "version": "1.0.0",
+  "publishConfig": {
+    "provenance": true,
+    "registry": "https://registry.npmjs.org/"
+  }
+}
+```
+
+The `provenance: true` setting signs each published package with cryptographic proof that it came from your repository. This is visible on npm and lets users verify authenticity.
+
+Step 2: Configure your GitHub Actions workflow
+
+Ensure your `.github/workflows/release.yml` (or equivalent) has these permissions:
+
+```yaml
+permissions:
+  id-token: write      # Required for OIDC token generation
+  contents: write      # Required for git commits back to repo
+```
+
+The `id-token: write` permission is critical — it allows GitHub Actions to generate the OIDC token that npm will exchange for a publish token.
+
+Step 3: Configure semantic-release (probably already done)
+
+Use the standard semantic-release configuration:
+
+```json
+{
+  "branches": ["main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    "@semantic-release/npm",
+    "@semantic-release/github"
+  ]
+}
+```
+
+The npm plugin automatically handles OIDC token exchange during publishing.
+
+Step 4: Configure npm registry (one-time, per organization)
+
+On npm's website, configure OIDC for your organization:
+1. Go to npm organization settings
+2. Find "Publishing" or "Authentication" section
+3. Enable "Trusted Publishing" for your organization
+4. Add GitHub as a trusted publisher, mapping your repo to your npm package
+
+After this one-time setup, npm automatically exchanges OIDC tokens from your repository's GitHub Actions.
+
+Step 5: Remove NPM_TOKEN from your repository
+
+If you have an NPM_TOKEN stored in GitHub Secrets:
+1. Go to your GitHub repository Settings → Secrets and variables → Actions
+2. Delete the NPM_TOKEN secret
+3. Do NOT add it back
+
+Step 6: Test it
+
+Push a PR with a conventional commit to your main branch. semantic-release should automatically publish to npm without any NPM_TOKEN present.
+
+---
+
+WHAT HAPPENS DURING PUBLISH (TECHNICAL DETAILS):
+
+1. GitHub Actions workflow runs on merge to main
+2. semantic-release analyzes commits and determines version bump
+3. semantic-release calls `npm publish`
+4. npm notices no auth token in environment — checks for OIDC capability
+5. npm requests an OIDC token from GitHub (via GitHub Actions environment)
+6. GitHub cryptographically signs an OIDC token containing:
+   - This is repo: your-org/your-package
+   - This is commit SHA: abc123...
+   - This is GitHub Actions: verified
+   - Token expires in: 5 minutes
+7. semantic-release provides this token to npm
+8. npm exchanges token with GitHub's OIDC provider to verify authenticity
+9. npm generates a temporary publish token scoped to your package
+10. semantic-release publishes to npm using this temporary token
+11. Token expires — publish completes successfully
+12. Both tokens are now useless
+
+---
+
+TROUBLESHOOTING COMMON ISSUES:
+
+Issue: "npm ERR! 403 Forbidden — you don't have permission"
+Fix: Ensure GitHub OIDC is configured on npm's side for your organization (Step 4 above). This is the most common failure point.
+
+Issue: "OIDC token exchange failed"
+Fix: Check that permissions in your workflow YAML include `id-token: write`. Without this, GitHub can't generate tokens.
+
+Issue: "Tried OIDC, got error, falling back to NPM_TOKEN"
+Fix: npm will attempt OIDC first, then fall back to NPM_TOKEN if present. Delete the NPM_TOKEN secret and try again. The fallback is hiding the real problem.
+
+Issue: "Works locally with npm publish, but fails in CI"
+Fix: OIDC only works in GitHub Actions (or other CI systems configured with OIDC). Local development still needs a PAT (Personal Access Token) with publish permissions, which is fine for testing.
+
+---
+
+COMPARISON MATRIX:
+
+                    NPM_TOKEN          OIDC Trusted Publishing
+Secret in GitHub    Yes (risky)        No (automatic)
+Permanent token     Yes (365+ days)    No (5 minutes)
+Scope               All repos          This repo only
+Manual rotation     Yes (forget-able)  No (automatic)
+Proof of origin     No                 Yes (cryptographic)
+Compliance-ready    Limited            Yes
+Industry standard   Older              Modern best practice
+Setup complexity    Simple             Slightly more (one-time)
+Cost                Free               Free
+
+---
+
+MIGRATION PATH (IF YOU CURRENTLY USE NPM_TOKEN):
+
+If your repository currently uses NPM_TOKEN:
+
+1. Ensure npm has OIDC configured for your organization (npm dashboard)
+2. Update package.json with `publishConfig.provenance: true`
+3. Update workflow permissions to include `id-token: write`
+4. Test with `npm publish --dry-run` in a test workflow
+5. Once verified, delete NPM_TOKEN from GitHub Secrets
+6. Push a test commit to main — semantic-release should publish via OIDC
+7. Verify the package on npm shows "Provenance" badge
+
+---
+
+WHAT ABOUT MONOREPOS AND MULTIPLE PACKAGES?
+
+If you publish multiple npm packages from one repository, OIDC still works:
+- Each package needs its own entry in npm's OIDC configuration
+- semantic-release publishes each package in sequence
+- Each publish gets its own temporary OIDC token exchange
+- All packages show provenance badges after publishing
+
+---
+
+FINAL RECOMMENDATION:
+
+For your first semantic-release setup:
+
+1. DO NOT use NPM_TOKEN
+2. DO use OIDC Trusted Publishing (it's now the default npm recommendation)
+3. The setup is actually simpler than NPM_TOKEN — no secrets to manage
+4. You get better security, compliance, and an audit trail as a bonus
+5. If anything goes wrong, you can temporarily fall back to NPM_TOKEN while debugging
+
+The 10 minutes to configure OIDC on npm's side saves you from secret rotation headaches and compliance audits later.
+
+---
+
+QUICK SETUP CHECKLIST:
+
+- [ ] Add `publishConfig.provenance: true` to package.json
+- [ ] Set `permissions.id-token: write` in workflow YAML
+- [ ] Ensure semantic-release is configured with @semantic-release/npm plugin
+- [ ] Configure OIDC on npm's organization settings (one-time)
+- [ ] Test with `npm publish --dry-run` in a test workflow
+- [ ] Delete NPM_TOKEN from GitHub Secrets
+- [ ] Push test commit to main
+- [ ] Verify package publishes and shows "Provenance" badge
+- [ ] Document for team that NPM_TOKEN is not needed for this repo
+
+You're all set. Happy releasing!
