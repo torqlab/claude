@@ -68,6 +68,165 @@ Use this pattern to associate branches with tickets:
 
 This links your branch history to your issue tracker and makes it easy to trace commits back to requirements. When your PR merges, the commit messages automatically reference the ticket ID.
 
+---
+
+## Complete Development Workflow
+
+This is the end-to-end workflow from starting work on a feature to pushing commits for release.
+
+### 1. Create a Feature Branch
+
+**Always base new branches on `main`:**
+
+```bash
+# Fetch latest from remote
+git fetch origin
+
+# Create and checkout a new branch from main
+git checkout -b <type>/<task-id>-<description> origin/main
+```
+
+**Examples:**
+```bash
+git checkout -b feat/55-add-rate-limiting origin/main
+git checkout -b fix/42-resolve-race-condition origin/main
+git checkout -b chore/123-upgrade-dependencies origin/main
+```
+
+**Why base on `main`?** Ensures your branch includes all latest changes and release commits from the main branch, preventing conflicts and merge issues later.
+
+### 2. Make Changes and Commit
+
+Write code, tests, and documentation with proper conventional commit messages:
+
+```bash
+# Stage your changes
+git add <files>
+
+# Commit with conventional format
+git commit -m "feat(api, #55): add rate limiting support
+
+Implements exponential backoff for API rate limits, protecting
+endpoints from abuse. Adds configuration options for max requests
+per window and cooldown duration.
+
+Closes #55"
+```
+
+**Commit message checklist:**
+- ✓ Type is valid (`feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`)
+- ✓ Includes task ID in scope or footer: `feat(api, #55)` or `Closes #55`
+- ✓ Subject is under 50 characters and imperative mood
+- ✓ Body explains *why*, not just *what*
+- ✓ Footer references the issue: `Closes #X` or `Fixes #X`
+
+### 3. Push to Remote
+
+When ready to create a pull request or share your work:
+
+```bash
+# Push your branch to remote
+git push origin <type>/<task-id>-<description>
+```
+
+**Or use the shorthand if git tracks the branch:**
+```bash
+git push -u origin HEAD
+```
+
+The `-u` flag sets the upstream branch, so future `git push` commands work without specifying the remote.
+
+**What happens on push:**
+- GitHub sees your branch with the task ID in the name
+- Commits with `Closes #X` are linked to the issue
+- CI/CD workflows may trigger (e.g., tests, linting)
+- Your branch is ready for a pull request
+
+### 4. Create a Pull Request
+
+```bash
+# Option A: Via GitHub CLI
+gh pr create --title "feat(api): add rate limiting support" \
+  --body "Implements exponential backoff for API rate limits.
+
+Closes #55"
+
+# Option B: Via GitHub web interface
+# Open https://github.com/org/repo/pull/new/<branch-name>
+```
+
+**PR best practices:**
+- Use the same conventional format as commit messages
+- Reference the task in the description
+- Link related issues with `Closes #55`, `Fixes #42`
+- Request reviews from team members
+
+### 5. Code Review and Merge
+
+```bash
+# After approval, merge to main
+# (via GitHub UI or command line)
+```
+
+**Automatic on merge:**
+- semantic-release analyzes commits since last release
+- Determines version bump based on commit types
+- Updates CHANGELOG.md with auto-generated notes
+- Publishes to npm (if applicable)
+- Creates GitHub release with release notes
+- Closes linked issues automatically
+
+### Complete Example Workflow
+
+```bash
+# 1. Start from main
+git fetch origin
+git checkout -b feat/55-rate-limiting origin/main
+
+# 2. Make changes
+echo "rate limit logic" > src/rate-limiter.ts
+git add src/rate-limiter.ts
+
+# 3. Commit with conventional format
+git commit -m "feat(api, #55): add rate limiting support
+
+Implements exponential backoff for API rate limits.
+
+Closes #55"
+
+# 4. Push to remote
+git push -u origin feat/55-rate-limiting
+
+# 5. Create PR (via GitHub UI or CLI)
+gh pr create --title "feat(api, #55): add rate limiting support" \
+  --body "Implements exponential backoff.
+
+Closes #55"
+
+# 6. After approval, merge to main via GitHub UI
+# semantic-release automatically:
+# - Detects the feature commit
+# - Bumps MINOR version
+# - Generates changelog
+# - Publishes to npm
+# - Creates GitHub release
+# - Closes issue #55
+```
+
+### Branch Management
+
+**Keep branches clean:**
+- Delete local branch after merge: `git branch -d feat/55-rate-limiting`
+- Delete remote branch: `git push origin --delete feat/55-rate-limiting`
+- Or use GitHub UI to auto-delete on PR merge
+
+**Check your branches:**
+```bash
+git branch -a                    # List all branches
+git log --oneline -10            # View recent commits
+git log --graph --all --oneline  # Visual branch history
+```
+
 ### Real-world examples
 
 **Feature with issue reference (closes ticket):**
