@@ -18,41 +18,43 @@ This collection includes both **NPM-based open-source skills** and **custom proj
 
 | Skill | Type | Purpose | Source |
 |-------|------|---------|--------|
-| **pr-open** | Custom | Create pull requests on GitHub directly from changelog entries with branch validation and smart defaults | [./.claude/skills/pr-open/SKILL.md](./.claude/skills/pr-open/SKILL.md) |
-| **create-changelog** | Custom | Generate accurate changelog entries following Keep a Changelog standard based on git diffs | [./.claude/skills/create-changelog/SKILL.md](./.claude/skills/create-changelog/SKILL.md) |
-| **github-mcp-setup** | Custom | Configure GitHub MCP (Model Context Protocol) for GitHub automation with GitHub App authentication | [./.claude/skills/github-mcp-setup/SKILL.md](./.claude/skills/github-mcp-setup/SKILL.md) |
-| **frontend-design** | Open-source | Build distinctive, production-grade UI components with cohesive aesthetic direction | [anthropics/skills](https://github.com/anthropics/skills) |
-| **skill-creator** | Open-source | Create, test, and iteratively improve new Claude skills with comprehensive evaluation workflows | [anthropics/skills](https://github.com/anthropics/skills) |
-| **ship** | Agent Skill | Run pre-launch checklist via parallel fan-out to specialist personas | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **code-simplify** | Agent Skill | Simplify code for clarity and maintainability without changing behavior | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **review** | Agent Skill | Conduct five-axis code review (correctness, readability, architecture, security, performance) | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **spec** | Agent Skill | Start spec-driven development with structured specifications before coding | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **plan** | Agent Skill | Break work into small verifiable tasks with acceptance criteria and dependencies | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **build** | Agent Skill | Implement tasks incrementally with build, test, verify, and commit cycles | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **test** | Agent Skill | Run TDD workflow with failing tests first for bugs and features | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **idea-refine** | Agent Skill | Refine raw ideas into sharp, actionable concepts through divergent and convergent thinking | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **using-agent-skills** | Agent Skill | Discover and invoke available agent skills from this collection | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **debugging-and-error-recovery** | Agent Skill | Guide systematic root-cause debugging and error recovery workflows | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **interview-me** | Agent Skill | Extract actual user wants vs. assumed requirements through structured interviews | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **frontend-ui-engineering** | Agent Skill | Build production-quality user interfaces with careful attention to design | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **context-engineering** | Agent Skill | Optimize agent context setup for better output quality and relevance | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **deprecation-and-migration** | Agent Skill | Manage deprecation workflows and guide safe migration strategies | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **ci-cd-and-automation** | Agent Skill | Automate CI/CD pipeline setup and orchestration | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **security-and-hardening** | Agent Skill | Harden code against vulnerabilities and OWASP top 10 threats | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **code-review-and-quality** | Agent Skill | Conduct multi-axis code review for quality and correctness | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **api-and-interface-design** | Agent Skill | Design stable APIs and module boundaries with careful consideration of interfaces | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **spec-driven-development** | Agent Skill | Create detailed specifications before implementing code changes | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **incremental-implementation** | Agent Skill | Deliver changes incrementally with small, verifiable steps | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **shipping-and-launch** | Agent Skill | Prepare applications for production launch with comprehensive checklists | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **planning-and-task-breakdown** | Agent Skill | Break work into ordered tasks with dependencies and acceptance criteria | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **documentation-and-adrs** | Agent Skill | Record architectural decisions and create documentation | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **performance-optimization** | Agent Skill | Optimize application performance through profiling and targeted improvements | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **source-driven-development** | Agent Skill | Ground implementation decisions in official documentation and specifications | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **test-driven-development** | Agent Skill | Drive development with tests as primary design tool | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **git-workflow-and-versioning** | Agent Skill | Structure git workflow practices and semantic versioning | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **doubt-driven-development** | Agent Skill | Subject non-trivial decisions to fresh-context adversarial review | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **code-simplification** | Agent Skill | Simplify code for clarity and maintainability without changing behavior | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **browser-testing-with-devtools** | Agent Skill | Test applications in real browsers via Chrome DevTools MCP | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **align-skills-documentation** | Custom | Automatically synchronizes README.md and AGENTS.md documentation by discovering all available skills from custom files,... | [./.claude/skills/align-skills-documentation/SKILL.md](./.claude/skills/align-skills-documentation/SKILL.md) |
+| **git-branch** | Custom | Create git branches with semantic-release naming conventions for the current repository. | [./.claude/skills/git-branch/SKILL.md](./.claude/skills/git-branch/SKILL.md) |
+| **github-mcp-setup** | Custom | Configure GitHub Model Context Protocol (MCP) server for Claude Code using GitHub App authentication. | [./.claude/skills/github-mcp-setup/SKILL.md](./.claude/skills/github-mcp-setup/SKILL.md) |
+| **pr** | Custom | Agent-driven GitHub PR creation workflow aligned with semantic-release conventions. | [./.claude/skills/pr/SKILL.md](./.claude/skills/pr/SKILL.md) |
+| **semantic-release** | Custom | Agent-driven workflow for creating git branches and conventional commits aligned with semantic-release. | [./.claude/skills/semantic-release/SKILL.md](./.claude/skills/semantic-release/SKILL.md) |
+| **frontend-design** | Open-source |  | [anthropics/skills](https://github.com/anthropics/skills) |
+| **skill-creator** | Open-source |  | [anthropics/skills](https://github.com/anthropics/skills) |
+| **api-and-interface-design** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **browser-testing-with-devtools** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **build** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **ci-cd-and-automation** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **code-review-and-quality** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **code-simplify** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **context-engineering** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **debugging-and-error-recovery** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **deprecation-and-migration** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **documentation-and-adrs** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **doubt-driven-development** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **frontend-ui-engineering** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **git-workflow-and-versioning** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **idea-refine** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **incremental-implementation** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **interview-me** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **performance-optimization** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **plan** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **planning-and-task-breakdown** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **review** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **security-and-hardening** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **ship** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **shipping-and-launch** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **source-driven-development** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **spec** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **spec-driven-development** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **test** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **test-driven-development** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+| **using-agent-skills** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
+
 
 ### 🔧 Configuration
 
@@ -61,6 +63,54 @@ Claude Code settings and plugins:
 - **`.claude/settings.json`** - Plugin configuration (agent-skills@addy-agent-skills enabled)
 - **`.claude/settings.local.json`** - Local development overrides
 - **`skills-lock.json`** - Pinned versions of open-source skills from anthropics/skills
+
+### Trigger Context & Usage Patterns
+
+#### Workflow Planning & Specification
+- **ci-cd-and-automation**: Use this skill to work with ci cd and automation
+- **code-simplify**: Use this skill to work with code simplify
+- **context-engineering**: Use this skill to work with context engineering
+- **deprecation-and-migration**: Use this skill to work with deprecation and migration
+- **documentation-and-adrs**: Use this skill to work with documentation and adrs
+- **doubt-driven-development**: Use this skill to work with doubt driven development
+- **git-workflow-and-versioning**: Use this skill to work with git workflow and versioning
+- **idea-refine**: Use this skill to work with idea refine
+- **interview-me**: Use this skill to work with interview me
+- **plan**: Use this skill to work with plan
+- **planning-and-task-breakdown**: Use this skill to work with planning and task breakdown
+- **ship**: Use this skill to work with ship
+- **shipping-and-launch**: Use this skill to work with shipping and launch
+- **skill-creator**: Use this skill to work with skill creator
+- **source-driven-development**: Use this skill to work with source driven development
+- **spec**: Use this skill to work with spec
+- **spec-driven-development**: Use this skill to work with spec driven development
+- **using-agent-skills**: Use this skill to work with using agent skills
+
+#### Implementation & Build
+- **build**: Use this skill to work with build
+- **git-branch**: Create git branches with semantic-release naming conventions for the current...
+- **incremental-implementation**: Use this skill to work with incremental implementation
+- **pr**: Agent-driven GitHub PR creation workflow aligned with semantic-release...
+- **semantic-release**: Agent-driven workflow for creating git branches and conventional commits...
+
+#### Testing & Debugging
+- **browser-testing-with-devtools**: Use this skill to work with browser testing with devtools
+- **debugging-and-error-recovery**: Use this skill to work with debugging and error recovery
+- **test**: Use this skill to work with test
+- **test-driven-development**: Use this skill to work with test driven development
+
+#### Code Review & Quality
+- **code-review-and-quality**: Use this skill to work with code review and quality
+- **github-mcp-setup**: Configure GitHub Model Context Protocol (MCP) server for Claude Code using...
+- **performance-optimization**: Use this skill to work with performance optimization
+- **review**: Use this skill to work with review
+- **security-and-hardening**: Use this skill to work with security and hardening
+
+#### Frontend & UI
+- **align-skills-documentation**: Automatically synchronizes README.md and AGENTS.md documentation by discovering...
+- **api-and-interface-design**: Use this skill to work with api and interface design
+- **frontend-design**: Use this skill to work with frontend design
+- **frontend-ui-engineering**: Use this skill to work with frontend ui engineering
 
 ## Quick Start: Using This Collection in Your Project
 
@@ -124,13 +174,7 @@ This collection implements **Addy Osmani's agent-skills framework** as the core 
 | Phase | Agent Skill | Purpose | Command |
 |-------|-------------|---------|---------|
 | **Idea Refinement** | `/idea-refine` | Refine raw concepts into sharp, actionable requirements | `/idea-refine` |
-| **Requirements** | `/interview-me` | Extract actual user needs vs. assumed requirements | `/interview-me` |
-| **Specification** | `/spec` or `/spec-driven-development` | Write detailed specs before coding begins | `/spec` |
-| **Planning** | `/plan` or `/planning-and-task-breakdown` | Break work into ordered tasks with dependencies | `/plan` |
-| **Implementation** | `/build` or `/incremental-implementation` | Implement tasks incrementally with validation | `/build` |
-| **Testing** | `/test` or `/test-driven-development` | TDD workflow with failing tests first | `/test` |
 | **Code Review** | `/review` or `/code-review-and-quality` | Five-axis review (correctness, readability, architecture, security, performance) | `/review` |
-| **Launch** | `/ship` or `/shipping-and-launch` | Pre-launch checklist and production readiness | `/ship` |
 
 ### Essential Commands & Shortcuts
 
@@ -251,8 +295,6 @@ metadata:
 torq/claude/
 ├── .claude/
 │   ├── skills/              # Custom project-specific skills
-│   │   ├── pr-open/
-│   │   ├── create-changelog/
 │   │   ├── github-mcp-setup/
 │   │   └── skill-creator/   # Imported from anthropics/skills
 │   ├── settings.json        # Plugin configuration

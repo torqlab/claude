@@ -1,0 +1,283 @@
+{
+  "skill_name": "align-skills-documentation",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "detect-and-remove-orphaned-skill",
+      "prompt": "The create-changelog custom skill was deleted from .claude/skills/ but is still referenced in README.md and AGENTS.md. Run the align-skills-documentation skill and verify it removes all references to create-changelog from both files. The skill should automatically detect that create-changelog SKILL.md no longer exists and clean up the documentation.",
+      "expected_output": "README.md and AGENTS.md updated to remove create-changelog entries. Report shows create-changelog in 'removed' section with details about what was cleaned up.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "create_changelog_removed_from_readme_table",
+          "description": "Verify create-changelog row is removed from skills table in README.md"
+        },
+        {
+          "name": "create_changelog_removed_from_agents_table",
+          "description": "Verify create-changelog row is removed from AGENTS.md custom skills section"
+        },
+        {
+          "name": "create_changelog_not_in_directory_listing",
+          "description": "Verify create-changelog is not in README.md directory structure listing"
+        },
+        {
+          "name": "report_lists_removed_skill",
+          "description": "Report should show create-changelog in 'removed' or 'orphaned' section with count"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "preserve-existing-custom-skills",
+      "prompt": "Run the align-skills-documentation skill on a project where all custom skills exist (pr, github-mcp-setup, align-skills-documentation, semantic-release, git-branch). Verify the skill correctly discovers all existing custom skills and doesn't accidentally remove or modify valid documentation. The report should show zero removed skills.",
+      "expected_output": "All existing custom skills properly documented. No spurious removals. Report shows all custom skills present with accurate metadata and 'Custom' type.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "all_custom_skills_discovered",
+          "description": "All five custom skills (pr, github-mcp-setup, align-skills-documentation, semantic-release, git-branch) are discovered"
+        },
+        {
+          "name": "custom_skills_marked_correctly",
+          "description": "All custom skills are marked with type='Custom' not 'Open-source'"
+        },
+        {
+          "name": "existing_skills_preserved",
+          "description": "All existing custom skills remain in README.md skills table"
+        },
+        {
+          "name": "no_false_removals",
+          "description": "Report shows zero removed skills (no false positives)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "distinguish-opensource-from-custom",
+      "prompt": "The project has both frontend-design and skill-creator from skills-lock.json (open-source from anthropics/skills) AND custom skills like pr and github-mcp-setup. Run the align-skills-documentation skill and verify: (1) frontend-design and skill-creator are marked as 'Open-source' type with source='anthropics/skills', (2) pr and github-mcp-setup are marked as 'Custom' type with local SKILL.md paths, (3) no skill is marked as both types. This tests that discovery correctly prioritizes skills-lock.json sources.",
+      "expected_output": "Skills correctly categorized: frontend-design and skill-creator as Open-source, pr and github-mcp-setup as Custom. No type conflicts or duplicate entries.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "opensource_skills_correctly_identified",
+          "description": "frontend-design and skill-creator marked as Open-source type from anthropics/skills"
+        },
+        {
+          "name": "custom_skills_correctly_identified",
+          "description": "pr, github-mcp-setup, semantic-release marked as Custom type with .claude/skills paths"
+        },
+        {
+          "name": "no_type_conflicts",
+          "description": "No skill appears with conflicting types or source attributions"
+        },
+        {
+          "name": "source_attribution_correct",
+          "description": "Open-source skills link to 'anthropics/skills', Custom skills link to local paths"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "eval_name": "comprehensive-cleanup-multiple-orphans",
+      "prompt": "A project documentation has three non-existing skills referenced in docs: 'old-tool', 'deprecated-helper', 'removed-workflow'. Actual available skills: pr, github-mcp-setup, align-skills-documentation. Run the skill and verify: (1) removes all three non-existing skills from README and AGENTS.md, (2) discovers and documents only the three actual skills as Custom type, (3) generates detailed report showing what was cleaned up.",
+      "expected_output": "All three non-existing skills removed from both files. Only three actual skills documented as Custom. Clean audit report listing removed skills.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "all_orphaned_skills_removed",
+          "description": "All three non-existing skills completely removed from README and AGENTS.md"
+        },
+        {
+          "name": "only_existing_skills_documented",
+          "description": "Only the three actual skills appear in documentation"
+        },
+        {
+          "name": "no_orphaned_references_remain",
+          "description": "No lingering references to removed skills in any section (table, integration guide, directory)"
+        },
+        {
+          "name": "cleanup_report_complete",
+          "description": "Report accurately lists all three removed skills with what was cleaned up"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "eval_name": "handle-mixed-skill-sources",
+      "prompt": "The project has: (1) Custom skills in .claude/skills/ (semantic-release, pr, git-branch), (2) Open-source skills in skills-lock.json (frontend-design, skill-creator), (3) Agent skills from enabled agent-skills plugin (spec, plan, build, test, review), (4) orphaned references to 'old-skill' in docs. Run align-skills-documentation and verify correct discovery and categorization of all skill types, with only one entry per skill regardless of source.",
+      "expected_output": "All skill types correctly discovered and categorized. No duplicate entries. Orphaned 'old-skill' removed. Report shows accurate counts: 3 Custom, 2 Open-source, 5 Agent Skills.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "custom_skills_counted_correctly",
+          "description": "Exactly 3 custom skills discovered and marked as Custom type"
+        },
+        {
+          "name": "opensource_skills_counted_correctly",
+          "description": "Exactly 2 open-source skills discovered and marked as Open-source type"
+        },
+        {
+          "name": "agent_skills_counted_correctly",
+          "description": "At least 5 agent skills discovered and marked as Agent Skill type"
+        },
+        {
+          "name": "no_duplicates_across_sources",
+          "description": "No skill appears multiple times in discovered skills with different types"
+        },
+        {
+          "name": "orphaned_removed",
+          "description": "Orphaned 'old-skill' is removed from documentation"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "eval_name": "generate-skills-table-with-all-discovered-skills",
+      "prompt": "Run align-skills-documentation on the project with all skills present (5 custom, 2 open-source, 29+ agent skills from the plugin). Verify that the README.md skills table is generated with ALL discovered skills, properly sorted by type (Custom first, then Open-source, then Agent Skills). Each row should have correct: skill name, type label, truncated description, and source link matching the skill type.",
+      "expected_output": "README.md skills table contains all 36+ discovered skills, properly sorted by type. Each custom skill links to ./.claude/skills/{name}/SKILL.md, open-source skills link to anthropics/skills, agent skills link to addyosmani/agent-skills. Descriptions are truncated to 1-2 sentences. Table is syntactically valid markdown.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "all_custom_skills_in_table",
+          "description": "All 5 custom skills appear in README skills table"
+        },
+        {
+          "name": "all_opensource_skills_in_table",
+          "description": "Both open-source skills (frontend-design, skill-creator) appear with correct source attribution"
+        },
+        {
+          "name": "agent_skills_populated",
+          "description": "29+ agent skills are present in the table with Agent Skill type label"
+        },
+        {
+          "name": "table_sorted_by_type",
+          "description": "Skills are sorted in order: Custom, then Open-source, then Agent Skills"
+        },
+        {
+          "name": "source_links_correct",
+          "description": "Custom skills link to local .claude/skills paths, open-source links to anthropics/skills, agent skills to addyosmani/agent-skills"
+        },
+        {
+          "name": "descriptions_truncated",
+          "description": "All skill descriptions are truncated to 1-2 sentences, not full descriptions"
+        },
+        {
+          "name": "table_markdown_valid",
+          "description": "Generated table is valid markdown with correct pipe separators and header format"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "eval_name": "generate-trigger-context-section",
+      "prompt": "Run align-skills-documentation and verify that the Trigger Context & Usage Patterns section is generated in README.md. The section should appear after the skills table and categorize all 36+ skills into groups like 'Workflow Planning & Specification', 'Implementation & Build', 'Testing & Debugging', 'Code Review & Quality', 'Frontend & UI', and 'Custom Project Skills'. Each skill should have a brief description of when it should be used.",
+      "expected_output": "README.md has new 'Trigger Context & Usage Patterns' section with 6+ categories listing all discovered skills with usage patterns. Section appears between skills table and 'Quick Start' section. All skills are represented with trigger context.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "trigger_context_section_exists",
+          "description": "Section '### Trigger Context & Usage Patterns' exists in README.md"
+        },
+        {
+          "name": "section_has_categories",
+          "description": "Section contains organized categories (Workflow Planning, Implementation & Build, Testing, Code Review, Frontend & UI, Custom)"
+        },
+        {
+          "name": "all_skills_included_in_context",
+          "description": "All 36+ discovered skills appear somewhere in the Trigger Context section"
+        },
+        {
+          "name": "custom_skills_listed",
+          "description": "Custom skills (pr, semantic-release, git-branch, etc.) appear in 'Custom Project Skills' or appropriate category with trigger patterns"
+        },
+        {
+          "name": "trigger_patterns_descriptive",
+          "description": "Each skill has a brief description of when/why to use it (e.g., 'Use when creating feature branches...', 'Use this skill to work with...')"
+        },
+        {
+          "name": "section_location_correct",
+          "description": "Trigger Context section appears after skills table and before 'Quick Start' or similar sections"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "eval_name": "generate-agents-md-sections",
+      "prompt": "Run align-skills-documentation and verify that AGENTS.md receives updates to four new comprehensive sections: (1) Decision Trees - if-then workflow selection for scenarios like 'I need to implement a feature' and 'Something is broken'; (2) Agent Combinations - matrix showing workflow sequences and context flow; (3) Custom Skills Integration - table showing where custom skills fit into agent workflows; (4) Agent Context Requirements - prerequisites and state for each agent. All sections should be properly formatted markdown with clear structure.",
+      "expected_output": "AGENTS.md has 4 new sections with proper headers (## 🎯 Decision Trees, ## 🔗 Agent Combinations & Context Flow, ## 🛠️ Custom Skills Integration Guide, ## 📋 Agent Context Requirements). All sections contain valid markdown tables or structured content. Sections appear around lines 158-275 in AGENTS.md.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "decision_trees_section_exists",
+          "description": "Section '## 🎯 Decision Trees' exists in AGENTS.md with if-then workflow selection logic"
+        },
+        {
+          "name": "decision_trees_have_scenarios",
+          "description": "Decision Trees include multiple scenarios: feature implementation, debugging, optimization, security, refactoring"
+        },
+        {
+          "name": "agent_combinations_section_exists",
+          "description": "Section '## 🔗 Agent Combinations & Context Flow' exists with workflow sequence matrix"
+        },
+        {
+          "name": "combinations_show_context_flow",
+          "description": "Agent Combinations matrix shows how context flows between agents (e.g., spec output → plan input)"
+        },
+        {
+          "name": "custom_skills_integration_exists",
+          "description": "Section '## 🛠️ Custom Skills Integration Guide' exists documenting where custom skills connect to agent workflows"
+        },
+        {
+          "name": "custom_skills_mapped_correctly",
+          "description": "Custom skills (pr, semantic-release, align-skills-documentation) are mapped to their integration points in agent workflows"
+        },
+        {
+          "name": "context_requirements_section_exists",
+          "description": "Section '## 📋 Agent Context Requirements' exists documenting prerequisites and state for major agents"
+        },
+        {
+          "name": "all_sections_valid_markdown",
+          "description": "All 4 new sections use valid markdown with proper tables, headers, and formatting"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "eval_name": "full-documentation-sync",
+      "prompt": "Run align-skills-documentation on a clean project state where all 36+ skills exist and no orphaned references remain. This tests the complete synchronization workflow: skill discovery, README skills table generation, Trigger Context generation, AGENTS.md section generation, orphaned skill detection (should be zero), and comprehensive reporting. Verify the entire documentation stays in sync with available skills.",
+      "expected_output": "Complete documentation sync: README has all skills in table + Trigger Context section, AGENTS.md has all 4 new sections, report shows zero orphaned skills, all 36+ skills categorized correctly by type, documentation clean status reported as true.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "all_skills_discovered_and_documented",
+          "description": "All 36+ skills from all sources (custom, open-source, agent plugins) are discovered and appear in documentation"
+        },
+        {
+          "name": "no_orphaned_skills_detected",
+          "description": "Report shows zero orphaned skills - documentation is in sync with actual skills"
+        },
+        {
+          "name": "readme_fully_updated",
+          "description": "README.md has complete skills table + Trigger Context section with all skills represented"
+        },
+        {
+          "name": "agents_md_fully_generated",
+          "description": "AGENTS.md has all 4 new sections: Decision Trees, Agent Combinations, Custom Skills Integration, Context Requirements"
+        },
+        {
+          "name": "skill_types_categorized_correctly",
+          "description": "All skills correctly marked as Custom, Open-source, or Agent Skill with proper type labels and source links"
+        },
+        {
+          "name": "documentation_clean_status",
+          "description": "Report indicates 'documentation_clean: true' showing perfect sync between actual and documented skills"
+        },
+        {
+          "name": "report_comprehensive",
+          "description": "Report shows skill counts by type, discovery sources, and overall synchronization status"
+        }
+      ]
+    }
+  ]
+}
+

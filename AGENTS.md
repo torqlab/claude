@@ -79,19 +79,46 @@ All agents are part of the **@addy-agent-skills plugin** suite. For complete wor
 | `/shipping-and-launch` | Prepare applications for production launch | Pre-launch preparation |
 | `/planning-and-task-breakdown` | Break work into ordered tasks with dependencies | Task organization and dependency management |
 
-## 📦 Custom Project-Specific Skills
+## 📦 Project-Specific Skills
 
-In addition to agent-skills, this collection provides custom skills. See [README.md §Key Skills Overview](./README.md#-key-skills-overview) for details:
+In addition to agent-skills, this collection provides custom and open-source skills. See [README.md §Key Skills Overview](./README.md#-key-skills-overview) for details.
+
+### Custom Skills (Project-Specific)
 
 | Skill | Purpose | Usage |
 |-------|---------|-------|
-| **pr-open** | Create pull requests on GitHub from changelog entries with branch validation | `/pr-open` |
-| **create-changelog** | Generate changelog entries following Keep a Changelog standard | `/create-changelog` |
-| **github-mcp-setup** | Configure GitHub MCP with GitHub App authentication | `/github-mcp-setup` |
+| **align-skills-documentation** | Auto-sync README.md and AGENTS.md with available skills inventory | `/align-skills-documentation` |
+| **semantic-release** | Create git branches with semantic-release naming conventions | `/semantic-release` |
+| **git-branch** | Create branches aligned with semantic-release conventions | `/git-branch` |
+| **pr** | Create GitHub pull requests aligned with semantic-release workflow | `/pr` |
+| **github-mcp-setup** | Configure GitHub MCP server with GitHub App authentication | `/github-mcp-setup` |
+
+### Open-Source Skills (anthropics/skills)
+
+| Skill | Purpose | Usage |
+|-------|---------|-------|
 | **frontend-design** | Build distinctive, production-grade UI components | `/frontend-design` |
 | **skill-creator** | Create, test, and iteratively improve new Claude skills | `/skill-creator` |
 
 For complete skill details including features and workflows, see README.md.
+
+### Integration Guide
+
+Where custom project-specific skills fit into the agent workflow, and how they integrate with agent skills.
+
+| Skill | Purpose | Integration Point | Works With Agents | Sequence |
+|-------|---------|-------------------|------------------|----------|
+| **semantic-release** | Create feature branches with semantic versioning | During `/plan` → `/build` | `/plan`, `/build` | `/plan` → `/semantic-release` (create branch) → `/build` |
+| **git-branch** | Create semantic-release naming convention branches | At start of `/build` | `/plan`, `/build` | `/plan` → `/git-branch` (create) → `/build` |
+| **pr** | Create GitHub pull requests aligned with semantic-release | After `/build` when ready for review | `/build`, `/review`, `/ship` | `/build` → `/review` → `/pr` (create) → `/ship` |
+| **github-mcp-setup** | Configure GitHub MCP server for automated workflows | Before any `/pr` usage | `/pr` | Setup first, then use `/pr` |
+| **align-skills-documentation** | Synchronize documentation with available skills | Before releases or during maintenance | Any workflow | Use after adding new skills |
+
+**Integration strategy**:
+- **Branch creation**: Use `/semantic-release` or `/git-branch` early in `/build` phase
+- **Code review integration**: `/review` provides feedback context for `/pr` creation
+- **Release workflow**: Complete `/build` → `/review` → `/pr` → `/ship` sequence
+- **Documentation**: Keep `/align-skills-documentation` up to date after skill additions
 
 ## 📋 Common Workflows
 
@@ -156,6 +183,108 @@ All skills and agents are automatically discovered after creating the symlink.
 - **`.claude/rules/`** — Project conventions and coding standards
 - **`skills-lock.json`** — Open-source skills registry from anthropics/skills
 - **Agent Skills Source**: [github.com/addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main)
+
+## 🎯 Decision Trees
+
+Guide for agents to select the right workflow based on your situation.
+
+### "I need to implement a feature"
+- Do you have clear requirements?
+  - NO → Use `/interview-me` or `/idea-refine` to clarify, then continue
+  - YES → Continue to next question
+- Have you written a specification?
+  - NO → Use `/spec` to write detailed requirements, then continue
+  - YES → Continue to next question
+- Have you planned the work?
+  - NO → Use `/plan` to break into ordered tasks, then continue
+  - YES → Continue to next question
+- Ready to build?
+  - Use `/build` to implement incrementally
+  - As you code, use `/test` for test-driven validation
+  - When ready, use `/review` for quality gate
+  - Finally, use `/ship` for production launch
+
+### "Something is broken (bug or test failure)"
+- Do you understand the root cause?
+  - NO → Use `/debugging-and-error-recovery` for systematic analysis
+  - YES → Continue to next question
+- Is there a failing test?
+  - NO → Use `/test` to create a failing test first (TDD approach)
+  - YES → Continue to next question
+- Ready to fix?
+  - Use `/build` to implement the fix
+  - Use `/test` to verify the test now passes
+  - Use `/review` for quality gate
+  - Use `/ship` if deploying
+
+### "Performance is an issue"
+- Have you profiled the application?
+  - NO → Use `/performance-optimization` to profile and identify bottlenecks
+  - YES → Continue to next question
+- Ready to optimize?
+  - Use `/build` to implement optimizations
+  - Use `/test` to verify improvements
+  - Use `/review` for quality gate
+
+### "Security concern or compliance requirement"
+- Need to harden code?
+  - Use `/security-and-hardening` for vulnerability analysis
+  - Use `/build` to implement hardening measures
+  - Use `/test` to verify security improvements
+  - Use `/review` and `/ship` for deployment
+
+### "Refactoring or design work"
+- Need API/module design guidance?
+  - Use `/api-and-interface-design` for stable interface design
+- Need documentation of architectural decisions?
+  - Use `/documentation-and-adrs` to record decisions
+- Need to review before merging?
+  - Use `/code-review-and-quality` for detailed multi-axis review
+
+
+## 🔗 Agent Combinations & Context Flow
+
+Common agent workflow sequences and the context that flows between them.
+
+| Sequence | Prerequisites | Purpose | Output Context |
+|----------|---|---------|--------|
+| `/interview-me` → `/spec` | Unclear requirements | Clarify and document requirements | Detailed specification |
+| `/spec` → `/plan` → `/build` | Clear specification | Feature development workflow | Planned tasks → Implementation |
+| `/plan` → `/build` → `/test` → `/review` | Task list | Complete build cycle | Code changes → Tests → Review feedback |
+| `/test` → `/build` → `/review` → `/ship` | Failing test | Bug fix and deployment | Test fix → Reviewed code → Production ready |
+| `/debugging-and-error-recovery` → `/test` → `/build` | Error symptoms | Systematic debugging | Root cause → Failing test → Fix |
+| `/performance-optimization` → `/build` → `/test` | Performance baseline | Performance improvement | Optimization strategy → Implemented → Verified |
+| `/security-and-hardening` → `/build` → `/test` → `/review` | Security audit | Security hardening | Hardening strategy → Implementation → Verification |
+| `/api-and-interface-design` → `/build` → `/test` | API requirements | Stable interface design | API design → Implementation → Tests |
+| `/code-review-and-quality` → `/ship` | Code ready for review | Final quality gate before ship | Review feedback → Ship checklist |
+| `/doubt-driven-development` → `/build` | Non-trivial decision | Adversarial review of design | Questioned assumptions → Confirmed approach |
+| `/documentation-and-adrs` → `/build` | Architectural decision | Record decision and implement | ADR → Implementation |
+
+**Context flows left-to-right**: Output from one agent becomes the input context for the next agent in the sequence.
+
+
+## 📋 Agent Context Requirements
+
+Prerequisites, inputs, and outputs for each major agent workflow phase.
+
+| Agent | Phase | Prerequisites | Input Context | Output | Success Criteria |
+|-------|-------|---|---|--------|------------------|
+| `/interview-me` | Requirements | Problem description | Initial idea or requirement | Clarified requirements | Clear understanding of actual needs |
+| `/idea-refine` | Requirements | Vague concept | Rough idea or feature request | Actionable requirements | Requirements are specific and measurable |
+| `/spec` | Specification | Clear requirements | Requirements document | Detailed specification with acceptance criteria | Spec includes acceptance criteria and edge cases |
+| `/plan` | Planning | Specification complete | Detailed spec | Ordered tasks with dependencies | Tasks are ordered, dependencies clear, ready to build |
+| `/build` | Implementation | Task list ready | Task description and related spec | Tested, verified, committed code | Code changes committed to feature branch |
+| `/test` | Testing | Code or failing test | Code changes or test failure | Passing tests or verified behavior | All tests passing or behavior verified |
+| `/review` | Review | Code ready for feedback | Code changes to review | Review feedback or approval | All review feedback addressed |
+| `/ship` | Launch | Code reviewed and approved | Approved code and release context | Production deployment checklist | Deployment checklist completed |
+| `/debugging-and-error-recovery` | Debugging | Error symptoms or test failure | Error message, logs, or failing test | Root cause identified | Root cause documented and understood |
+| `/performance-optimization` | Optimization | Performance baseline | Baseline metrics and code | Optimization strategy and/or implementation | Performance improved per requirements |
+| `/security-and-hardening` | Security | Security audit or vulnerability | Code to audit or vulnerability details | Hardening strategy or implementation | Security improvements verified |
+| `/frontend-ui-engineering` | Frontend | Design requirements | UI requirements or design specs | Implemented UI components | UI passes acceptance criteria |
+| `/api-and-interface-design` | Architecture | API requirements | API requirements or module spec | Stable interface design | API design reviewed and documented |
+
+**Context inheritance**: Later phases build on outputs from earlier phases. Each output becomes input context for the next agent in the workflow.
+
 
 ## Getting Help
 
