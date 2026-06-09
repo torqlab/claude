@@ -13,15 +13,12 @@ This is a **project-level Claude collection** that serves as a centralized sourc
 - **Skills**: Comprehensive skill inventory organized by type (custom, open-source, agent skills)
 - **Workflows**: Structured development patterns for requirements, implementation, testing, and deployment
 - **Configurations**: Claude Code settings, hooks, and project conventions
-- **Documentation**: SKILLS.md for complete skills reference, README.md for setup and usage
+- **Documentation**: [SKILLS.md](./SKILLS.md) for complete skills reference, README.md for setup and usage
 
 ## Quick Links
 
 - **[README.md](./README.md)** — Complete setup guide, workflow patterns, and skill integration
 - **[SKILLS.md](./SKILLS.md)** — All available skills organized by type with decision trees
-- **[SKILL.md files](./skills/)** — Detailed documentation for each custom skill
-- **[.claude/settings.json](./.claude/settings.json)** — Plugin configuration
-- **[.claude/rules/](./.claude/rules/)** — Project conventions and coding standards
 
 ## Repository Structure
 
@@ -29,8 +26,8 @@ This is a **project-level Claude collection** that serves as a centralized sourc
 torq/claude/
 ├── .claude/
 │   ├── skills/              # Custom project-specific skills
-│   ├── settings.json        # Plugin configuration
-│   └── settings.local.json  # Local overrides
+│   ├── settings.json        # Claude configuration
+│   └── settings.local.json  # Local Claude overrides
 ├── README.md                # Setup, workflows, and skill integration
 ├── SKILLS.md                # Complete skills reference with decision trees
 ├── package.json             # Project metadata
