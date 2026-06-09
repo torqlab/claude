@@ -1,4 +1,4 @@
-# align-skills-documentation Skill - Test Report
+# document-skills Skill - Test Report
 
 ## Test Summary
 

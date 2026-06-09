@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test suite for align-skills-documentation skill focusing on SKILLS.md generation.
+Test suite for document-skills skill focusing on SKILLS.md generation.
 Tests skill discovery, categorization, and markdown table generation.
 """
 
