@@ -79,17 +79,46 @@ All agents are part of the **@addy-agent-skills plugin** suite. For complete wor
 | `/shipping-and-launch` | Prepare applications for production launch | Pre-launch preparation |
 | `/planning-and-task-breakdown` | Break work into ordered tasks with dependencies | Task organization and dependency management |
 
-## 📦 Custom Project-Specific Skills
+## 📦 Project-Specific Skills
 
-In addition to agent-skills, this collection provides custom skills. See [README.md §Key Skills Overview](./README.md#-key-skills-overview) for details:
+In addition to agent-skills, this collection provides custom and open-source skills. See [README.md §Key Skills Overview](./README.md#-key-skills-overview) for details.
+
+### Custom Skills (Project-Specific)
 
 | Skill | Purpose | Usage |
 |-------|---------|-------|
-| **github-mcp-setup** | Configure GitHub MCP with GitHub App authentication | `/github-mcp-setup` |
+| **align-skills-documentation** | Auto-sync README.md and AGENTS.md with available skills inventory | `/align-skills-documentation` |
+| **semantic-release** | Create git branches with semantic-release naming conventions | `/semantic-release` |
+| **git-branch** | Create branches aligned with semantic-release conventions | `/git-branch` |
+| **pr** | Create GitHub pull requests aligned with semantic-release workflow | `/pr` |
+| **github-mcp-setup** | Configure GitHub MCP server with GitHub App authentication | `/github-mcp-setup` |
+
+### Open-Source Skills (anthropics/skills)
+
+| Skill | Purpose | Usage |
+|-------|---------|-------|
 | **frontend-design** | Build distinctive, production-grade UI components | `/frontend-design` |
 | **skill-creator** | Create, test, and iteratively improve new Claude skills | `/skill-creator` |
 
 For complete skill details including features and workflows, see README.md.
+
+### Integration Guide
+
+Where custom project-specific skills fit into the agent workflow, and how they integrate with agent skills.
+
+| Skill | Purpose | Integration Point | Works With Agents | Sequence |
+|-------|---------|-------------------|------------------|----------|
+| **semantic-release** | Create feature branches with semantic versioning | During `/plan` → `/build` | `/plan`, `/build` | `/plan` → `/semantic-release` (create branch) → `/build` |
+| **git-branch** | Create semantic-release naming convention branches | At start of `/build` | `/plan`, `/build` | `/plan` → `/git-branch` (create) → `/build` |
+| **pr** | Create GitHub pull requests aligned with semantic-release | After `/build` when ready for review | `/build`, `/review`, `/ship` | `/build` → `/review` → `/pr` (create) → `/ship` |
+| **github-mcp-setup** | Configure GitHub MCP server for automated workflows | Before any `/pr` usage | `/pr` | Setup first, then use `/pr` |
+| **align-skills-documentation** | Synchronize documentation with available skills | Before releases or during maintenance | Any workflow | Use after adding new skills |
+
+**Integration strategy**:
+- **Branch creation**: Use `/semantic-release` or `/git-branch` early in `/build` phase
+- **Code review integration**: `/review` provides feedback context for `/pr` creation
+- **Release workflow**: Complete `/build` → `/review` → `/pr` → `/ship` sequence
+- **Documentation**: Keep `/align-skills-documentation` up to date after skill additions
 
 ## 📋 Common Workflows
 
@@ -232,25 +261,6 @@ Common agent workflow sequences and the context that flows between them.
 | `/documentation-and-adrs` → `/build` | Architectural decision | Record decision and implement | ADR → Implementation |
 
 **Context flows left-to-right**: Output from one agent becomes the input context for the next agent in the sequence.
-
-
-## 🛠️ Custom Skills Integration Guide
-
-Where custom project-specific skills fit into the agent workflow, and how they integrate with agent skills.
-
-| Skill | Purpose | Integration Point | Works With Agents | Sequence |
-|-------|---------|-------------------|------------------|----------|
-| **semantic-release** | Create feature branches with semantic versioning | During `/plan` → `/build` | `/plan`, `/build` | `/plan` → `/semantic-release` (create branch) → `/build` |
-| **git-branch** | Create semantic-release naming convention branches | At start of `/build` | `/plan`, `/build` | `/plan` → `/git-branch` (create) → `/build` |
-| **pr** | Create GitHub pull requests aligned with semantic-release | After `/build` when ready for review | `/build`, `/review`, `/ship` | `/build` → `/review` → `/pr` (create) → `/ship` |
-| **github-mcp-setup** | Configure GitHub MCP server for automated workflows | Before any `/pr` usage | `/pr` | Setup first, then use `/pr` |
-| **align-skills-documentation** | Synchronize documentation with available skills | Before releases or during maintenance | Any workflow | Use after adding new skills |
-
-**Integration strategy**:
-- **Branch creation**: Use `/semantic-release` or `/git-branch` early in `/build` phase
-- **Code review integration**: `/review` provides feedback context for `/pr` creation
-- **Release workflow**: Complete `/build` → `/review` → `/pr` → `/ship` sequence
-- **Documentation**: Keep `/align-skills-documentation` up to date after skill additions
 
 
 ## 📋 Agent Context Requirements
