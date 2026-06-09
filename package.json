@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "@torqlab/claude",
   "version": "1.0.0",
   "description": "This repository contains a project-level Claude collection: skills, hooks, and other useful things for the agentic development.",
@@ -29,6 +30,8 @@
     "prepare": "husky install"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
     "husky": "^9.0.0",
     "validate-branch-name": "^1.3.2"
   }
