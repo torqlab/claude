@@ -30,14 +30,21 @@ This skill discovers all available skills from multiple sources and generates a 
    - Three sections organized by skill type
    - Consistent markdown table format: `| Skill | Type | Description | Source |`
    - Proper source attribution links
-   - Section descriptions explaining each skill type
+   - Decision tree section for skill selection guidance
 
-4. **Deduplicates skills** appearing in multiple sources:
+4. **Generates decision trees** for skill selection:
+   - "I need to implement a feature" workflow
+   - "Something is broken (bug or test failure)" workflow
+   - "Performance is an issue" workflow
+   - "Security concern or compliance requirement" workflow
+   - "Refactoring or design work" workflow
+
+5. **Deduplicates skills** appearing in multiple sources:
    - Open-source skills (skills-lock.json) take priority
    - Custom copies in .claude/skills/ are excluded if already open-source
    - Clean, non-redundant inventory
 
-5. **Generates a comprehensive report** listing:
+6. **Generates a comprehensive report** listing:
    - Total skills discovered by type
    - Lists of skills in each category
    - File generation status
@@ -166,6 +173,16 @@ Skills from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills
 |-------|------|-------------|--------|
 | **spec** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) |
 | **plan** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) |
+
+## 🎯 Decision Trees
+
+Guide for selecting the right skill based on your situation.
+
+### "I need to implement a feature"
+- Do you have clear requirements?
+  - NO → Use `/interview-me` or `/idea-refine` to clarify, then continue
+  - YES → Continue to next question
+- ... (continues with full decision tree)
 ```
 
 ## Error Handling

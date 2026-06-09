@@ -58,3 +58,60 @@ Skills from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills
 | **test** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) |
 | **test-driven-development** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) |
 | **using-agent-skills** | Agent Skill |  | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) |
+
+## 🎯 Decision Trees
+
+Guide for selecting the right skill based on your situation.
+
+### "I need to implement a feature"
+- Do you have clear requirements?
+  - NO → Use `/interview-me` or `/idea-refine` to clarify, then continue
+  - YES → Continue to next question
+- Have you written a specification?
+  - NO → Use `/spec` to write detailed requirements, then continue
+  - YES → Continue to next question
+- Have you planned the work?
+  - NO → Use `/plan` to break into ordered tasks, then continue
+  - YES → Continue to next question
+- Ready to build?
+  - Use `/build` to implement incrementally
+  - As you code, use `/test` for test-driven validation
+  - When ready, use `/review` for quality gate
+  - Finally, use `/ship` for production launch
+
+### "Something is broken (bug or test failure)"
+- Do you understand the root cause?
+  - NO → Use `/debugging-and-error-recovery` for systematic analysis
+  - YES → Continue to next question
+- Is there a failing test?
+  - NO → Use `/test` to create a failing test first (TDD approach)
+  - YES → Continue to next question
+- Ready to fix?
+  - Use `/build` to implement the fix
+  - Use `/test` to verify the test now passes
+  - Use `/review` for quality gate
+  - Use `/ship` if deploying
+
+### "Performance is an issue"
+- Have you profiled the application?
+  - NO → Use `/performance-optimization` to profile and identify bottlenecks
+  - YES → Continue to next question
+- Ready to optimize?
+  - Use `/build` to implement optimizations
+  - Use `/test` to verify improvements
+  - Use `/review` for quality gate
+
+### "Security concern or compliance requirement"
+- Need to harden code?
+  - Use `/security-and-hardening` for vulnerability analysis
+  - Use `/build` to implement hardening measures
+  - Use `/test` to verify security improvements
+  - Use `/review` and `/ship` for deployment
+
+### "Refactoring or design work"
+- Need API/module design guidance?
+  - Use `/api-and-interface-design` for stable interface design
+- Need documentation of architectural decisions?
+  - Use `/documentation-and-adrs` to record decisions
+- Need to review before merging?
+  - Use `/code-review-and-quality` for detailed multi-axis review
