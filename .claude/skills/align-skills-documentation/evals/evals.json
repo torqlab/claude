@@ -1,0 +1,23 @@
+{
+  "skill_name": "align-skills-documentation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I've just added a new custom skill /frontend-design to .claude/skills/ and updated README.md manually. Now I need to sync all documentation (README and AGENTS.md) to include decision trees and agent context requirements. Run the align-skills-documentation skill to update both files with agent-friendly documentation.",
+      "expected_output": "Updated README.md with synchronized skills table and trigger patterns. Updated AGENTS.md with decision trees showing if-then flows for agent selection, agent combinations matrix, custom skill integration guide mapping /frontend-design to workflow phases, and agent context requirements.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our project uses semantic-release, pr, and create-changelog custom skills alongside agent-skills. Generate comprehensive agent-friendly documentation that shows how these custom skills integrate into the development workflow. Decision trees should help agents understand when to use /pr after /build and where /create-changelog fits before /ship.",
+      "expected_output": "AGENTS.md with clear decision trees for skill selection, agent combinations matrix showing /spec → /plan → /build sequences, custom skills integration guide documenting /pr integration after review and /create-changelog before ship, and agent context requirements with prerequisites and state flow.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Audit documentation drift: We've removed the /github-mcp-setup skill but it's still documented in AGENTS.md and README.md. Run align-skills-documentation to detect and report this discrepancy, and generate a fresh audit showing what's in code vs what's documented.",
+      "expected_output": "Report showing /github-mcp-setup documented but not in codebase. Summary of all skills by type (Custom, Open-source, Agent Skill). README.md updated to remove /github-mcp-setup. AGENTS.md sections updated with accurate skill inventory. Documentation coverage percentage and recommendations for resolving drift.",
+      "files": []
+    }
+  ]
+}

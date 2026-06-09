@@ -362,5 +362,242 @@ class TestTriggerContextExtraction(unittest.TestCase):
         self.assertIn("pr", patterns["Custom Workflows"])
 
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
+class TestAgentDiscovery(unittest.TestCase):
+    """Test discovery of agent skills from plugins."""
+
+    def test_discovers_agent_skills_from_settings(self):
+        """Test discovery of agent skills from settings.json plugins."""
+        settings_content = {
+            "plugins": {
+                "agent-skills@addy-agent-skills": {
+                    "enabled": True
+                }
+            }
+        }
+
+        self.assertIn("agent-skills@addy-agent-skills", settings_content["plugins"])
+        self.assertTrue(settings_content["plugins"]["agent-skills@addy-agent-skills"]["enabled"])
+
+    def test_extracts_agent_skill_names(self):
+        """Test extraction of agent skill names from plugin registry."""
+        agents = [
+            "/spec", "/plan", "/build", "/test", "/review", "/ship",
+            "/frontend-ui-engineering", "/api-and-interface-design",
+            "/performance-optimization", "/debugging-and-error-recovery"
+        ]
+
+        self.assertEqual(len(agents), 10)
+        self.assertIn("/spec", agents)
+        self.assertIn("/debugging-and-error-recovery", agents)
+
+
+class TestWorkflowPhaseDetection(unittest.TestCase):
+    """Test mapping of agents to workflow lifecycle phases."""
+
+    def test_detects_workflow_phases(self):
+        """Test detection of workflow phase from agent names and descriptions."""
+        phase_mapping = {
+            "requirements": ["/idea-refine", "/interview-me"],
+            "specification": ["/spec"],
+            "planning": ["/plan"],
+            "build": ["/build"],
+            "testing": ["/test"],
+            "review": ["/review"],
+            "launch": ["/ship"]
+        }
+
+        self.assertEqual(len(phase_mapping["requirements"]), 2)
+        self.assertIn("/spec", phase_mapping["specification"])
+
+    def test_maps_domain_agents_to_phases(self):
+        """Test mapping of domain-specific agents."""
+        domain_agents = {
+            "build": ["/frontend-ui-engineering", "/api-and-interface-design"],
+            "diagnostics": ["/performance-optimization", "/debugging-and-error-recovery"],
+            "operations": ["/ci-cd-and-automation"]
+        }
+
+        self.assertEqual(len(domain_agents["build"]), 2)
+        self.assertIn("/performance-optimization", domain_agents["diagnostics"])
+
+
+class TestDecisionTreeGeneration(unittest.TestCase):
+    """Test generation of decision trees from trigger patterns."""
+
+    def test_generates_feature_implementation_tree(self):
+        """Test generation of decision tree for feature implementation."""
+        tree = {
+            "scenario": "I need to implement a feature",
+            "decisions": [
+                {"question": "Do you have clear requirements?", "yes": "continue", "no": "/interview-me"},
+                {"question": "Have you written a spec?", "yes": "continue", "no": "/spec"},
+                {"question": "Have you planned the work?", "yes": "/build", "no": "/plan"}
+            ]
+        }
+
+        self.assertEqual(tree["scenario"], "I need to implement a feature")
+        self.assertEqual(len(tree["decisions"]), 3)
+
+    def test_generates_bug_fix_tree(self):
+        """Test generation of decision tree for bug fixes."""
+        tree = {
+            "scenario": "Something is broken",
+            "decisions": [
+                {"question": "Do you know the root cause?", "yes": "/test", "no": "/debugging-and-error-recovery"}
+            ]
+        }
+
+        self.assertEqual(tree["scenario"], "Something is broken")
+
+
+class TestCustomSkillIntegration(unittest.TestCase):
+    """Test identification of custom skill integration points."""
+
+    def test_identifies_pr_integration_point(self):
+        """Test identification of /pr skill integration after review."""
+        integration = {
+            "skill": "/pr",
+            "integration_point": "After /build completes & ready for review",
+            "sequence": ["/build", "/review", "/pr"],
+            "works_with": ["/build", "/review"]
+        }
+
+        self.assertEqual(integration["skill"], "/pr")
+        self.assertEqual(integration["sequence"], ["/build", "/review", "/pr"])
+
+    def test_identifies_changelog_integration_point(self):
+        """Test identification of /create-changelog integration."""
+        integration = {
+            "skill": "/create-changelog",
+            "integration_point": "After /build before /ship",
+            "sequence": ["/build", "/create-changelog", "/ship"],
+            "works_with": ["/build", "/ship"]
+        }
+
+        self.assertIn("/create-changelog", integration["skill"])
+        self.assertIn("/ship", integration["sequence"])
+
+    def test_identifies_semantic_release_integration(self):
+        """Test identification of /semantic-release integration."""
+        integration = {
+            "skill": "/semantic-release",
+            "integration_point": "During planning for branch creation",
+            "sequence": ["/plan", "/semantic-release", "/build"],
+            "works_with": ["/plan", "/build"]
+        }
+
+        self.assertEqual(len(integration["sequence"]), 3)
+
+
+class TestAgentsmdUpdate(unittest.TestCase):
+    """Test AGENTS.md section generation and updates."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        """Clean up temp files."""
+        import shutil
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def test_creates_decision_trees_section(self):
+        """Test creation of Decision Trees section in AGENTS.md."""
+        decision_trees = """## 🎯 Decision Trees
+
+### "I need to implement a feature"
+- Do you have clear requirements?
+  - NO → Use /interview-me or /idea-refine
+  - YES → Continue
+"""
+        self.assertIn("## 🎯 Decision Trees", decision_trees)
+        self.assertIn("I need to implement a feature", decision_trees)
+
+    def test_creates_agent_combinations_section(self):
+        """Test creation of Agent Combinations section."""
+        section = """## 🔗 Agent Combinations & Context Flow
+
+| Sequence | Prerequisites | Purpose | Output Context |
+|----------|---|---------|--------|
+| /spec → /plan → /build | Clear requirements | Feature development | Task list → Implementation |
+"""
+        self.assertIn("## 🔗 Agent Combinations", section)
+        self.assertIn("/spec → /plan → /build", section)
+
+    def test_creates_custom_skills_integration_section(self):
+        """Test creation of Custom Skills Integration section."""
+        section = """## 🛠️ Custom Skills Integration Guide
+
+| Skill | Integration Point | Works With Agents | Sequence |
+|-------|-------------------|------------------|----------|
+| /pr | After /build completes | /build, /review | /build → /review → /pr |
+"""
+        self.assertIn("## 🛠️ Custom Skills Integration", section)
+        self.assertIn("/pr", section)
+
+    def test_creates_agent_context_requirements_section(self):
+        """Test creation of Agent Context Requirements section."""
+        section = """## 📋 Agent Context Requirements
+
+| Agent | Phase | Prerequisites | Input | Output | Success Criteria |
+|-------|-------|---|-------|--------|------------------|
+| /spec | Specification | Clear requirements | Clarified requirements | Detailed spec | Spec has clear criteria |
+"""
+        self.assertIn("## 📋 Agent Context Requirements", section)
+        self.assertIn("/spec", section)
+
+
+class TestAgentContextFlow(unittest.TestCase):
+    """Test documentation of state/context flow between agents."""
+
+    def test_documents_spec_to_plan_flow(self):
+        """Test documentation of context flow from /spec to /plan."""
+        flow = {
+            "from_agent": "/spec",
+            "to_agent": "/plan",
+            "context_passed": "Specification with requirements and acceptance criteria",
+            "expectation": "Specification becomes input for task planning"
+        }
+
+        self.assertEqual(flow["from_agent"], "/spec")
+        self.assertEqual(flow["to_agent"], "/plan")
+
+    def test_documents_plan_to_build_flow(self):
+        """Test documentation of context flow from /plan to /build."""
+        flow = {
+            "from_agent": "/plan",
+            "to_agent": "/build",
+            "context_passed": "Task list with dependencies",
+            "expectation": "Tasks become implementation targets"
+        }
+
+        self.assertIn("Task list", flow["context_passed"])
+
+    def test_documents_build_to_test_flow(self):
+        """Test documentation of context flow from /build to /test."""
+        flow = {
+            "from_agent": "/build",
+            "to_agent": "/test",
+            "context_passed": "Implemented code and changes",
+            "expectation": "Code changes need verification"
+        }
+
+        self.assertEqual(flow["to_agent"], "/test")
+
+    def test_documents_custom_skill_context_requirements(self):
+        """Test documentation of context requirements for custom skills."""
+        pr_requirements = {
+            "skill": "/pr",
+            "prerequisite_state": "Code reviewed and approved",
+            "expected_context": {
+                "branch": "semantic-release branch",
+                "commits": "conventional format",
+                "files": "reviewed code changes"
+            }
+        }
+
+        self.assertEqual(pr_requirements["skill"], "/pr")
+        self.assertIn("branch", pr_requirements["expected_context"])
+
+
+

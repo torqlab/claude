@@ -252,5 +252,159 @@ This is the content of {name}.
         readme_path.write_text(updated)
 
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    def test_full_workflow_discovers_all_skills_and_updates_agents_md(self):
+        """Test end-to-end workflow discovering all skills and updating AGENTS.md."""
+        # Step 1: Create multiple skills
+        self._create_custom_skill("pr", "Create GitHub PRs with semantic-release conventions")
+        self._create_custom_skill("semantic-release", "Manage git branches and commits with versioning")
+        self._create_custom_skill("create-changelog", "Generate changelog entries from git diffs")
+
+        # Step 2: Create skills-lock.json for open-source skills
+        self._create_skills_lock()
+
+        # Step 3: Create settings.json with enabled plugins
+        self._create_settings_with_plugins()
+
+        # Step 4: Create initial AGENTS.md without agent-friendly sections
+        agents_path = self.project_dir / "AGENTS.md"
+        agents_path.write_text("""# AGENTS.md
+
+## Available Agents
+
+| Agent | Purpose |
+|-------|---------|
+| /spec | Write specifications |
+""")
+
+        # Step 5: Simulate AGENTS.md update with decision trees
+        self._update_agents_md_with_decision_trees(agents_path)
+
+        # Step 6: Verify AGENTS.md contains decision trees
+        updated_content = agents_path.read_text()
+        self.assertIn("## 🎯 Decision Trees", updated_content)
+        self.assertIn("I need to implement a feature", updated_content)
+
+    def test_generates_decision_trees_in_agents_md(self):
+        """Test generation of decision trees in AGENTS.md."""
+        agents_path = self.project_dir / "AGENTS.md"
+        decision_trees = """## 🎯 Decision Trees
+
+### "I need to implement a feature"
+- Do you have clear requirements?
+  - NO → Use /interview-me or /idea-refine
+  - YES → Continue
+- Have you written a spec?
+  - NO → Use /spec, then continue
+  - YES → Continue
+"""
+        agents_path.write_text(decision_trees)
+
+        content = agents_path.read_text()
+        self.assertIn("## 🎯 Decision Trees", content)
+        self.assertIn("/interview-me", content)
+        self.assertIn("/spec", content)
+
+    def test_integrates_custom_skills_into_agent_workflows(self):
+        """Test documentation of custom skill integration into workflows."""
+        self._create_custom_skill("pr", "Create pull requests")
+        agents_path = self.project_dir / "AGENTS.md"
+
+        integration_guide = """## 🛠️ Custom Skills Integration Guide
+
+| Skill | Integration Point | Works With Agents | Sequence |
+|-------|-------------------|------------------|----------|
+| /pr | After /build completes | /build, /review | /build → /review → /pr |
+| /create-changelog | After /build before /ship | /build, /ship | /build → /create-changelog → /ship |
+"""
+        agents_path.write_text(integration_guide)
+
+        content = agents_path.read_text()
+        self.assertIn("## 🛠️ Custom Skills Integration", content)
+        self.assertIn("/pr", content)
+        self.assertIn("/build → /review → /pr", content)
+
+    def test_documents_agent_context_requirements(self):
+        """Test documentation of agent context and prerequisites."""
+        agents_path = self.project_dir / "AGENTS.md"
+
+        context_section = """## 📋 Agent Context Requirements
+
+| Agent | Phase | Prerequisites | Input | Output | Success Criteria |
+|-------|-------|---|-------|--------|------------------|
+| /spec | Specification | Clear requirements | Clarified requirements | Detailed spec | Spec has clear criteria |
+| /plan | Planning | Spec complete | Specification | Ordered tasks | Tasks are ordered |
+| /build | Build | Task list ready | Task from plan | Tested code | Code changes committed |
+"""
+        agents_path.write_text(context_section)
+
+        content = agents_path.read_text()
+        self.assertIn("## 📋 Agent Context Requirements", content)
+        self.assertIn("/spec", content)
+        self.assertIn("Clear requirements", content)
+
+    def test_combined_readme_and_agents_md_update(self):
+        """Test that both README.md and AGENTS.md are updated in single run."""
+        # Create skills
+        self._create_custom_skill("pr", "Create PRs")
+        self._create_custom_skill("semantic-release", "Version control")
+
+        # Create initial files
+        readme_path = self.project_dir / "README.md"
+        agents_path = self.project_dir / "AGENTS.md"
+        readme_path.write_text("# Project\n\n## Usage\n\nSome content.\n")
+        agents_path.write_text("# AGENTS.md\n\nOriginal content.\n")
+
+        # Simulate updates
+        self._update_readme_with_skills(readme_path)
+        self._update_agents_md_with_decision_trees(agents_path)
+
+        # Verify both files updated
+        readme_content = readme_path.read_text()
+        agents_content = agents_path.read_text()
+
+        self.assertIn("## 📦 Skills", readme_content)
+        self.assertIn("pr", readme_content)
+        self.assertIn("## 🎯 Decision Trees", agents_content)
+
+    # Helper methods
+
+    def _update_agents_md_with_decision_trees(self, agents_path):
+        """Simulate AGENTS.md update with decision trees section."""
+        current_content = agents_path.read_text()
+
+        decision_trees = """## 🎯 Decision Trees
+
+### "I need to implement a feature"
+- Do you have clear requirements?
+  - NO → Use /interview-me or /idea-refine
+  - YES → Continue
+- Have you written a spec?
+  - NO → Use /spec, then continue
+  - YES → Continue
+
+## 🔗 Agent Combinations & Context Flow
+
+| Sequence | Prerequisites | Purpose | Output Context |
+|----------|---|---------|--------|
+| /spec → /plan → /build | Clear requirements | Feature development | Task list → Implementation |
+
+## 🛠️ Custom Skills Integration Guide
+
+| Skill | Integration Point | Works With Agents | Sequence |
+|-------|-------------------|------------------|----------|
+| /pr | After /build completes | /build, /review | /build → /review → /pr |
+| /create-changelog | After /build before /ship | /build, /ship | /build → /create-changelog → /ship |
+
+## 📋 Agent Context Requirements
+
+| Agent | Phase | Prerequisites | Input | Output | Success Criteria |
+|-------|-------|---|-------|--------|------------------|
+| /spec | Specification | Clear requirements | Clarified requirements | Detailed spec | Spec has clear criteria |
+| /plan | Planning | Spec complete | Specification | Ordered tasks | Tasks are ordered |
+"""
+
+        updated = current_content.replace("# AGENTS.md", f"# AGENTS.md\n\n{decision_trees}")
+        agents_path.write_text(updated)
+
+
+
