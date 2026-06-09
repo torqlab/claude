@@ -1,0 +1,93 @@
+{
+  "skill_name": "pr",
+  "description": "Test cases for pr skill - verifying ticket_id-only format in PR titles/footers and current repo validation",
+  "evals": [
+    {
+      "id": 1,
+      "name": "pr_title_format_ticket_id_only",
+      "prompt": "Create a PR from branch feat/55-skills-alignment with title following conventions",
+      "expected_output": "PR title format: '55 Skills Alignment' (no board_id prefix)",
+      "assertions": [
+        {
+          "name": "title_starts_with_ticket_id",
+          "description": "PR title starts with ticket_id only, no board_id",
+          "check": "Title matches pattern: ^\\d+ [A-Z]"
+        },
+        {
+          "name": "no_board_id_in_title",
+          "description": "No board_id in PR title",
+          "check": "Title does not contain underscore like '3_55'"
+        },
+        {
+          "name": "ticket_id_extracted_from_branch",
+          "description": "Ticket ID correctly extracted from branch name",
+          "check": "Title ticket_id matches branch pattern feat/55-"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "pr_footer_uses_hash_only",
+      "prompt": "Create a PR with commit message 'feat(api): add query endpoint' - footer should reference issue",
+      "expected_output": "Footer format: 'Closes #55' (no board_id, no repo prefix)",
+      "assertions": [
+        {
+          "name": "footer_has_hash_only",
+          "description": "Footer uses #ticket_id format, no board_id or repo prefix",
+          "check": "Footer matches pattern: (Closes|Addresses|Fixes) #\\d+$"
+        },
+        {
+          "name": "no_repo_prefix_in_footer",
+          "description": "No repo reference like 'torqlab/torq#' in footer",
+          "check": "Footer does not contain '/' before '#'"
+        },
+        {
+          "name": "footer_uses_ticket_from_branch",
+          "description": "Footer ticket matches branch ticket_id",
+          "check": "Footer #N matches branch */N-"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "branch_validation_rejects_board_id",
+      "prompt": "Validate branch name feat/3_55-old-format for PR creation",
+      "expected_output": "Validation error: branch name should not contain board_id",
+      "assertions": [
+        {
+          "name": "rejects_underscore_in_branch",
+          "description": "Rejects branch names with underscore separator",
+          "check": "Output contains validation error about format"
+        },
+        {
+          "name": "error_suggests_correct_format",
+          "description": "Error message shows correct format without board_id",
+          "check": "Error references: type/ticket_id-description"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "issue_link_current_repo_only",
+      "prompt": "Create PR for issue #42 - verify issue link is from current repo only",
+      "expected_output": "PR links to current repo issue, no cross-repo resolution",
+      "assertions": [
+        {
+          "name": "issue_resolved_current_repo",
+          "description": "GitHub issue resolved from current repository only",
+          "check": "Output validates issue #42 in current repo"
+        },
+        {
+          "name": "no_cross_repo_attempt",
+          "description": "No attempt to search across multiple repositories",
+          "check": "Output does not show searches in other repos"
+        },
+        {
+          "name": "footer_references_current_repo",
+          "description": "Footer uses local issue reference #42",
+          "check": "Footer contains '#42' not 'torqlab/repo#42'"
+        }
+      ]
+    }
+  ]
+}

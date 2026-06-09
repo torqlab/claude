@@ -1,0 +1,88 @@
+{
+  "skill_name": "git-branch",
+  "description": "Test cases for git-branch skill - verifying ticket_id-only format, current repo resolution, and proper branch naming",
+  "evals": [
+    {
+      "id": 1,
+      "name": "simple-feature-branch",
+      "prompt": "Create a branch for issue #55 in this repository",
+      "expected_output": "Branch created with format feat/55-description (no board_id)",
+      "assertions": [
+        {
+          "name": "branch_format_no_board_id",
+          "description": "Branch name contains ticket_id only, no board_id prefix",
+          "check": "Branch matches pattern: ^(feat|fix|chore|docs|perf|refactor|test)/\\d+-"
+        },
+        {
+          "name": "issue_resolved_current_repo",
+          "description": "GitHub issue resolved from current repository only",
+          "check": "Output shows 'gh issue view 55' command used, no cross-repo search attempted"
+        },
+        {
+          "name": "no_board_id_in_output",
+          "description": "No board_id mentioned anywhere in output or branch name",
+          "check": "Output and branch name do not contain underscore separator pattern (e.g., 3_55)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "bug-fix-branch",
+      "prompt": "I need to fix issue #42 - there's a race condition in the cache",
+      "expected_output": "Branch created with fix/42-race-condition (no board_id)",
+      "assertions": [
+        {
+          "name": "type_inference_correct",
+          "description": "Type correctly inferred as 'fix' from issue content",
+          "check": "Branch starts with 'fix/' not other types"
+        },
+        {
+          "name": "ticket_id_preserved",
+          "description": "Ticket ID 42 is preserved in branch name",
+          "check": "Branch contains '/42-'"
+        },
+        {
+          "name": "no_underscore_format",
+          "description": "No underscore separator used (confirms no board_id)",
+          "check": "Branch does not match pattern with underscore like */\\d+_\\d+-"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "validation_rejects_board_id_format",
+      "prompt": "Create a branch with custom name feat/3_55-invalid-format",
+      "expected_output": "Validation error explaining branch name is invalid",
+      "assertions": [
+        {
+          "name": "rejects_underscore_format",
+          "description": "Validation rejects branch name with underscore separator",
+          "check": "Output contains error message about invalid format"
+        },
+        {
+          "name": "error_message_clear",
+          "description": "Error message guides user to correct format without board_id",
+          "check": "Error message references correct format: type/ticket_id-description"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "cross_repo_request_rejected",
+      "prompt": "Create a branch for torqlab/other-repo#99",
+      "expected_output": "Error: issue only resolved from current repository",
+      "assertions": [
+        {
+          "name": "rejects_cross_repo",
+          "description": "Skill rejects cross-repository issue references",
+          "check": "Output contains error about current repo only"
+        },
+        {
+          "name": "no_org_search",
+          "description": "No attempt to search across torqlab organization",
+          "check": "Output does not show gh search commands across org"
+        }
+      ]
+    }
+  ]
+}

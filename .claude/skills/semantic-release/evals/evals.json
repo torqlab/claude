@@ -1,25 +1,121 @@
 {
   "skill_name": "semantic-release",
+  "description": "Test cases for semantic-release skill - verifying ticket_id-only format in commits, footers, and version bumping",
   "evals": [
     {
-      "id": 0,
-      "prompt": "I'm in torqlab/claude repo and need to create a branch for board 1 ticket 55 (skills improvements). The ticket exists in torqlab/torq. Walk me through the process.",
-      "expected_output": "Skill should: 1) parse 'board 1 ticket 55' as ticket ID 55, 2) search torqlab/torq for #55 (default repo), 3) if found, resolve that it's in torqlab/torq, 4) suggest branch name feat/1_55-skills-improvements, 5) guide commit footer to reference torqlab/torq#1_55"
-    },
-    {
       "id": 1,
-      "prompt": "Create a branch in torqlab/claude for torq#42 (a bug fix). The ticket exists in the torq repo. I'll be making commits that reference this cross-repo ticket.",
-      "expected_output": "Skill should: 1) parse 'torq#42' as shorthand for torqlab/torq#42, 2) validate ticket exists in torqlab/torq, 3) create branch in current repo (torqlab/claude) as fix/1_42-<description>, 4) explain that commits will reference torqlab/torq#1_42 in footer"
+      "name": "commit_message_uses_ticket_id_only",
+      "prompt": "Create a conventional commit: 'feat(api): add query endpoint' addressing issue #55",
+      "expected_output": "Commit message with footer 'Closes #55' (no board_id)",
+      "assertions": [
+        {
+          "name": "footer_format_hash_only",
+          "description": "Footer uses #ticket_id format without board_id",
+          "check": "Footer matches: (Closes|Addresses|Fixes) #\\d+$"
+        },
+        {
+          "name": "no_underscore_in_scope",
+          "description": "No underscore in scope/issue reference",
+          "check": "Message does not contain pattern like '#3_55' or '(api, #3_55)'"
+        },
+        {
+          "name": "ticket_id_in_footer",
+          "description": "Ticket ID appears in footer, not elsewhere",
+          "check": "Message contains 'Closes #55' in footer line"
+        }
+      ]
     },
     {
       "id": 2,
-      "prompt": "What happens if I request a branch for ticket #999 which doesn't exist anywhere in torqlab org? How should the skill handle this?",
-      "expected_output": "Skill should report that ticket #999 was searched in torqlab/torq (default) and other torqlab repos but not found. Halt and ask user to verify ticket exists or create it first."
+      "name": "version_bump_from_branch_ticket",
+      "prompt": "On branch feat/106-query-athlete, determine version bump type from the branch and issue",
+      "expected_output": "Type 'feat' inferred, MINOR version bump determined",
+      "assertions": [
+        {
+          "name": "type_from_branch_prefix",
+          "description": "Commit type correctly extracted from branch prefix",
+          "check": "Output indicates 'feat' type from feat/106-... branch"
+        },
+        {
+          "name": "ticket_id_extracted_no_board",
+          "description": "Ticket ID extracted without board_id logic",
+          "check": "Branch parsing extracts 106, not attempting to parse board_id"
+        },
+        {
+          "name": "semantic_version_correct",
+          "description": "Version bump (MAJOR/MINOR/PATCH) calculated correctly",
+          "check": "Type 'feat' results in MINOR bump"
+        }
+      ]
     },
     {
       "id": 3,
-      "prompt": "I'm making a commit in torqlab/claude that addresses ticket torqlab/torq#1_55. Show me the proper commit footer format that references this cross-repo ticket without auto-closing it.",
-      "expected_output": "Skill should show footer as 'Closes torqlab/torq#1_55' (or similar) with explanation that this is for audit trail and issue linkage, noting agent is not auto-closing the issue"
+      "name": "reject_old_board_id_format",
+      "prompt": "Attempt to create commit with reference 'Closes torqlab/torq#3_55'",
+      "expected_output": "Validation error: footer format should be 'Closes #ticket_id' only",
+      "assertions": [
+        {
+          "name": "rejects_repo_prefix",
+          "description": "Rejects footer with repo prefix like 'torqlab/torq#'",
+          "check": "Output contains validation error about format"
+        },
+        {
+          "name": "rejects_underscore_separator",
+          "description": "Rejects underscore separator in issue reference",
+          "check": "Error mentions correct format: #ticket_id"
+        },
+        {
+          "name": "error_message_helpful",
+          "description": "Error explains correct format to user",
+          "check": "Error contains example of correct format"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "changelog_generation_uses_hash_only",
+      "prompt": "Generate changelog entry for fix/42-race-condition addressing issue #42",
+      "expected_output": "Changelog entry with link format: closes #42 (no board_id, no repo prefix)",
+      "assertions": [
+        {
+          "name": "changelog_issue_link_format",
+          "description": "Changelog uses #ticket_id format for issue links",
+          "check": "Changelog contains 'closes #42' or similar"
+        },
+        {
+          "name": "no_board_id_in_changelog",
+          "description": "No board_id in changelog output",
+          "check": "Changelog does not contain '_' separator pattern"
+        },
+        {
+          "name": "no_repo_prefix_in_changelog",
+          "description": "No repo prefix like 'torqlab/torq#' in changelog",
+          "check": "Changelog links use only #ticket_id format"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "current_repo_validation_only",
+      "prompt": "Try to reference issue from different repo: 'Closes torqlab/other-repo#55'",
+      "expected_output": "Error: issues must be from current repository only",
+      "assertions": [
+        {
+          "name": "rejects_cross_repo",
+          "description": "Rejects cross-repository issue references",
+          "check": "Output contains error about current repo only"
+        },
+        {
+          "name": "no_org_search",
+          "description": "No attempt to search across organization",
+          "check": "Output does not show org-wide search commands"
+        },
+        {
+          "name": "error_suggests_local_issue",
+          "description": "Error guides user to use current repo issue",
+          "check": "Error message suggests using #ticket_id format"
+        }
+      ]
     }
   ]
 }
