@@ -30,54 +30,15 @@ The **Addy Osmani agent-skills workflow** is the core development approach. See 
 - **Typical Development Flow** (step-by-step process)
 - **When to Use Each Agent** (decision guidance)
 
-## 🔧 Available Agents in This Collection
+## 🔧 Workflow Guidance
 
-All agents are part of the **@addy-agent-skills plugin** suite. For complete workflow details, see [README.md §Addy Osmani Workflow](./README.md#-addy-osmani-workflow-primary-development-methodology).
+The **Addy Osmani agent-skills workflow** is the core development approach. See [README.md §Addy Osmani Workflow](./README.md#-addy-osmani-workflow-primary-development-methodology) for:
+- **Core Workflow Phases** table
+- **Essential Commands & Shortcuts** (organized by purpose)
+- **Typical Development Flow** (step-by-step process)
+- **When to Use Each Agent** (decision guidance)
 
-### Workflow Agents (Core Development Flow)
-
-| Agent | Purpose | When to Use |
-|-------|---------|-----------|
-| `/idea-refine` | Refine raw concepts into sharp, actionable requirements | Starting with vague ideas or unclear scope |
-| `/interview-me` | Extract actual user needs vs. assumed requirements | Before starting development, to clarify requirements |
-| `/spec` | Write detailed specifications before implementation | When requirements are clear; write before coding |
-| `/plan` | Break work into ordered tasks with dependencies | After spec is complete; need ordered task list |
-| `/build` | Implement tasks incrementally with validation | Executing planned tasks; implement → test → verify → commit |
-| `/test` | TDD workflow with failing tests first | Testing existing code or developing new features |
-| `/review` | Five-axis code review (correctness, readability, architecture, security, performance) | Before merging; quality gate |
-| `/ship` | Pre-launch checklist and production readiness | Before shipping to production |
-
-### Domain-Specific Agents
-
-| Agent | Purpose | When to Use |
-|-------|---------|-----------|
-| `/frontend-ui-engineering` | Build production-quality user interfaces | Designing and implementing frontend features |
-| `/api-and-interface-design` | Design stable APIs and module boundaries | Planning API or module architecture |
-| `/performance-optimization` | Profile and optimize application performance | Performance issues or optimization requirements |
-| `/security-and-hardening` | Harden code against vulnerabilities and OWASP threats | Security-sensitive code; before production |
-| `/ci-cd-and-automation` | Automate CI/CD pipeline setup and orchestration | Setting up or improving CI/CD workflows |
-| `/documentation-and-adrs` | Record architectural decisions and create documentation | Documenting decisions; creating architecture docs |
-
-### Practice & Specialized Agents
-
-| Agent | Purpose | When to Use |
-|-------|---------|-----------|
-| `/incremental-implementation` | Ship changes in small, verifiable steps | Implementing features; ensure incremental delivery |
-| `/test-driven-development` | TDD patterns and practices | Structuring development around tests |
-| `/code-review-and-quality` | Multi-axis code review patterns | Before merge; detailed quality review |
-| `/source-driven-development` | Ground decisions in official documentation | When decisions need documentation backing |
-| `/doubt-driven-development` | Adversarial review before decisions | Questioning non-trivial decisions |
-| `/git-workflow-and-versioning` | Git practices and semantic versioning | Managing git workflow and version management |
-| `/debugging-and-error-recovery` | Systematic root-cause analysis | Debugging failures; error recovery |
-| `/context-engineering` | Optimize agent context and prompts | Improving output quality and relevance |
-| `/deprecation-and-migration` | Plan and execute migrations | Deprecating features or managing migrations |
-| `/browser-testing-with-devtools` | Real browser testing via Chrome DevTools MCP | Testing in actual browser environments |
-| `/using-agent-skills` | Discover and invoke available agent skills | Learning what agent skills are available |
-| `/code-simplify` | Simplify code for clarity | Refactoring code for readability |
-| `/code-simplification` | Simplify code for clarity and maintainability | Maintenance and refactoring tasks |
-| `/spec-driven-development` | Create detailed specifications before coding | Spec-first development approach |
-| `/shipping-and-launch` | Prepare applications for production launch | Pre-launch preparation |
-| `/planning-and-task-breakdown` | Break work into ordered tasks with dependencies | Task organization and dependency management |
+For a complete list of all available agent skills, see [SKILLS.md §Agent Skills](./SKILLS.md#agent-skills).
 
 ## 📦 Project-Specific Skills
 
@@ -208,29 +169,6 @@ Common agent workflow sequences and the context that flows between them.
 | `/documentation-and-adrs` → `/build` | Architectural decision | Record decision and implement | ADR → Implementation |
 
 **Context flows left-to-right**: Output from one agent becomes the input context for the next agent in the sequence.
-
-
-## 📋 Agent Context Requirements
-
-Prerequisites, inputs, and outputs for each major agent workflow phase.
-
-| Agent | Phase | Prerequisites | Input Context | Output | Success Criteria |
-|-------|-------|---|---|--------|------------------|
-| `/interview-me` | Requirements | Problem description | Initial idea or requirement | Clarified requirements | Clear understanding of actual needs |
-| `/idea-refine` | Requirements | Vague concept | Rough idea or feature request | Actionable requirements | Requirements are specific and measurable |
-| `/spec` | Specification | Clear requirements | Requirements document | Detailed specification with acceptance criteria | Spec includes acceptance criteria and edge cases |
-| `/plan` | Planning | Specification complete | Detailed spec | Ordered tasks with dependencies | Tasks are ordered, dependencies clear, ready to build |
-| `/build` | Implementation | Task list ready | Task description and related spec | Tested, verified, committed code | Code changes committed to feature branch |
-| `/test` | Testing | Code or failing test | Code changes or test failure | Passing tests or verified behavior | All tests passing or behavior verified |
-| `/review` | Review | Code ready for feedback | Code changes to review | Review feedback or approval | All review feedback addressed |
-| `/ship` | Launch | Code reviewed and approved | Approved code and release context | Production deployment checklist | Deployment checklist completed |
-| `/debugging-and-error-recovery` | Debugging | Error symptoms or test failure | Error message, logs, or failing test | Root cause identified | Root cause documented and understood |
-| `/performance-optimization` | Optimization | Performance baseline | Baseline metrics and code | Optimization strategy and/or implementation | Performance improved per requirements |
-| `/security-and-hardening` | Security | Security audit or vulnerability | Code to audit or vulnerability details | Hardening strategy or implementation | Security improvements verified |
-| `/frontend-ui-engineering` | Frontend | Design requirements | UI requirements or design specs | Implemented UI components | UI passes acceptance criteria |
-| `/api-and-interface-design` | Architecture | API requirements | API requirements or module spec | Stable interface design | API design reviewed and documented |
-
-**Context inheritance**: Later phases build on outputs from earlier phases. Each output becomes input context for the next agent in the workflow.
 
 
 ## Getting Help
