@@ -61,20 +61,20 @@
 
 ## Test Files
 
-- `test_align_skills.py` - Unit tests (22 tests)
+- `test_document_skills.py` - Unit tests (22 tests)
 - `test_integration.py` - Integration tests (5 tests)
 
 ## Running the Tests
 
 ```bash
 # Run all unit tests
-python3 test_align_skills.py
+python3 test_document_skills.py
 
 # Run all integration tests
 python3 test_integration.py
 
 # Run both
-python3 test_align_skills.py && python3 test_integration.py
+python3 test_document_skills.py && python3 test_integration.py
 ```
 
 ## Key Features Validated
