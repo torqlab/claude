@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test suite for orphaned skill detection and removal in align-skills-documentation skill.
+Test suite for orphaned skill detection and removal in document-skills skill.
 """
 
 import json
