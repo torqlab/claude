@@ -85,8 +85,6 @@ In addition to agent-skills, this collection provides custom skills. See [README
 
 | Skill | Purpose | Usage |
 |-------|---------|-------|
-| **pr-open** | Create pull requests on GitHub from changelog entries with branch validation | `/pr-open` |
-| **create-changelog** | Generate changelog entries following Keep a Changelog standard | `/create-changelog` |
 | **github-mcp-setup** | Configure GitHub MCP with GitHub App authentication | `/github-mcp-setup` |
 | **frontend-design** | Build distinctive, production-grade UI components | `/frontend-design` |
 | **skill-creator** | Create, test, and iteratively improve new Claude skills | `/skill-creator` |

@@ -18,8 +18,6 @@ This collection includes both **NPM-based open-source skills** and **custom proj
 
 | Skill | Type | Purpose | Source |
 |-------|------|---------|--------|
-| **pr-open** | Custom | Create pull requests on GitHub directly from changelog entries with branch validation and smart defaults | [./.claude/skills/pr-open/SKILL.md](./.claude/skills/pr-open/SKILL.md) |
-| **create-changelog** | Custom | Generate accurate changelog entries following Keep a Changelog standard based on git diffs | [./.claude/skills/create-changelog/SKILL.md](./.claude/skills/create-changelog/SKILL.md) |
 | **github-mcp-setup** | Custom | Configure GitHub MCP (Model Context Protocol) for GitHub automation with GitHub App authentication | [./.claude/skills/github-mcp-setup/SKILL.md](./.claude/skills/github-mcp-setup/SKILL.md) |
 | **frontend-design** | Open-source | Build distinctive, production-grade UI components with cohesive aesthetic direction | [anthropics/skills](https://github.com/anthropics/skills) |
 | **skill-creator** | Open-source | Create, test, and iteratively improve new Claude skills with comprehensive evaluation workflows | [anthropics/skills](https://github.com/anthropics/skills) |
@@ -51,7 +49,6 @@ This collection includes both **NPM-based open-source skills** and **custom proj
 | **test-driven-development** | Agent Skill | Drive development with tests as primary design tool | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
 | **git-workflow-and-versioning** | Agent Skill | Structure git workflow practices and semantic versioning | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
 | **doubt-driven-development** | Agent Skill | Subject non-trivial decisions to fresh-context adversarial review | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
-| **code-simplification** | Agent Skill | Simplify code for clarity and maintainability without changing behavior | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
 | **browser-testing-with-devtools** | Agent Skill | Test applications in real browsers via Chrome DevTools MCP | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main) |
 
 ### 🔧 Configuration
@@ -124,13 +121,7 @@ This collection implements **Addy Osmani's agent-skills framework** as the core 
 | Phase | Agent Skill | Purpose | Command |
 |-------|-------------|---------|---------|
 | **Idea Refinement** | `/idea-refine` | Refine raw concepts into sharp, actionable requirements | `/idea-refine` |
-| **Requirements** | `/interview-me` | Extract actual user needs vs. assumed requirements | `/interview-me` |
-| **Specification** | `/spec` or `/spec-driven-development` | Write detailed specs before coding begins | `/spec` |
-| **Planning** | `/plan` or `/planning-and-task-breakdown` | Break work into ordered tasks with dependencies | `/plan` |
-| **Implementation** | `/build` or `/incremental-implementation` | Implement tasks incrementally with validation | `/build` |
-| **Testing** | `/test` or `/test-driven-development` | TDD workflow with failing tests first | `/test` |
 | **Code Review** | `/review` or `/code-review-and-quality` | Five-axis review (correctness, readability, architecture, security, performance) | `/review` |
-| **Launch** | `/ship` or `/shipping-and-launch` | Pre-launch checklist and production readiness | `/ship` |
 
 ### Essential Commands & Shortcuts
 
@@ -251,8 +242,6 @@ metadata:
 torq/claude/
 ├── .claude/
 │   ├── skills/              # Custom project-specific skills
-│   │   ├── pr-open/
-│   │   ├── create-changelog/
 │   │   ├── github-mcp-setup/
 │   │   └── skill-creator/   # Imported from anthropics/skills
 │   ├── settings.json        # Plugin configuration

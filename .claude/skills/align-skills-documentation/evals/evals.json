@@ -3,99 +3,133 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "I've just added a new custom skill /frontend-design to .claude/skills/ and updated README.md manually. Now I need to sync all documentation (README and AGENTS.md) to include decision trees and agent context requirements. Run the align-skills-documentation skill to update both files with agent-friendly documentation.",
-      "expected_output": "Updated README.md with synchronized skills table and trigger patterns. Updated AGENTS.md with decision trees showing if-then flows for agent selection, agent combinations matrix, custom skill integration guide mapping /frontend-design to workflow phases, and agent context requirements.",
+      "eval_name": "detect-and-remove-orphaned-skill",
+      "prompt": "The create-changelog custom skill was deleted from .claude/skills/ but is still referenced in README.md and AGENTS.md. Run the align-skills-documentation skill and verify it removes all references to create-changelog from both files. The skill should automatically detect that create-changelog SKILL.md no longer exists and clean up the documentation.",
+      "expected_output": "README.md and AGENTS.md updated to remove create-changelog entries. Report shows create-changelog in 'removed' section with details about what was cleaned up.",
       "files": [],
       "assertions": [
         {
-          "name": "readme_skills_table_updated",
-          "description": "README.md contains updated skills table with /frontend-design skill"
+          "name": "create_changelog_removed_from_readme_table",
+          "description": "Verify create-changelog row is removed from skills table in README.md"
         },
         {
-          "name": "agents_md_has_decision_trees",
-          "description": "AGENTS.md contains Decision Trees section with if-then flows"
+          "name": "create_changelog_removed_from_agents_table",
+          "description": "Verify create-changelog row is removed from AGENTS.md custom skills section"
         },
         {
-          "name": "agents_md_has_combinations_matrix",
-          "description": "AGENTS.md contains Agent Combinations & Context Flow matrix"
+          "name": "create_changelog_not_in_directory_listing",
+          "description": "Verify create-changelog is not in README.md directory structure listing"
         },
         {
-          "name": "agents_md_has_custom_skills_integration",
-          "description": "AGENTS.md contains Custom Skills Integration Guide with /frontend-design mapped"
-        },
-        {
-          "name": "agents_md_has_context_requirements",
-          "description": "AGENTS.md contains Agent Context Requirements table"
-        },
-        {
-          "name": "frontend_design_in_integration_guide",
-          "description": "/frontend-design skill is documented in Custom Skills Integration Guide"
+          "name": "report_lists_removed_skill",
+          "description": "Report should show create-changelog in 'removed' or 'orphaned' section with count"
         }
       ]
     },
     {
       "id": 2,
-      "prompt": "Our project uses semantic-release, pr, and create-changelog custom skills alongside agent-skills. Generate comprehensive agent-friendly documentation that shows how these custom skills integrate into the development workflow. Decision trees should help agents understand when to use /pr after /build and where /create-changelog fits before /ship.",
-      "expected_output": "AGENTS.md with clear decision trees for skill selection, agent combinations matrix showing /spec → /plan → /build sequences, custom skills integration guide documenting /pr integration after review and /create-changelog before ship, and agent context requirements with prerequisites and state flow.",
+      "eval_name": "preserve-existing-custom-skills",
+      "prompt": "Run the align-skills-documentation skill on a project where all custom skills exist (pr, github-mcp-setup, align-skills-documentation, semantic-release, git-branch). Verify the skill correctly discovers all existing custom skills and doesn't accidentally remove or modify valid documentation. The report should show zero removed skills.",
+      "expected_output": "All existing custom skills properly documented. No spurious removals. Report shows all custom skills present with accurate metadata and 'Custom' type.",
       "files": [],
       "assertions": [
         {
-          "name": "decision_tree_feature_implementation",
-          "description": "Decision trees include 'I need to implement a feature' branch"
+          "name": "all_custom_skills_discovered",
+          "description": "All five custom skills (pr, github-mcp-setup, align-skills-documentation, semantic-release, git-branch) are discovered"
         },
         {
-          "name": "decision_tree_bug_fix",
-          "description": "Decision trees include 'Something is broken' branch"
+          "name": "custom_skills_marked_correctly",
+          "description": "All custom skills are marked with type='Custom' not 'Open-source'"
         },
         {
-          "name": "pr_integration_documented",
-          "description": "Custom Skills Integration Guide documents /pr usage after /build"
+          "name": "existing_skills_preserved",
+          "description": "All existing custom skills remain in README.md skills table"
         },
         {
-          "name": "create_changelog_integration",
-          "description": "Custom Skills Integration Guide documents /create-changelog before /ship"
-        },
-        {
-          "name": "semantic_release_integration",
-          "description": "Custom Skills Integration Guide documents /semantic-release during planning"
-        },
-        {
-          "name": "agent_combinations_show_workflow",
-          "description": "Agent Combinations matrix shows /spec → /plan → /build sequence"
+          "name": "no_false_removals",
+          "description": "Report shows zero removed skills (no false positives)"
         }
       ]
     },
     {
       "id": 3,
-      "prompt": "Audit documentation drift: We've removed the /github-mcp-setup skill but it's still documented in AGENTS.md and README.md. Run align-skills-documentation to detect and report this discrepancy, and generate a fresh audit showing what's in code vs what's documented.",
-      "expected_output": "Report showing /github-mcp-setup documented but not in codebase. Summary of all skills by type (Custom, Open-source, Agent Skill). README.md updated to remove /github-mcp-setup. AGENTS.md sections updated with accurate skill inventory. Documentation coverage percentage and recommendations for resolving drift.",
+      "eval_name": "distinguish-opensource-from-custom",
+      "prompt": "The project has both frontend-design and skill-creator from skills-lock.json (open-source from anthropics/skills) AND custom skills like pr and github-mcp-setup. Run the align-skills-documentation skill and verify: (1) frontend-design and skill-creator are marked as 'Open-source' type with source='anthropics/skills', (2) pr and github-mcp-setup are marked as 'Custom' type with local SKILL.md paths, (3) no skill is marked as both types. This tests that discovery correctly prioritizes skills-lock.json sources.",
+      "expected_output": "Skills correctly categorized: frontend-design and skill-creator as Open-source, pr and github-mcp-setup as Custom. No type conflicts or duplicate entries.",
       "files": [],
       "assertions": [
         {
-          "name": "drift_detected_in_report",
-          "description": "Generated report identifies /github-mcp-setup as removed but still documented"
+          "name": "opensource_skills_correctly_identified",
+          "description": "frontend-design and skill-creator marked as Open-source type from anthropics/skills"
         },
         {
-          "name": "github_mcp_setup_removed_from_readme",
-          "description": "README.md updated to remove /github-mcp-setup from skills table"
+          "name": "custom_skills_correctly_identified",
+          "description": "pr, github-mcp-setup, semantic-release marked as Custom type with .claude/skills paths"
         },
         {
-          "name": "github_mcp_setup_removed_from_agents_md",
-          "description": "AGENTS.md updated to remove /github-mcp-setup from custom skills integration guide"
+          "name": "no_type_conflicts",
+          "description": "No skill appears with conflicting types or source attributions"
         },
         {
-          "name": "audit_summary_generated",
-          "description": "Report includes documentation coverage percentage and skill inventory by type"
+          "name": "source_attribution_correct",
+          "description": "Open-source skills link to 'anthropics/skills', Custom skills link to local paths"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "eval_name": "comprehensive-cleanup-multiple-orphans",
+      "prompt": "A project documentation has three non-existing skills referenced in docs: 'old-tool', 'deprecated-helper', 'removed-workflow'. Actual available skills: pr, github-mcp-setup, align-skills-documentation. Run the skill and verify: (1) removes all three non-existing skills from README and AGENTS.md, (2) discovers and documents only the three actual skills as Custom type, (3) generates detailed report showing what was cleaned up.",
+      "expected_output": "All three non-existing skills removed from both files. Only three actual skills documented as Custom. Clean audit report listing removed skills.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "all_orphaned_skills_removed",
+          "description": "All three non-existing skills completely removed from README and AGENTS.md"
         },
         {
-          "name": "skills_by_type_breakdown",
-          "description": "Report shows summary of Custom, Open-source, and Agent Skill counts"
+          "name": "only_existing_skills_documented",
+          "description": "Only the three actual skills appear in documentation"
         },
         {
-          "name": "drift_recommendations",
-          "description": "Report includes recommendations for resolving documentation drift"
+          "name": "no_orphaned_references_remain",
+          "description": "No lingering references to removed skills in any section (table, integration guide, directory)"
+        },
+        {
+          "name": "cleanup_report_complete",
+          "description": "Report accurately lists all three removed skills with what was cleaned up"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "eval_name": "handle-mixed-skill-sources",
+      "prompt": "The project has: (1) Custom skills in .claude/skills/ (semantic-release, pr, git-branch), (2) Open-source skills in skills-lock.json (frontend-design, skill-creator), (3) Agent skills from enabled agent-skills plugin (spec, plan, build, test, review), (4) orphaned references to 'old-skill' in docs. Run align-skills-documentation and verify correct discovery and categorization of all skill types, with only one entry per skill regardless of source.",
+      "expected_output": "All skill types correctly discovered and categorized. No duplicate entries. Orphaned 'old-skill' removed. Report shows accurate counts: 3 Custom, 2 Open-source, 5 Agent Skills.",
+      "files": [],
+      "assertions": [
+        {
+          "name": "custom_skills_counted_correctly",
+          "description": "Exactly 3 custom skills discovered and marked as Custom type"
+        },
+        {
+          "name": "opensource_skills_counted_correctly",
+          "description": "Exactly 2 open-source skills discovered and marked as Open-source type"
+        },
+        {
+          "name": "agent_skills_counted_correctly",
+          "description": "At least 5 agent skills discovered and marked as Agent Skill type"
+        },
+        {
+          "name": "no_duplicates_across_sources",
+          "description": "No skill appears multiple times in discovered skills with different types"
+        },
+        {
+          "name": "orphaned_removed",
+          "description": "Orphaned 'old-skill' is removed from documentation"
         }
       ]
     }
   ]
 }
+
