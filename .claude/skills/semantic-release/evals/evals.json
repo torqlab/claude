@@ -3,18 +3,23 @@
   "evals": [
     {
       "id": 0,
-      "prompt": "I just joined a team and they use semantic-release for versioning. I need to understand how to write commit messages. What's the difference between feat, fix, and chore? When should I use each one? Can you give me examples?",
-      "expected_output": "Clear explanation of commit types (feat → MINOR, fix → PATCH, chore → no bump) with realistic examples and guidance on when to use each"
+      "prompt": "I'm in torqlab/claude repo and need to create a branch for board 1 ticket 55 (skills improvements). The ticket exists in torqlab/torq. Walk me through the process.",
+      "expected_output": "Skill should: 1) parse 'board 1 ticket 55' as ticket ID 55, 2) search torqlab/torq for #55 (default repo), 3) if found, resolve that it's in torqlab/torq, 4) suggest branch name feat/1_55-skills-improvements, 5) guide commit footer to reference torqlab/torq#1_55"
     },
     {
       "id": 1,
-      "prompt": "We're setting up semantic-release for the first time in our npm package. I have the basic configuration but I'm not sure if we need NPM_TOKEN or if there's a better way. What's OIDC Trusted Publishing and why should we use it instead?",
-      "expected_output": "Explanation of OIDC benefits over NPM_TOKEN, setup instructions, and clarification that no additional configuration is needed beyond package.json"
+      "prompt": "Create a branch in torqlab/claude for torq#42 (a bug fix). The ticket exists in the torq repo. I'll be making commits that reference this cross-repo ticket.",
+      "expected_output": "Skill should: 1) parse 'torq#42' as shorthand for torqlab/torq#42, 2) validate ticket exists in torqlab/torq, 3) create branch in current repo (torqlab/claude) as fix/1_42-<description>, 4) explain that commits will reference torqlab/torq#1_42 in footer"
     },
     {
       "id": 2,
-      "prompt": "Our release workflow used to be manual — we'd bump the version in package.json, write changelog entries by hand, then run npm publish. We want to switch to semantic-release. What's the migration process? What could go wrong?",
-      "expected_output": "Step-by-step migration guide, troubleshooting advice, and explanation of what changes in the workflow"
+      "prompt": "What happens if I request a branch for ticket #999 which doesn't exist anywhere in torqlab org? How should the skill handle this?",
+      "expected_output": "Skill should report that ticket #999 was searched in torqlab/torq (default) and other torqlab repos but not found. Halt and ask user to verify ticket exists or create it first."
+    },
+    {
+      "id": 3,
+      "prompt": "I'm making a commit in torqlab/claude that addresses ticket torqlab/torq#1_55. Show me the proper commit footer format that references this cross-repo ticket without auto-closing it.",
+      "expected_output": "Skill should show footer as 'Closes torqlab/torq#1_55' (or similar) with explanation that this is for audit trail and issue linkage, noting agent is not auto-closing the issue"
     }
   ]
 }

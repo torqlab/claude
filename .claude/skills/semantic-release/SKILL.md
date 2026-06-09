@@ -1,8 +1,8 @@
 ---
 name: semantic-release
 description: |
-  Guide to implementing and maintaining automated versioning and release workflows using semantic-release, conventional commits, and OIDC-based publishing. Use this skill whenever the user asks about: setting up semantic versioning, implementing automated releases, writing conventional commit messages, configuring semantic-release, managing npm package publishing, understanding version bumping rules, migrating from manual releases, troubleshooting release workflows, or implementing release automation best practices. This skill covers semver concepts, commit message formats, the automated release process, OIDC authentication, configuration, real-world examples, and troubleshooting strategies.
-compatibility: "git, npm, GitHub Actions"
+  Agent-driven workflow for creating git branches and conventional commits aligned with semantic-release. Use this skill whenever: agent needs to create a feature branch based on a GitHub issue from any torqlab repository, agent needs to generate conventional commit messages with proper semantic-release format referencing cross-repo tickets, user needs guidance on branch naming conventions (type/ticket-id-description) for org-wide tickets, user needs guidance on commit message format with resolved ticket references, agent needs to validate and resolve GitHub issues across the torqlab organization, or when implementing local git workflow with semantic versioning and org-wide ticket tracking. This skill guides agents through: resolving ticket location across torqlab org, validating GitHub issue existence in source repository, determining commit type from issue description, creating branches with auto-push to origin, generating commits with mandatory ticket ID references to source repo, and ensuring all commits follow semantic-release conventions for automated versioning and changelog generation. Tickets from any torqlab repository (torqlab/torq, torqlab/claude, etc.) can be used for development in any other torqlab repository. Scope: local workflow only (branch creation + commits). For PR creation and remote operations, use the PR skill.
+compatibility: "git, gh CLI, GitHub API"
 ---
 
 ## Core Concepts
@@ -41,32 +41,32 @@ All commits must follow this standardized format:
 
 **Type** (required): Classifies the change. Use the table above.
 
-**Scope** (optional): Area affected — e.g., `api`, `auth`, `db`, `types`, `docs`. Can include ticket ID: `api(#123)` or `api(#123, docs)`. Helps readers scan the log.
+**Scope** (optional): Area affected — e.g., `api`, `auth`, `db`, `types`, `docs`. Can include ticket ID: `api(#3_106)` or `api, #3_106`. Helps readers scan the log.
 
 **Subject** (required): Concise description (50 chars or less, imperative mood, no period).
 
 **Body** (optional): Detailed explanation of *why* and *what*. Wrap at 72 chars. Include motivation, contraints, tradeoffs.
 
 **Footer** (optional): 
-- Reference issues: `Closes #123`, `Fixes #456` (links commit to issue, auto-closes on merge)
-- Ticket ID: `Ticket: #123` or `Issue: #123` for explicit tracking
+- Reference issues: `Closes torqlab/torq#3_106`, `Fixes torqlab/torq#1_42` (links commit to issue with fully qualified reference, auto-closes on merge)
+- Ticket ID: `Ticket: torqlab/torq#3_106` for explicit tracking with organization and repository context
 - Breaking changes: `BREAKING CHANGE: description`
 - Co-authors: `Co-Authored-By: Name <email>`
 
 ### Branch Naming Convention
 
-Use this pattern to associate branches with tickets:
+Use this pattern to associate branches with tickets across multiple project boards:
 
 ```
-<type>/<ticket-id>-<description>
+<type>/<board_id>_<ticket_id>-<description>
 ```
 
 **Examples:**
-- `feat/55-query-athlete` — Feature branch for issue #55
-- `fix/42-race-condition` — Bug fix for issue #42
-- `chore/123-upgrade-deps` — Maintenance for issue #123
+- `feat/3_106-query-athlete` — Feature branch for board 3, issue #106
+- `fix/1_42-race-condition` — Bug fix for board 1, issue #42
+- `chore/2_123-upgrade-deps` — Maintenance for board 2, issue #123
 
-This links your branch history to your issue tracker and makes it easy to trace commits back to requirements. When your PR merges, the commit messages automatically reference the ticket ID.
+This links your branch history to your issue tracker and makes it easy to trace commits back to requirements. When your PR merges, the commit messages automatically reference the board and ticket IDs. Both board_id and ticket_id are required and must be numeric.
 
 ---
 
@@ -74,98 +74,396 @@ This links your branch history to your issue tracker and makes it easy to trace 
 
 This covers the essential local work: creating a branch and writing commits with proper conventional format.
 
-### 1. Create a Feature Branch
+### 1. Agent Validates and Creates Feature Branch
 
-**Always base new branches on `main`:**
+**Agent decision flow:**
+
+Before creating any branch, the agent must validate prerequisites and get human approval.
+
+#### Step 1: Check if ticket IDs are provided
+
+Agent must obtain both board_id and ticket_id. These are mandatory for proper ticket tracking across multiple project boards.
+
+```
+❓ Agent asks: "What is the board ID (numeric)?"
+❓ Agent asks: "What is the ticket ID (numeric)?"
+```
+
+**Or if human provides combined format:**
+- If human provides `3_106` → Parse as board_id=3, ticket_id=106, continue to step 2
+- If human provides just one ID → Ask for the other separately
+- If human doesn't respond → Ask again
+
+**Why both are required:** Board ID identifies which project board contains the ticket. Ticket ID alone is insufficient because the same ticket number may exist on different boards. This ensures unambiguous ticket identification across the entire torqlab organization.
+
+#### Step 2: Resolve ticket location and validate GitHub issue exists
+
+The ticket may exist in any repository within the torqlab organization. Agent must resolve the ticket's location and verify it exists.
+
+**Step 2a: Parse ticket reference**
+
+User may provide ticket reference in these formats:
+- `55` (ticket ID only) → Agent searches torqlab/torq first (default repo)
+- `torq#55` (repo shorthand) → Expands to torqlab/torq#55
+- `torqlab/torq#55` (fully qualified) → Use as-is
+- `torqlab/claude#55` (different repo) → Use as-is
+
+**Step 2b: Search for ticket in torqlab organization**
+
+Agent uses gh CLI to find the ticket. Search strategy:
+
+**If explicit repo provided** (e.g., `torqlab/torq#55`):
+```bash
+gh issue view --repo torqlab/torq 55 --json number,title,body --jq '.number, .title, .body'
+```
+
+**If only ticket ID provided** (search default repo first):
+```bash
+# Try torqlab/torq (default/primary repo)
+gh issue view --repo torqlab/torq 55 --json number,title,body --jq '.number, .title, .body'
+
+# If not found in torqlab/torq, search other torqlab repos:
+# (agent discovers repo list via: gh repo list torqlab --json nameWithOwner)
+# Then queries each repo until ticket is found
+```
+
+**If issue NOT found across torqlab org:**
+```
+❌ GitHub issue #55 not found in torqlab organization
+
+Searched:
+1. torqlab/torq (default) — not found
+2. Other torqlab repositories — not found
+
+Please verify:
+1. Ticket ID is correct (numeric)
+2. The ticket exists in any torqlab/X repository
+
+Create or verify the GitHub issue first, then come back with the correct ID.
+```
+Agent halts. No branch creation proceeds.
+
+**If issue found in a repo:**
+- Resolve: which repo contains the ticket (e.g., torqlab/torq, torqlab/claude, etc.)
+- Extract: `number`, `title`, `body`
+- **Crucially:** Store the source repo for use in step 6 (commit footers)
+- Continue to step 3
+
+#### Step 3: Determine commit type from issue
+
+Using the issue found in step 2, agent analyzes title and description to infer commit type:
+
+- **`feat`** — New feature or capability
+  - Keywords: "add", "implement", "enable", "support"
+  - Example: "Add rate limiting to API" → `feat`
+
+- **`fix`** — Bug fix or defect resolution
+  - Keywords: "fix", "resolve", "correct", "bug", "issue"
+  - Example: "Fix race condition in cache" → `fix`
+
+- **`perf`** — Performance improvement
+  - Keywords: "optimize", "speed up", "improve performance", "faster"
+  - Example: "Optimize database queries" → `perf`
+
+- **`chore`** — Maintenance, tooling, dependencies
+  - Keywords: "update", "upgrade", "deps", "maintenance"
+  - Example: "Upgrade dependencies" → `chore`
+
+- **`docs`** — Documentation only
+  - Keywords: "document", "guide", "README", "docs"
+  - Example: "Add API documentation" → `docs`
+
+- **`refactor`** — Code refactoring (no behavior change)
+  - Keywords: "refactor", "restructure", "simplify", "improve code"
+  - Example: "Simplify authentication logic" → `refactor`
+
+- **`test`** — Test additions (no behavior change)
+  - Keywords: "test", "add coverage", "add tests"
+  - Example: "Add unit tests for rate limiter" → `test`
+
+If type is ambiguous, agent asks human:
+```
+Based on issue title and description, is this a:
+  a) feat (new feature)
+  b) fix (bug fix)
+  c) chore (maintenance)
+  d) other (specify)
+```
+
+#### Step 4: Generate and confirm branch name
+
+**Format:** `<type>/<board_id>_<ticket_id>-<description>`
+
+Agent generates suggested branch name:
+- Extract short description from issue title (2-5 words)
+- Convert to lowercase, hyphens for spaces
+- Combine: `<inferred-type>/<board_id>_<ticket_id>-<short-description>`
+
+**Example:**
+```
+Issue torqlab/torq#3_106: "Query Athlete Data from Strava API"
+Inferred type: feat
+Board ID: 3
+Ticket ID: 106
+Suggested branch: feat/3_106-query-athlete
+
+Is this correct? (yes/no/custom)
+```
+
+- ✅ If human says **yes** → Continue to step 5
+- ❌ If human says **no** → Ask for custom branch name
+  - Agent validates format: `<type>/<board_id>_<ticket_id>-<description>`
+  - Both board_id and ticket_id must be numeric
+  - If invalid → Ask to reformat and re-validate
+- If human provides **custom** → Use it after validation
+
+#### Step 5: Agent creates and pushes branch
+
+Once approved:
 
 ```bash
 # Fetch latest from remote
 git fetch origin
 
-# Create and checkout a new branch from main
-git checkout -b <type>/<task-id>-<description> origin/main
+# Create and checkout branch from main
+git checkout -b <approved-branch-name> origin/main
+
+# Push to origin
+git push -u origin <approved-branch-name>
 ```
 
-**Examples:**
-```bash
-git checkout -b feat/55-add-rate-limiting origin/main
-git checkout -b fix/42-resolve-race-condition origin/main
-git checkout -b chore/123-upgrade-dependencies origin/main
+**Report to human:**
+```
+✅ Branch created and pushed
+
+Branch: <approved-branch-name>
+URL: https://github.com/<owner>/<repo>/tree/<approved-branch-name>
+Local: <approved-branch-name> (checked out)
+
+Ready for commits!
 ```
 
 **Why base on `main`?** Ensures your branch includes all latest changes and release commits, preventing conflicts when your work is integrated.
 
-### 2. Commit with Conventional Format
+### 2. Agent Generates Conventional Commits
 
-Write commits following the conventional commits standard with task ID references:
+**Prerequisites:**
+- ✅ Branch created with ticket ID (from section 1)
+- ✅ Changes staged or ready to commit
+
+**Agent workflow:**
+
+#### Step 1: Extract ticket ID and commit type
+
+From current branch name (`feat/55-query-athlete`):
+- Ticket ID: `55`
+- Commit type: `feat`
+
+**Mandatory:** Ticket ID and type must be present in all commits.
+
+#### Step 2: Determine scope (with human approval priority)
+
+**Priority 1 — Ask human (preferred):**
+
+Agent lists changed files and asks:
+```
+Changed files:
+  - src/api/rate-limiter.ts
+  - src/types/index.ts
+  - tests/rate-limiter.test.ts
+
+What is the scope? (e.g., "api", "types", "core")
+Or press Enter to use: <primary-scope-suggestion>
+```
+
+- ✅ If human provides scope → Use it
+- ✅ If human presses Enter → Use suggested scope
+- ✅ If human says "multiple" or "general" → Use no scope
+
+**Priority 2 — Infer from directory structure (if human declines or isn't available):**
+
+Agent analyzes top-level directories:
+```
+src/
+  ├── api/          ← Most files changed here
+  ├── types/
+  └── utils/
+```
+
+Inferred scope: `api` (directory with most changes)
+
+**NEVER use generic scope like "core"** — scopes must be specific and meaningful.
+
+#### Step 3: Get commit description from human
+
+Agent asks for short description:
+```
+Commit description (imperative mood, max 50 chars):
+  Examples: "add rate limiting", "fix race condition"
+  
+Your description:
+```
+
+**Validation:**
+- ✅ Imperative mood (starts with verb: add, fix, remove, update)
+- ✅ Max 50 characters
+- ✅ No period at end
+- ✅ Lowercase (except proper nouns)
+
+If invalid → Tell human why and ask for revision.
+
+**Example valid descriptions:**
+- ✅ "add rate limiting support"
+- ✅ "fix race condition in cache"
+- ✅ "update dependencies to 2.0"
+- ❌ "Added rate limiting" (not imperative)
+- ❌ "add rate limiting support for API requests." (too long, has period)
+
+#### Step 4: Build commit message
+
+Combine all pieces. Use the resolved repo from step 2b:
+
+```
+<type>(<scope>, #<board_id>_<ticket_id>): <description>
+
+<body - detailed explanation>
+
+Closes <resolved-repo>#<board_id>_<ticket_id>
+```
+
+**Example (ticket found in torqlab/torq):**
+```
+feat(api, #3_106): add rate limiting support
+
+Implements exponential backoff for API rate limits,
+protecting endpoints from abuse. Adds configuration
+options for max requests per window and cooldown duration.
+
+Closes torqlab/torq#3_106
+```
+
+**Example (ticket found in torqlab/claude, commit in same repo):**
+```
+feat(skills, #1_55): improve semantic-release org-wide support
+
+Enables tickets from any torqlab repo to be used for development
+in any other torqlab repo. Adds org-wide ticket resolution.
+
+Closes torqlab/claude#1_55
+```
+
+**Example (ticket found in torqlab/torq, commit in torqlab/claude):**
+```
+feat(integration, #1_42): sync athlete data with Strava API
+
+Integrates with torqlab/torq ticket for coordinated athlete
+data fetching across platforms.
+
+Closes torqlab/torq#1_42
+```
+
+**Rules:**
+- Type, scope, board_id, and ticket_id are mandatory
+- Description max 50 chars, imperative mood
+- Body is optional but recommended for clarity
+- Footer `Closes <resolved-repo>#<board_id>_<ticket_id>` references the ticket in its source repo (agent is NOT permitted to auto-close it)
+- Use fully qualified repo reference (e.g., `torqlab/torq`, not `torq`)
+- Both board_id and ticket_id must be included in scope or footer
+
+#### Step 5: Show human for approval
+
+Agent presents complete commit message:
+
+```
+📋 COMMIT PREVIEW
+
+feat(api, #3_106): add rate limiting support
+
+Implements exponential backoff for API rate limits.
+
+Closes torqlab/torq#3_106
+
+Create this commit? (yes/edit/cancel)
+```
+
+- ✅ **yes** → Proceed to step 6
+- 📝 **edit** → Ask what to change, rebuild message, show again
+- ❌ **cancel** → Ask human what they want to do instead
+
+#### Step 6: Agent creates commit
 
 ```bash
-# Stage your changes
-git add <files>
-
-# Commit with conventional format
+git add <files-to-commit>
 git commit -m "feat(api, #55): add rate limiting support
 
-Implements exponential backoff for API rate limits, protecting
-endpoints from abuse. Adds configuration options for max requests
-per window and cooldown duration.
+Implements exponential backoff for API rate limits.
 
 Closes #55"
 ```
 
-**Commit message checklist:**
-- ✓ Type is valid (`feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`)
-- ✓ Includes task ID in scope or footer: `feat(api, #55)` or `Closes #55`
-- ✓ Subject is under 50 characters and imperative mood
-- ✓ Body explains *why*, not just *what*
-- ✓ Footer references the issue: `Closes #X` or `Fixes #X`
+Report:
+```
+✅ Commit created: feat(api, #55): add rate limiting support
+```
+
+**Important Notes:**
+
+- **Ticket ID is MANDATORY** — Never commit without both `board_id_ticket_id` in scope or footer. Both parts are required for unambiguous ticket tracking across multiple project boards.
+- **One commit per logical change** — If multiple features, make multiple commits
+- **All commits must follow conventional format** — semantic-release depends on this
+- **Scope must be specific** — Not generic "core", but "api", "auth", "db", etc.
 
 ### Multiple Commits on a Branch
 
-Make multiple commits as you work. semantic-release analyzes all commits since the last release:
+When multiple commits needed on same branch:
+
+Agent repeats steps 2-6 for each commit:
 
 ```bash
-git commit -m "feat(api, #55): add rate limiting support
+# First commit
+git commit -m "feat(api, #3_106): add rate limiting support
 
-Implements exponential backoff logic.
+..."
 
-Closes #55"
+# More changes
+git add src/rate-limiter.test.ts
+git commit -m "test(api, #3_106): add rate limiting tests
 
-git commit -m "test(api, #55): add rate limiting tests
+..."
 
-Tests for backoff behavior under load."
+# Even more changes
+git add docs/rate-limiting.md
+git commit -m "docs(api): document rate limiting
 
-git commit -m "docs(api, #55): document rate limiting
-
-Adds configuration guide and examples."
+..."
 ```
 
 When merged, semantic-release will:
 - See all three commits
-- Recognize `feat` triggers a MINOR version bump
-- Include all commits in the changelog
-- Close issue #55 (from the first commit's footer)
+- Recognize `feat` type → MINOR version bump
+- Include all commits in changelog
+- Auto-close issue torqlab/torq#3_106 (from first commit's footer)
 
 ### Example Local Workflow
 
 ```bash
 # 1. Start from main
 git fetch origin
-git checkout -b feat/55-rate-limiting origin/main
+git checkout -b feat/3_106-rate-limiting origin/main
 
 # 2. Make changes and commit
 echo "rate limit logic" > src/rate-limiter.ts
 git add src/rate-limiter.ts
-git commit -m "feat(api, #55): add rate limiting support
+git commit -m "feat(api, #3_106): add rate limiting support
 
 Implements exponential backoff.
 
-Closes #55"
+Closes torqlab/torq#3_106"
 
 # 3. Add tests
 echo "tests" > src/rate-limiter.test.ts
 git add src/rate-limiter.test.ts
-git commit -m "test(api, #55): add rate limiting tests"
+git commit -m "test(api, #3_106): add rate limiting tests"
 
 # 4. Document
 echo "docs" > docs/rate-limiting.md
@@ -178,30 +476,37 @@ git log --oneline -3
 
 ### Real-world examples
 
-**Feature with issue reference (closes ticket):**
+**Cross-repo example: ticket in torqlab/torq, development in torqlab/claude:**
 ```
-feat(auth): implement OAuth 2.0 support
+# User request: "create branch for board 1 ticket 55 about skills improvements"
+# Agent resolves ticket #55 → found in torqlab/torq
+
+# Branch created in current repo (torqlab/claude):
+feat/1_55-skills-improvements
+
+# Commit made in torqlab/claude, referencing source ticket:
+feat(skills, #1_55): improve semantic-release org-wide support
+
+Enables tickets from any torqlab repo to be used for development
+in any other torqlab repo. Agent now resolves tickets across org.
+
+Closes torqlab/torq#1_55
+```
+When this commit is merged to torqlab/claude, the footer references the ticket in its source repo (torqlab/torq) without auto-closing it, preserving the ticket for cross-repo visibility.
+
+**Feature from task/ticket in same repo:**
+```
+# Branch: feat/3_106-query-athlete
+feat(api, #3_106): add rate limiting support
 
 Adds OAuth 2.0 authentication flow with PKCE support, allowing
 users to authenticate via external providers. Implements token
 refresh logic and session management.
 
-Closes #55
+Closes torqlab/torq#3_106
 ```
 
-**Feature from task/ticket branch:**
-```
-# Branch: feat/55-oauth-implementation
-feat(auth): implement OAuth 2.0 support
-
-Adds OAuth 2.0 authentication flow with PKCE support, allowing
-users to authenticate via external providers. Implements token
-refresh logic and session management.
-
-Closes #55
-```
-
-When merged, this commit automatically closes issue #55 and the branch history shows the ticket ID.
+When merged, this commit references the ticket in torqlab/torq, maintaining the audit trail across the organization.
 
 **Bug fix with ticket reference:**
 ```
@@ -211,7 +516,7 @@ The StravaAthlete type was missing the profile_photo field,
 causing type mismatches in athlete detail endpoints. Added the
 missing field and updated related interfaces.
 
-Fixes #42
+Fixes torqlab/torq#1_42
 ```
 
 **Performance improvement with ticket:**
@@ -222,7 +527,7 @@ Reduces athlete email lookup from 500ms to 50ms by adding
 a database index on the email column. Improves search performance
 for the admin user management page.
 
-Related to #89
+Related to torqlab/torq#2_89
 ```
 
 **Breaking change with multiple tickets:**
@@ -232,8 +537,8 @@ feat!: redesign API response structure
 BREAKING CHANGE: response format changed from XML to JSON.
 All clients must update parsing logic. Migration guide in docs.
 
-Addresses: #123, #124, #125
-Closes #126
+Addresses: torqlab/torq#1_123, torqlab/torq#1_124, torqlab/torq#1_125
+Closes torqlab/torq#1_126
 
 See MIGRATION.md for details.
 ```
@@ -387,7 +692,7 @@ Typical production setup:
 
 ### Why track ticket IDs?
 
-Linking commits to ticket IDs creates an audit trail connecting requirements to implementation. When reviewing releases or debugging issues, you can trace back to the original request, discussion, and context.
+Linking commits to fully qualified ticket IDs creates an audit trail connecting requirements to implementation. When reviewing releases or debugging issues, you can trace back to the original request, discussion, and context. With multi-board organizations like torqlab, including both board_id and ticket_id ensures unambiguous ticket identification.
 
 ### Methods to include ticket IDs
 
@@ -397,42 +702,42 @@ feat(api): add rate limiting support
 
 Implements exponential backoff for API rate limits.
 
-Closes #55
+Closes torqlab/torq#3_106
 ```
 
-The `Closes #55` footer automatically closes the GitHub issue when the commit is merged.
+The `Closes torqlab/torq#3_106` footer automatically closes the GitHub issue when the commit is merged. Use fully qualified reference format: `org/repo#board_id_ticket_id`.
 
 **2. In the scope:**
 ```
-feat(api, #55): add rate limiting support
+feat(api, #3_106): add rate limiting support
 ```
 
-This puts the ticket ID front-and-center in the commit log.
+This puts both ticket IDs front-and-center in the commit log.
 
 **3. In branch names (for traceability):**
 ```
-feat/55-add-rate-limiting
-chore/55-sync
-fix/42-race-condition
+feat/3_106-add-rate-limiting
+chore/1_55-sync
+fix/2_42-race-condition
 ```
 
-When you use `git log --oneline` or view PR history, the ticket ID appears in the branch name, making it easy to connect commits to issues.
+When you use `git log --oneline` or view PR history, the board_id and ticket_id appear in the branch name, making it easy to connect commits to issues.
 
 **4. Multiple tickets in one commit:**
 ```
 feat(auth): implement OAuth 2.0 and GitHub App integration
 
-Adds OAuth 2.0 support (#55) and GitHub MCP integration (#56).
+Adds OAuth 2.0 support (3_55) and GitHub MCP integration (1_56).
 Handles session management and token refresh.
 
-Closes #55
-Closes #56
+Closes torqlab/torq#3_55
+Closes torqlab/torq#1_56
 ```
 
 ### How semantic-release uses ticket references
 
 When semantic-release generates the changelog and release notes, it automatically:
-1. **Parses `Closes #X` and `Fixes #X`** footer lines
+1. **Parses `Closes torqlab/torq#X_Y` and `Fixes torqlab/torq#X_Y`** footer lines
 2. **Converts them to hyperlinks** in the generated CHANGELOG.md
 3. **Links each release to its issues** on GitHub
 4. **Creates a complete audit trail** from requirement (issue) → commit → release
@@ -442,11 +747,11 @@ When semantic-release generates the changelog and release notes, it automaticall
 ## [1.4.0] - 2026-06-08
 
 ### Features
-- **api**: Add rate limiting support ([#55](https://github.com/org/repo/issues/55))
-- **auth**: Implement OAuth 2.0 ([#42](https://github.com/org/repo/issues/42))
+- **api**: Add rate limiting support ([torqlab/torq#3_106](https://github.com/torqlab/torq/issues/106))
+- **auth**: Implement OAuth 2.0 ([torqlab/torq#1_42](https://github.com/torqlab/torq/issues/42))
 
 ### Bug Fixes
-- **db**: Fix race condition in query cache ([#89](https://github.com/org/repo/issues/89))
+- **db**: Fix race condition in query cache ([torqlab/torq#2_89](https://github.com/torqlab/torq/issues/89))
 ```
 
 ### Configuration for ticket tracking
@@ -459,8 +764,8 @@ To customize how semantic-release links tickets in changelogs, update `.releaser
     ["@semantic-release/release-notes-generator", {
       "preset": "angular",
       "presetConfig": {
-        "issueUrlFormat": "https://github.com/org/repo/issues/{{id}}",
-        "compareUrlFormat": "https://github.com/org/repo/compare/{{previousTag}}...{{currentTag}}"
+        "issueUrlFormat": "https://github.com/torqlab/torq/issues/{{id}}",
+        "compareUrlFormat": "https://github.com/torqlab/torq/compare/{{previousTag}}...{{currentTag}}"
       }
     }]
   ]
