@@ -1,7 +1,7 @@
 ---
 name: pr
 description: |
-  Agent-driven GitHub PR creation workflow aligned with semantic-release conventions for multi-board ticket management. Use this skill whenever: agent needs to create a pull request from a semantic-release branch, user requests to create or update a PR, agent needs to validate commits before PR creation, agent needs to generate PR title in format "<board_id>-<ticket_id> <ticket-title>", agent needs to auto-generate PR body from commits, or when PR creation requires explicit human approval. This skill guides agents through: validating PR parameters and commits with multi-board ticket IDs, generating PR title and body from semantic-release data, showing human a preview of the PR, requesting explicit human approval before creation, and creating PRs via gh CLI or GitHub MCP. Scope: remote workflow only (PR creation/updates). For local branch and commit work, use the semantic-release skill. Critical: Agent must NEVER create PR without explicit human approval. Both board_id and ticket_id are required. PR body is always auto-generated from commits—no manual description needed.
+  Agent-driven GitHub PR creation workflow aligned with semantic-release conventions. Use this skill whenever: agent needs to create a pull request from a semantic-release branch, user requests to create or update a PR, agent needs to validate commits before PR creation, agent needs to generate PR title in format "<ticket_id> <ticket-title>", agent needs to auto-generate PR body from commits, or when PR creation requires explicit human approval. This skill guides agents through: validating PR parameters and commits with ticket IDs, generating PR title and body from semantic-release data, showing human a preview of the PR, requesting explicit human approval before creation, and creating PRs via gh CLI or GitHub MCP. Scope: remote workflow only (PR creation/updates). For local branch and commit work, use the semantic-release skill. Critical: Agent must NEVER create PR without explicit human approval. Ticket ID is required. PR body is always auto-generated from commits—no manual description needed.
 argument-hint: "[--head] [--base] [--owner] [--repo]"
 license: MIT
 metadata:
@@ -54,32 +54,32 @@ This is used as the default source branch (`head`) for the PR.
 
 ### 2. Extract Ticket ID and Type from Branch Name
 
-Parse the branch name using semantic-release convention: `<type>/<board_id>_<ticket_id>-<description>`
+Parse the branch name using semantic-release convention: `<type>/<ticket_id>-<description>`
 
 **Examples:**
-- `feat/3_106-query-athlete` → type: `feat`, board_id: `3`, ticket_id: `106`
-- `fix/1_42-race-condition` → type: `fix`, board_id: `1`, ticket_id: `42`
-- `chore/2_123-deps` → type: `chore`, board_id: `2`, ticket_id: `123`
+- `feat/106-query-athlete` → type: `feat`, ticket_id: `106`
+- `fix/42-race-condition` → type: `fix`, ticket_id: `42`
+- `chore/123-deps` → type: `chore`, ticket_id: `123`
 
 **Validation:**
-- ✅ Branch matches pattern `<type>/<board_id>_<ticket_id>-<rest>`
+- ✅ Branch matches pattern `<type>/<ticket_id>-<rest>`
 - ✅ Type is valid: `feat`, `fix`, `perf`, `chore`, `docs`, `refactor`, `test`
-- ✅ Both board_id and ticket_id are numeric: `\d+_\d+`
+- ✅ ticket_id is numeric: `\d+`
 
 **If validation fails:**
 ```
 ❌ Branch Name Invalid
 
 Current branch: my-random-branch
-Expected pattern: <type>/<board_id>_<ticket_id>-<description>
+Expected pattern: <type>/<ticket_id>-<description>
 
 Examples:
-  - feat/3_106-add-rate-limiting
-  - fix/1_42-resolve-race-condition
-  - chore/2_123-upgrade-deps
+  - feat/106-add-rate-limiting
+  - fix/42-resolve-race-condition
+  - chore/123-upgrade-deps
 
 Type must be one of: feat, fix, perf, chore, docs, refactor, test
-Both board_id and ticket_id must be numeric.
+Ticket ID must be numeric.
 
 Please create a branch matching the pattern and try again.
 ```
@@ -125,18 +125,18 @@ git log origin/main..HEAD --format="%H %s %b"
 
 **Example analysis:**
 ```
-Commit 1: feat(api, #3_106): add rate limiting
-  → Type: feat, Scope: api, Ticket: 3_106, Impact: MINOR
+Commit 1: feat(api, #106): add rate limiting
+  → Type: feat, Scope: api, Ticket: 106, Impact: MINOR
 
-Commit 2: test(api, #3_106): add rate limiting tests
-  → Type: test, Ticket: 3_106, Impact: NO BUMP
+Commit 2: test(api, #106): add rate limiting tests
+  → Type: test, Ticket: 106, Impact: NO BUMP
 
 Commit 3: docs(api): document rate limiting
   → Type: docs, Impact: NO BUMP
 
 Primary Type: feat
 Version Bump: MINOR ✅
-Ticket: 3_106 (from scope)
+Ticket: 106 (from scope)
 ```
 
 ### 4. Validate Conventional Commit Format
@@ -152,8 +152,8 @@ For each commit, validate:
 - ✅ Subject is imperative mood and under 50 chars
 - ✅ No period at end of subject
 - ✅ Optional scope is lowercase, no spaces
-- ✅ Optional footer references issues: `Closes torqlab/torq#3_106`, `Fixes torqlab/torq#1_42`
-- ✅ Ticket ID in scope or footer matches branch format: `#board_id_ticket_id`
+- ✅ Optional footer references issues: `Closes #106`, `Addresses #42`
+- ✅ Ticket ID in scope or footer matches branch format: `#ticket_id`
 
 **If invalid:**
 ```
@@ -163,46 +163,46 @@ Commit: "added rate limiting feature"
 Issues:
   - ❌ Not imperative mood (should be "add" not "added")
   - ❌ Missing type prefix (should start with "feat:", "fix:", etc)
-  - ❌ No ticket reference or wrong format (should be "Closes torqlab/torq#3_106" not "#55")
+  - ❌ No ticket reference or wrong format (should be "Closes #106" not "#55")
 
 Correct format:
-feat(api, #3_106): add rate limiting support
+feat(api, #106): add rate limiting support
 
 Implements exponential backoff for API rate limits.
 Protects endpoints from abuse with configurable windows.
 
-Closes torqlab/torq#3_106
+Closes #106
 ```
 
 ### 5. Fetch Ticket Title from GitHub or Generate from Commits
 
-Extract ticket ID and board ID (e.g., `3` and `106` from `feat/3_106-...`) and try to fetch the GitHub issue title:
+Extract ticket ID (e.g., `106` from `feat/106-...`) and try to fetch the GitHub issue title:
 
 ```bash
-gh issue view torqlab/torq#3_106 --json title --jq '.title'
+gh issue view <ticket_id> --json title --jq '.title'
 ```
 
 **Priority order for ticket title:**
 
 1. **GitHub Issue Title** — If the issue exists, use it:
-   - Branch: `feat/3_106-query-athlete`
-   - GitHub Issue torqlab/torq#3_106 Title: "Query Athlete Data"
-   - Use in PR title: `3-106 Query Athlete Data`
+   - Branch: `feat/106-query-athlete`
+   - GitHub Issue #106 Title: "Query Athlete Data"
+   - Use in PR title: `106 Query Athlete Data`
 
 2. **Generated from Commits** — If issue doesn't exist, analyze commits and generate descriptive title:
    - Analyze all commits for the primary feature/change
    - Use imperative mood (same as commit subjects)
    - Capitalize first letter
    - Keep concise and descriptive
-   - Example: Commits `feat(skills, #3_106): add semantic-release universal reusable skill` → PR title: `3-106 Add Semantic-Release Universal Reusable Skill`
+   - Example: Commits `feat(skills, #106): add semantic-release support` → PR title: `106 Add Semantic-Release Support`
 
 3. **Fallback from Branch Name** — Last resort:
-   - Branch: `feat/3_106-query-athlete` → Use: `3-106 Query Athlete`
+   - Branch: `feat/106-query-athlete` → Use: `106 Query Athlete`
    - Capitalize words, convert hyphens to spaces
 
 ### 6. Construct PR Title
 
-**REQUIRED Format:** `<board_id>-<ticket_id> <ticket-title>`
+**REQUIRED Format:** `<ticket_id> <ticket-title>`
 
 The ticket title must always be derived from one of these sources in order of preference:
 1. GitHub issue title (if issue exists)
@@ -210,13 +210,13 @@ The ticket title must always be derived from one of these sources in order of pr
 3. Branch name as fallback
 
 **Examples:**
-- Branch `feat/3_106-query-athlete`, GitHub issue exists → PR title: `3-106 Query Athlete Data`
-- Branch `chore/1_23-claude-symlink`, no issue, commits include `feat(skills, #1_23): add semantic-release...` → PR title: `1-23 Add Semantic-Release Universal Reusable Skill`
-- Branch `fix/2_42-race-condition`, GitHub issue exists → PR title: `2-42 Fix Race Condition in Cache`
+- Branch `feat/106-query-athlete`, GitHub issue exists → PR title: `106 Query Athlete Data`
+- Branch `chore/23-claude-symlink`, no issue, commits include `feat(skills, #23): add semantic-release...` → PR title: `23 Add Semantic-Release Support`
+- Branch `fix/42-race-condition`, GitHub issue exists → PR title: `42 Fix Race Condition in Cache`
 
 This format ensures:
 - Consistent PR naming across the project
-- Both board_id and ticket_id appear first for easy multi-board reference
+- Ticket ID appears first for easy reference
 - Semantic-release can parse and link commits to tickets
 - Descriptive titles help with code review and navigation
 
@@ -229,7 +229,7 @@ PR body is **always auto-generated** from commits — no manual description need
 ```markdown
 # Semantic Release Impact
 
-📦 **Type:** [feat|fix|perf|chore|docs|refactor|test] | 🔼 **Version:** [MAJOR|MINOR|PATCH|none] | 🎫 **Ticket:** torqlab/torq#[board_id]_[ticket_id]
+📦 **Type:** [feat|fix|perf|chore|docs|refactor|test] | 🔼 **Version:** [MAJOR|MINOR|PATCH|none] | 🎫 **Ticket:** #[ticket_id]
 
 **Scope:** [scope from commits, or "general"]
 **Breaking Changes:** [yes/no - detail if yes]
@@ -256,9 +256,9 @@ PR body is **always auto-generated** from commits — no manual description need
 2. **Extract from commits:**
    - **Type:** From first commit (e.g., `feat`, `fix`, `perf`)
    - **Scope:** From commit scopes (e.g., `api`, `auth`)
-   - **Ticket ID:** Extract board_id and ticket_id from branch name (e.g., `3_106`)
+   - **Ticket ID:** Extract ticket_id from branch name (e.g., `106`)
    - **Breaking changes:** Check for `BREAKING CHANGE:` in commit bodies
-   - **Version bump:** Apply semantic-release rules (see section 3 in semantic-release skill)
+   - **Version bump:** Apply semantic-release rules (see section 3)
 
 3. **Extract summary of changes:**
    - Take commit subjects and bodies
@@ -292,17 +292,17 @@ Agent checks ALL of these:
 1. **Branch parameters:**
    - ✅ `head` branch exists and is different from `base`
    - ✅ `base` branch exists (usually `main`)
-   - ✅ Head branch matches semantic-release pattern: `<type>/<board_id>_<ticket_id>-<description>`
-   - ✅ Both board_id and ticket_id are numeric
+   - ✅ Head branch matches semantic-release pattern: `<type>/<ticket_id>-<description>`
+   - ✅ ticket_id is numeric
 
 2. **Commits:**
-   - ✅ All commits follow conventional format: `<type>(<scope>, #<board_id>_<ticket_id>): <description>`
-   - ✅ Both board_id and ticket_id found in branch name
-   - ✅ All commits include ticket reference `#board_id_ticket_id` in scope or footer: `Closes torqlab/torq#board_id_ticket_id`
+   - ✅ All commits follow conventional format: `<type>(<scope>, #<ticket_id>): <description>`
+   - ✅ ticket_id found in branch name
+   - ✅ All commits include ticket reference `#ticket_id` in scope or footer: `Closes #ticket_id`
    - ✅ At least one commit is version-impacting (feat/fix/perf) OR no-bump acknowledged
 
 3. **GitHub issue:**
-   - ✅ GitHub issue exists (use fully qualified reference: torqlab/torq#board_id_ticket_id)
+   - ✅ GitHub issue exists (use reference: #ticket_id)
    - ✅ Can fetch issue title and details
 
 **If validation fails:**
@@ -313,14 +313,14 @@ Agent stops and reports which check failed:
 ❌ Validation failed
 
 Issue:
-- Branch format incorrect or commits don't reference both board_id and ticket_id
+- Branch format incorrect or commits don't reference ticket_id
 - Examples of violations:
-  - "feat/55-thing" (missing board_id, should be "feat/3_55-thing")
-  - "fix: bug #42" (missing board_id and incorrect footer format, should be "Closes torqlab/torq#3_42")
+  - "feat/thing" (missing ticket_id, should be "feat/55-thing")
+  - "fix: bug #42" (missing ticket_id in footer, should be "Closes #42")
   - Commits lack ticket ID in scope or footer
 
 Action:
-1. Fix branch name or commits to include both board_id and ticket_id
+1. Fix branch name or commits to include ticket_id
 2. Try PR creation again
 ```
 
@@ -401,7 +401,7 @@ Set defaults (99% use case):
   - Override: `--base="develop"`
 - **`owner`**: `torqlab`
   - Override: `--owner="other-org"`
-- **`repo`**: `torq`
+- **`repo`**: `torq` (or current repo)
   - Override: `--repo="other-repo"`
 
 **All parameters are optional** — skill runs with sensible defaults.
@@ -469,14 +469,14 @@ Check:
 ```
 
 The skill will:
-1. Get current branch: `feat/3_106-query-athlete`
-2. Extract type: `feat`, board_id: `3`, ticket: `106`
-3. Fetch GitHub issue torqlab/torq#3_106 title: "Query Athlete Data"
+1. Get current branch: `feat/106-query-athlete`
+2. Extract type: `feat`, ticket: `106`
+3. Fetch GitHub issue #106 title: "Query Athlete Data"
 4. Analyze commits between branch and main
 5. Detect version bump: MINOR
 6. Use defaults: `owner=torqlab`, `repo=torq`, `base=main`
-7. Create PR with title: `3-106 Query Athlete Data`
-8. Add semantic impact section to body with fully qualified ticket reference
+7. Create PR with title: `106 Query Athlete Data`
+8. Add semantic impact section to body
 9. Create as draft PR
 10. Return PR URL
 
@@ -492,7 +492,7 @@ Uses current branch as `head`, everything else default. Useful for PRs against n
 
 ```bash
 /pr \
-  --head="feat/3_106-query-athlete" \
+  --head="feat/106-query-athlete" \
   --base="main" \
   --owner="torqlab" \
   --repo="torq"
@@ -506,14 +506,14 @@ Uses current branch as `head`, everything else default. Useful for PRs against n
 PR Details:
 - URL: https://github.com/torqlab/torq/pull/123
 - Number: #123
-- Title: 3-106 Query Athlete Data
+- Title: 106 Query Athlete Data
 - Status: Draft
-- From: feat/3_106-query-athlete → main
+- From: feat/106-query-athlete → main
 
 Semantic Release Info:
 - Type: feat
 - Version Bump: MINOR
-- Ticket: torqlab/torq#3_106
+- Ticket: #106
 - Commits: 3
 
 Next steps: Review, request changes, or mark as "Ready for review".
@@ -525,46 +525,46 @@ Next steps: Review, request changes, or mark as "Ready for review".
 
 ### Scenario 1: Feature with Issue Reference
 
-**Branch:** `feat/3_106-add-rate-limiting`
+**Branch:** `feat/106-add-rate-limiting`
 **Commits:**
 ```
-feat(api, #3_106): add rate limiting support
-test(api, #3_106): add rate limiting tests
+feat(api, #106): add rate limiting support
+test(api, #106): add rate limiting tests
 ```
-**GitHub Issue torqlab/torq#3_106:** "Add Rate Limiting to API"
+**GitHub Issue #106:** "Add Rate Limiting to API"
 
 **PR Created:**
-- Title: `3-106 Add Rate Limiting to API`
+- Title: `106 Add Rate Limiting to API`
 - Semantic Impact: MINOR bump (feat detected)
-- Body includes ticket reference: torqlab/torq#3_106
+- Body includes ticket reference: #106
 
 ### Scenario 2: Bug Fix
 
-**Branch:** `fix/1_42-resolve-race-condition`
+**Branch:** `fix/42-resolve-race-condition`
 **Commits:**
 ```
-fix(db, #1_42): resolve race condition in cache
+fix(db, #42): resolve race condition in cache
 ```
-**GitHub Issue torqlab/torq#1_42:** "Fix Race Condition in Query Cache"
+**GitHub Issue #42:** "Fix Race Condition in Query Cache"
 
 **PR Created:**
-- Title: `1-42 Fix Race Condition in Query Cache`
+- Title: `42 Fix Race Condition in Query Cache`
 - Semantic Impact: PATCH bump (fix detected)
 - Body highlights that this is a bug fix with no new features
 
 ### Scenario 3: Breaking Change
 
-**Branch:** `feat/2_99-redesign-response`
+**Branch:** `feat/99-redesign-response`
 **Commits:**
 ```
-feat!(api, #2_99): redesign API response structure
+feat!(api, #99): redesign API response structure
 
 BREAKING CHANGE: response format changed from XML to JSON
 ```
-**GitHub Issue torqlab/torq#2_99:** "Redesign API Response Format"
+**GitHub Issue #99:** "Redesign API Response Format"
 
 **PR Created:**
-- Title: `2-99 Redesign API Response Format`
+- Title: `99 Redesign API Response Format`
 - Semantic Impact: MAJOR bump (breaking change detected)
 - Body highlights breaking change and migration requirements
 
@@ -573,36 +573,35 @@ BREAKING CHANGE: response format changed from XML to JSON
 ## Validation Reference
 
 ### Valid Branch Names
-- ✅ `feat/3_106-add-feature`
-- ✅ `fix/1_42-resolve-bug`
-- ✅ `perf/2_99-optimize-db`
-- ✅ `chore/4_123-update-deps`
-- ✅ `docs/5_88-add-guide`
-- ✅ `refactor/1_77-simplify-logic`
-- ✅ `test/3_66-add-coverage`
+- ✅ `feat/106-add-feature`
+- ✅ `fix/42-resolve-bug`
+- ✅ `perf/99-optimize-db`
+- ✅ `chore/123-update-deps`
+- ✅ `docs/88-add-guide`
+- ✅ `refactor/77-simplify-logic`
+- ✅ `test/66-add-coverage`
 
 ### Invalid Branch Names
-- ❌ `feature/add-something` (missing board_id, ticket_id and type)
-- ❌ `55-add-feature` (missing board_id, ticket_id and type prefix)
-- ❌ `feat/55-add-feature` (missing board_id)
-- ❌ `feat-3-106-add-feature` (invalid format)
+- ❌ `feature/add-something` (missing ticket_id and type)
+- ❌ `55-add-feature` (missing ticket_id and type prefix)
+- ❌ `feat-106-add-feature` (invalid format, should use slash)
 - ❌ `my-random-branch` (no semantic info)
 
 ### Valid Commit Messages
 ```
-feat(api, #3_106): add rate limiting support
+feat(api, #106): add rate limiting support
 
 Implements exponential backoff for API rate limits.
 
-Closes torqlab/torq#3_106
+Closes #106
 ```
 
 ```
-fix(db, #1_42): resolve race condition
+fix(db, #42): resolve race condition
 
 Fixes concurrent cache update issue.
 
-Closes torqlab/torq#1_42
+Closes #42
 ```
 
 ```
@@ -616,8 +615,8 @@ chore: update dependencies
 Added rate limiting feature          ❌ (not conventional format)
 feat: add rate limiting               ❌ (missing ticket reference)
 FEAT(API): ADD RATE LIMITING          ❌ (not lowercase)
-fix: resolve bug #42                  ❌ (incomplete ticket format, should be #1_42)
-fix(db, #42): bug fix                 ❌ (missing board_id in ticket reference)
+fix: resolve bug #55                  ❌ (incomplete ticket format, should be #55)
+fix(db): bug fix                      ❌ (missing ticket reference)
 ```
 
 ---
@@ -644,23 +643,23 @@ Your PR is the **planning layer** that predicts what semantic-release will do au
   - Current git branch used automatically
   - Defaults: `base=main`, `owner=torqlab`, `repo=torq`
 
-- **Branch Convention Required:** Branch must follow `<type>/<board_id>_<ticket_id>-<description>` pattern
-  - Enables automatic board_id and ticket_id extraction
+- **Branch Convention Required:** Branch must follow `<type>/<ticket_id>-<description>` pattern
+  - Enables automatic ticket_id extraction
   - Aligns with semantic-release conventions
-  - Both IDs required for multi-board project structure
+  - Ticket ID required for issue linking
   - If invalid, skill provides guidance on fixing
 
-- **Commits Must Be Conventional:** All commits must follow `<type>(<scope>, #<board_id>_<ticket_id>): <subject>` format
+- **Commits Must Be Conventional:** All commits must follow `<type>(<scope>, #<ticket_id>): <subject>` format
   - semantic-release depends on this for version detection
   - Skill validates and warns if format is incorrect
   - Prevents broken releases from malformed commits
-  - Ticket reference in footer must be fully qualified: `Closes torqlab/torq#board_id_ticket_id`
+  - Ticket reference in footer must be: `Closes #ticket_id`
 
-- **Ticket ID Mandatory (Both Parts):** Branch must contain both board_id and ticket_id
-  - Used to fetch GitHub issue title from multi-board system
-  - Links commits to requirements across project boards
-  - Enables automatic issue closing via fully qualified footer
-  - Composite ID ensures proper ticket tracking in complex organization
+- **Ticket ID Mandatory:** Branch must contain ticket_id
+  - Used to fetch GitHub issue title
+  - Links commits to requirements
+  - Enables automatic issue closing via footer
+  - Uniquely identifies issue in current repository
 
 - **Draft Mode Always:** PRs created as draft by default
   - Signals agent-generated content needs review
@@ -670,7 +669,7 @@ Your PR is the **planning layer** that predicts what semantic-release will do au
 - **Validation Matters:** Skill validates branch naming and commit format upfront
   - Catches issues before PR creation
   - Prevents failed releases post-merge
-  - Enforces multi-board ticket format consistency
+  - Enforces ticket format consistency
   - Guides users to correct format with clear error messages
 
 ---
