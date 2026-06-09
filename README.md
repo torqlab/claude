@@ -12,53 +12,11 @@ This is a **project-level Claude collection** that serves as a centralized sourc
 
 ## What's Included
 
-- [Skills](./SKILLS.md)
-
-#### Workflow Planning & Specification
-- **ci-cd-and-automation**: Use this skill to work with ci cd and automation
-- **code-simplify**: Use this skill to work with code simplify
-- **context-engineering**: Use this skill to work with context engineering
-- **deprecation-and-migration**: Use this skill to work with deprecation and migration
-- **documentation-and-adrs**: Use this skill to work with documentation and adrs
-- **doubt-driven-development**: Use this skill to work with doubt driven development
-- **git-workflow-and-versioning**: Use this skill to work with git workflow and versioning
-- **idea-refine**: Use this skill to work with idea refine
-- **interview-me**: Use this skill to work with interview me
-- **plan**: Use this skill to work with plan
-- **planning-and-task-breakdown**: Use this skill to work with planning and task breakdown
-- **ship**: Use this skill to work with ship
-- **shipping-and-launch**: Use this skill to work with shipping and launch
-- **skill-creator**: Use this skill to work with skill creator
-- **source-driven-development**: Use this skill to work with source driven development
-- **spec**: Use this skill to work with spec
-- **spec-driven-development**: Use this skill to work with spec driven development
-- **using-agent-skills**: Use this skill to work with using agent skills
-
-#### Implementation & Build
-- **build**: Use this skill to work with build
-- **git-branch**: Create git branches with semantic-release naming conventions for the current...
-- **incremental-implementation**: Use this skill to work with incremental implementation
-- **pr**: Agent-driven GitHub PR creation workflow aligned with semantic-release...
-- **semantic-release**: Agent-driven workflow for creating git branches and conventional commits...
-
-#### Testing & Debugging
-- **browser-testing-with-devtools**: Use this skill to work with browser testing with devtools
-- **debugging-and-error-recovery**: Use this skill to work with debugging and error recovery
-- **test**: Use this skill to work with test
-- **test-driven-development**: Use this skill to work with test driven development
-
-#### Code Review & Quality
-- **code-review-and-quality**: Use this skill to work with code review and quality
-- **github-mcp-setup**: Configure GitHub Model Context Protocol (MCP) server for Claude Code using...
-- **performance-optimization**: Use this skill to work with performance optimization
-- **review**: Use this skill to work with review
-- **security-and-hardening**: Use this skill to work with security and hardening
-
-#### Frontend & UI
-- **align-skills-documentation**: Automatically synchronizes README.md and AGENTS.md documentation by discovering...
-- **api-and-interface-design**: Use this skill to work with api and interface design
-- **frontend-design**: Use this skill to work with frontend design
-- **frontend-ui-engineering**: Use this skill to work with frontend ui engineering
+- **[SKILLS.md](./SKILLS.md)** — Complete reference for all available skills organized by type (custom, open-source, agent skills) with decision trees for workflow selection
+- **Addy Osmani Workflow** — Structured development methodology with specialized agents for each phase
+- **Custom Skills** — Project-specific skills for semantic versioning, branch management, PR creation, and documentation
+- **Configurations** — Claude Code settings, hooks, and project conventions in `.claude/`
+- **Documentation** — Setup guides, workflow patterns, and integration examples
 
 ## Quick Start: Using This Collection in Your Project
 
