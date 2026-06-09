@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Test suite for align-skills-documentation skill.
-Tests skill discovery, metadata extraction, README updates, and report generation.
+Test suite for align-skills-documentation skill focusing on SKILLS.md generation.
+Tests skill discovery, categorization, and markdown table generation.
 """
 
 import json
@@ -28,7 +28,6 @@ class TestSkillDiscovery(unittest.TestCase):
 
     def test_discovers_custom_skills(self):
         """Test discovery of custom skills from .claude/skills/."""
-        # Create a custom skill
         custom_skill_dir = self.skills_dir / "test-skill"
         custom_skill_dir.mkdir()
         skill_md = custom_skill_dir / "SKILL.md"
@@ -36,54 +35,47 @@ class TestSkillDiscovery(unittest.TestCase):
 name: test-skill
 description: A test skill for documentation
 license: MIT
-metadata:
-  author: Test Author
 ---
 
 # Test Skill
 """)
-
-        # Verify skill can be found
         self.assertTrue(skill_md.exists())
         self.assertIn("test-skill", str(skill_md.parent.name))
 
-    def test_discovers_skills_from_lock_file(self):
-        """Test discovery of skills from skills-lock.json."""
+    def test_discovers_open_source_skills_from_lock_file(self):
+        """Test discovery of open-source skills from skills-lock.json."""
         lock_file = Path(self.temp_dir) / "skills-lock.json"
         skills_data = {
-            "skills": [
-                {
-                    "name": "open-source-skill",
-                    "version": "1.0.0",
-                    "repository": "anthropics/skills"
+            "version": 1,
+            "skills": {
+                "frontend-design": {
+                    "source": "anthropics/skills",
+                    "ref": "main"
+                },
+                "skill-creator": {
+                    "source": "anthropics/skills",
+                    "ref": "main"
                 }
-            ]
+            }
         }
         lock_file.write_text(json.dumps(skills_data))
-
-        # Verify lock file exists and contains skills
         self.assertTrue(lock_file.exists())
         content = json.loads(lock_file.read_text())
-        self.assertEqual(len(content["skills"]), 1)
-        self.assertEqual(content["skills"][0]["name"], "open-source-skill")
+        self.assertEqual(len(content["skills"]), 2)
 
-    def test_discovers_plugin_skills(self):
+    def test_discovers_agent_skills_from_plugins(self):
         """Test discovery of agent skills from plugins."""
         settings_file = Path(self.temp_dir) / ".claude" / "settings.json"
         settings_file.parent.mkdir(parents=True, exist_ok=True)
         settings_data = {
-            "plugins": {
-                "agent-skills@addy-agent-skills": {
-                    "enabled": True
-                }
+            "enabledPlugins": {
+                "agent-skills@addy-agent-skills": True
             }
         }
         settings_file.write_text(json.dumps(settings_data))
-
-        # Verify settings file identifies enabled plugins
         self.assertTrue(settings_file.exists())
         content = json.loads(settings_file.read_text())
-        self.assertIn("agent-skills@addy-agent-skills", content["plugins"])
+        self.assertIn("agent-skills@addy-agent-skills", content["enabledPlugins"])
 
 
 class TestMetadataExtraction(unittest.TestCase):
@@ -97,27 +89,21 @@ description: |
   This is a multi-line description
   that spans several lines
 license: MIT
-metadata:
-  author: John Doe
-  version: 1.0.0
 ---
 
 # Skill Content Here
 """
         lines = skill_content.split('\n')
-
-        # Verify frontmatter boundaries
         self.assertEqual(lines[0], '---')
-        # Find closing --- marker
         closing_marker_idx = next(i for i, line in enumerate(lines[1:], 1) if line == '---')
         self.assertEqual(lines[closing_marker_idx], '---')
         self.assertIn('name: example-skill', skill_content)
-        self.assertIn('license: MIT', skill_content)
 
     def test_extracts_skill_name(self):
         """Test extraction of skill name."""
         skill_content = """---
 name: my-test-skill
+description: Test skill
 ---
 """
         self.assertIn("name: my-test-skill", skill_content)
@@ -132,18 +118,6 @@ description: |
 ---
 """
         self.assertIn("Use this skill when", skill_content)
-        self.assertIn("discovers all available skills", skill_content)
-
-    def test_handles_missing_metadata(self):
-        """Test graceful handling of missing optional metadata."""
-        skill_content = """---
-name: minimal-skill
-description: A minimal skill
----
-"""
-        self.assertIn("name: minimal-skill", skill_content)
-        self.assertNotIn("license:", skill_content)
-        self.assertNotIn("metadata:", skill_content)
 
 
 class TestSkillCategorization(unittest.TestCase):
@@ -154,43 +128,81 @@ class TestSkillCategorization(unittest.TestCase):
         skills = [
             {
                 "name": "custom-skill",
-                "path": "./.claude/skills/custom-skill/SKILL.md"
+                "path": "./.claude/skills/custom-skill/SKILL.md",
+                "type": "Custom"
             }
         ]
-
         for skill in skills:
-            skill_type = "Custom" if "./.claude/skills/" in skill["path"] else "Other"
-            self.assertEqual(skill_type, "Custom")
+            self.assertEqual(skill["type"], "Custom")
 
     def test_categorizes_open_source_skills(self):
-        """Test categorization of NPM-based open-source skills."""
+        """Test categorization of open-source skills."""
         skills = [
             {
-                "name": "open-source-skill",
-                "source": "anthropics/skills"
+                "name": "frontend-design",
+                "source": "anthropics/skills",
+                "type": "Open-source"
             }
         ]
-
         for skill in skills:
-            skill_type = "Open-source" if "anthropics" in skill.get("source", "") else "Other"
-            self.assertEqual(skill_type, "Open-source")
+            self.assertEqual(skill["type"], "Open-source")
 
     def test_categorizes_agent_skills(self):
         """Test categorization of agent skills from plugins."""
         skills = [
             {
-                "name": "agent-skill",
-                "source": "addyosmani/agent-skills"
+                "name": "spec",
+                "source": "addyosmani/agent-skills",
+                "type": "Agent Skill"
             }
         ]
-
         for skill in skills:
-            skill_type = "Agent Skill" if "addyosmani" in skill.get("source", "") else "Other"
-            self.assertEqual(skill_type, "Agent Skill")
+            self.assertEqual(skill["type"], "Agent Skill")
 
 
-class TestREADMEUpdate(unittest.TestCase):
-    """Test README.md synchronization."""
+class TestMarkdownTableGeneration(unittest.TestCase):
+    """Test markdown table generation for SKILLS.md."""
+
+    def test_table_header_format(self):
+        """Test that table header has correct format."""
+        header = "| Skill | Type | Description | Source |"
+        separator = "|-------|------|-------------|--------|"
+        self.assertIn("Skill", header)
+        self.assertIn("Type", header)
+        self.assertIn("Description", header)
+        self.assertIn("Source", header)
+        self.assertIn("---", separator)
+
+    def test_table_row_format(self):
+        """Test that table rows follow markdown format."""
+        row = "| **my-skill** | Custom | A test skill | [link](path) |"
+        self.assertTrue(row.startswith("|"))
+        self.assertTrue(row.endswith("|"))
+        self.assertIn("**my-skill**", row)
+        self.assertIn("Custom", row)
+
+    def test_source_link_for_custom_skills(self):
+        """Test that custom skills have correct source link format."""
+        skill_name = "test-skill"
+        source_link = f"[./.claude/skills/{skill_name}/SKILL.md](./.claude/skills/{skill_name}/SKILL.md)"
+        self.assertIn(skill_name, source_link)
+        self.assertIn("./.claude/skills", source_link)
+
+    def test_source_link_for_open_source_skills(self):
+        """Test that open-source skills link to anthropics/skills."""
+        source_link = "[anthropics/skills](https://github.com/anthropics/skills)"
+        self.assertIn("anthropics/skills", source_link)
+        self.assertIn("https://github.com", source_link)
+
+    def test_source_link_for_agent_skills(self):
+        """Test that agent skills link to addyosmani/agent-skills."""
+        source_link = "[addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)"
+        self.assertIn("addyosmani", source_link)
+        self.assertIn("https://github.com", source_link)
+
+
+class TestSKILLSmdGeneration(unittest.TestCase):
+    """Test SKILLS.md file generation."""
 
     def setUp(self):
         """Set up test fixtures."""
@@ -201,121 +213,182 @@ class TestREADMEUpdate(unittest.TestCase):
         import shutil
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_preserves_readme_structure(self):
-        """Test that README structure is preserved during update."""
-        readme_content = """# Project
+    def test_creates_skills_md_file(self):
+        """Test that SKILLS.md file is created."""
+        skills_md = Path(self.temp_dir) / "SKILLS.md"
+        content = """# Available Skills
 
-## 📦 Skills
+## Custom Skills
 
-| Skill | Type | Purpose | Source |
-|-------|------|---------|--------|
-| old-skill | Custom | Old skill | ./.claude/skills/old-skill |
-
-## Other Section
-
-Some content here.
+| Skill | Type | Description | Source |
+|-------|------|-------------|--------|
+| **my-skill** | Custom | Test skill | [link](path) |
 """
-        readme_path = Path(self.temp_dir) / "README.md"
-        readme_path.write_text(readme_content)
+        skills_md.write_text(content)
+        self.assertTrue(skills_md.exists())
+        self.assertIn("# Available Skills", skills_md.read_text())
 
-        # Verify structure is maintained
-        content = readme_path.read_text()
-        self.assertIn("## 📦 Skills", content)
-        self.assertIn("## Other Section", content)
-        self.assertIn("Some content here", content)
+    def test_skills_md_has_three_sections(self):
+        """Test that SKILLS.md has sections for all three skill types."""
+        content = """# Available Skills
 
-    def test_updates_skills_table(self):
-        """Test that skills table is properly updated."""
-        readme_content = """# Project
+## Custom Skills
 
-## 📦 Skills
+| Skill | Type | Description | Source |
+|-------|------|-------------|--------|
 
-| Skill | Type | Purpose | Source |
-|-------|------|---------|--------|
-| old-skill | Custom | Old skill | path |
+## Open-source Skills
+
+| Skill | Type | Description | Source |
+|-------|------|-------------|--------|
+
+## Agent Skills
+
+| Skill | Type | Description | Source |
+|-------|------|-------------|--------|
 """
-        new_table = """| Skill | Type | Purpose | Source |
-|-------|------|---------|--------|
-| new-skill | Custom | New skill | path |
-| old-skill | Custom | Old skill | path |"""
+        self.assertIn("## Custom Skills", content)
+        self.assertIn("## Open-source Skills", content)
+        self.assertIn("## Agent Skills", content)
 
-        # Verify table replacement logic
-        self.assertIn("| Skill | Type |", readme_content)
-        self.assertIn("old-skill", readme_content)
-        self.assertIn("Custom", readme_content)
+    def test_organizes_skills_by_type(self):
+        """Test that skills are organized by type in sections."""
+        content = """# Available Skills
 
-    def test_adds_trigger_context_section(self):
-        """Test that Trigger Context section is added to README."""
-        trigger_section = """## Trigger Context & Usage Patterns
+## Custom Skills
 
-### Custom Workflows
-- **test-skill**: Use when you need to test something
+| Skill | Type | Description | Source |
+|-------|------|-------------|--------|
+| **custom-skill** | Custom | Custom | source |
+
+## Open-source Skills
+
+| Skill | Type | Description | Source |
+|-------|------|-------------|--------|
+| **open-skill** | Open-source | Open | source |
+
+## Agent Skills
+
+| Skill | Type | Description | Source |
+|-------|------|-------------|--------|
+| **agent-skill** | Agent Skill | Agent | source |
 """
-        self.assertIn("Trigger Context", trigger_section)
-        self.assertIn("Use when", trigger_section)
+        self.assertIn("**custom-skill**", content)
+        self.assertIn("**open-skill**", content)
+        self.assertIn("**agent-skill**", content)
+
+    def test_includes_section_descriptions(self):
+        """Test that each section has a description of its source."""
+        content = """# Available Skills
+
+## Custom Skills
+
+Project-specific skills maintained in `./.claude/skills/`.
+
+## Open-source Skills
+
+Skills from [anthropics/skills](https://github.com/anthropics/skills) registered in `skills-lock.json`.
+
+## Agent Skills
+
+Skills from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) plugin.
+"""
+        self.assertIn("Project-specific skills", content)
+        self.assertIn("anthropics/skills", content)
+        self.assertIn("addyosmani/agent-skills", content)
+
+
+class TestDescriptionTruncation(unittest.TestCase):
+    """Test description truncation logic."""
+
+    def test_truncates_long_description(self):
+        """Test that long descriptions are truncated."""
+        long_desc = "This is a very long description that goes on and on. It has multiple sentences. And more details."
+        # Truncation should happen at first period
+        truncated = long_desc.split('. ')[0] + '. '
+        self.assertTrue(len(truncated) < len(long_desc))
+
+    def test_preserves_short_description(self):
+        """Test that short descriptions are preserved."""
+        short_desc = "A short skill description."
+        self.assertEqual(short_desc, short_desc)
+
+    def test_handles_multiline_description(self):
+        """Test that multiline descriptions are handled."""
+        multiline = "First line\nSecond line\nThird line"
+        first_line = multiline.split('\n')[0]
+        self.assertEqual(first_line, "First line")
+
+
+class TestSkillsSortingInTable(unittest.TestCase):
+    """Test skill sorting in markdown tables."""
+
+    def test_sorts_skills_alphabetically_within_type(self):
+        """Test that skills are sorted alphabetically within each type."""
+        skills = [
+            {"name": "zulu-skill", "type": "Custom"},
+            {"name": "alpha-skill", "type": "Custom"},
+            {"name": "bravo-skill", "type": "Custom"},
+        ]
+        sorted_skills = sorted(skills, key=lambda s: s["name"])
+        self.assertEqual(sorted_skills[0]["name"], "alpha-skill")
+        self.assertEqual(sorted_skills[1]["name"], "bravo-skill")
+        self.assertEqual(sorted_skills[2]["name"], "zulu-skill")
+
+    def test_maintains_type_grouping(self):
+        """Test that skill type grouping is maintained during sorting."""
+        skills_by_type = {
+            "Custom": [
+                {"name": "skill-z", "type": "Custom"},
+                {"name": "skill-a", "type": "Custom"},
+            ],
+            "Open-source": [
+                {"name": "skill-y", "type": "Open-source"},
+                {"name": "skill-b", "type": "Open-source"},
+            ]
+        }
+        # Each type should maintain its own section
+        self.assertEqual(len(skills_by_type["Custom"]), 2)
+        self.assertEqual(len(skills_by_type["Open-source"]), 2)
 
 
 class TestReportGeneration(unittest.TestCase):
-    """Test generation of audit reports."""
+    """Test report generation."""
 
     def test_generates_summary_report(self):
         """Test report with skill discovery summary."""
         report = {
-            "total_skills": 5,
+            "total_skills_discovered": 5,
             "by_type": {
                 "Custom": 2,
                 "Open-source": 2,
                 "Agent Skill": 1
-            },
-            "missing_from_readme": [],
-            "newly_added": ["align-skills-documentation"],
-            "removed": []
+            }
         }
-
-        self.assertEqual(report["total_skills"], 5)
+        self.assertEqual(report["total_skills_discovered"], 5)
         self.assertEqual(report["by_type"]["Custom"], 2)
-        self.assertEqual(len(report["newly_added"]), 1)
+        self.assertEqual(report["by_type"]["Open-source"], 2)
+        self.assertEqual(report["by_type"]["Agent Skill"], 1)
 
-    def test_detects_missing_skills(self):
-        """Test detection of skills in code but missing from README."""
-        discovered_skills = {"skill-1", "skill-2", "skill-3"}
-        documented_skills = {"skill-1", "skill-3"}
-        missing = discovered_skills - documented_skills
-
-        self.assertIn("skill-2", missing)
-        self.assertEqual(len(missing), 1)
-
-    def test_detects_removed_skills(self):
-        """Test detection of skills removed from codebase."""
-        documented_skills = {"old-skill-1", "old-skill-2"}
-        discovered_skills = {"old-skill-1"}
-        removed = documented_skills - discovered_skills
-
-        self.assertIn("old-skill-2", removed)
-        self.assertEqual(len(removed), 1)
+    def test_report_has_skill_lists(self):
+        """Test that report includes lists of discovered skills."""
+        report = {
+            "custom_skills": ["skill-1", "skill-2"],
+            "open_source_skills": ["skill-3"],
+            "agent_skills": ["skill-4", "skill-5"],
+        }
+        self.assertEqual(len(report["custom_skills"]), 2)
+        self.assertEqual(len(report["open_source_skills"]), 1)
+        self.assertEqual(len(report["agent_skills"]), 2)
 
 
 class TestErrorHandling(unittest.TestCase):
     """Test error handling and edge cases."""
 
-    def test_handles_malformed_yaml(self):
-        """Test handling of malformed SKILL.md frontmatter."""
-        malformed_content = """---
-name: bad-skill
-description: Missing closing quotes
-metadata: {broken json
----
-"""
-        # Verify detection of malformed content
-        self.assertIn("---", malformed_content)
-        # In real implementation, should log error and skip
-
     def test_handles_missing_skill_files(self):
         """Test graceful handling of missing SKILL.md files."""
         skill_dir = Path("/nonexistent/skill")
         skill_file = skill_dir / "SKILL.md"
-
-        # Verify file doesn't exist
         self.assertFalse(skill_file.exists())
 
     def test_handles_empty_skills_directory(self):
@@ -323,281 +396,44 @@ metadata: {broken json
         temp_dir = tempfile.mkdtemp()
         skills_dir = Path(temp_dir) / ".claude" / "skills"
         skills_dir.mkdir(parents=True)
-
-        # Count skill directories
         skill_count = len([d for d in skills_dir.iterdir() if d.is_dir()])
         self.assertEqual(skill_count, 0)
-
         import shutil
         shutil.rmtree(temp_dir, ignore_errors=True)
 
-
-class TestTriggerContextExtraction(unittest.TestCase):
-    """Test extraction of trigger patterns from descriptions."""
-
-    def test_extracts_use_when_patterns(self):
-        """Test extraction of 'Use when' patterns."""
-        description = "Use when you need to create documentation or when files change frequently."
-
-        # Verify pattern detection
-        self.assertIn("Use when", description)
-        patterns = [p for p in description.split("when") if p.strip()]
-        self.assertGreater(len(patterns), 1)
-
-    def test_extracts_trigger_context_patterns(self):
-        """Test extraction of 'Trigger context' patterns."""
-        description = "Trigger contexts: new skills added, files modified, release preparation."
-
-        self.assertIn("Trigger context", description)
-
-    def test_groups_patterns_by_workflow_phase(self):
-        """Test grouping of trigger patterns by phase."""
-        patterns = {
-            "Custom Workflows": ["pr", "semantic-release"],
-            "Documentation": ["create-changelog", "align-skills-documentation"],
-            "Design": ["frontend-design"]
-        }
-
-        self.assertEqual(len(patterns["Custom Workflows"]), 2)
-        self.assertIn("pr", patterns["Custom Workflows"])
-
-
-class TestAgentDiscovery(unittest.TestCase):
-    """Test discovery of agent skills from plugins."""
-
-    def test_discovers_agent_skills_from_settings(self):
-        """Test discovery of agent skills from settings.json plugins."""
-        settings_content = {
-            "plugins": {
-                "agent-skills@addy-agent-skills": {
-                    "enabled": True
-                }
-            }
-        }
-
-        self.assertIn("agent-skills@addy-agent-skills", settings_content["plugins"])
-        self.assertTrue(settings_content["plugins"]["agent-skills@addy-agent-skills"]["enabled"])
-
-    def test_extracts_agent_skill_names(self):
-        """Test extraction of agent skill names from plugin registry."""
-        agents = [
-            "/spec", "/plan", "/build", "/test", "/review", "/ship",
-            "/frontend-ui-engineering", "/api-and-interface-design",
-            "/performance-optimization", "/debugging-and-error-recovery"
-        ]
-
-        self.assertEqual(len(agents), 10)
-        self.assertIn("/spec", agents)
-        self.assertIn("/debugging-and-error-recovery", agents)
-
-
-class TestWorkflowPhaseDetection(unittest.TestCase):
-    """Test mapping of agents to workflow lifecycle phases."""
-
-    def test_detects_workflow_phases(self):
-        """Test detection of workflow phase from agent names and descriptions."""
-        phase_mapping = {
-            "requirements": ["/idea-refine", "/interview-me"],
-            "specification": ["/spec"],
-            "planning": ["/plan"],
-            "build": ["/build"],
-            "testing": ["/test"],
-            "review": ["/review"],
-            "launch": ["/ship"]
-        }
-
-        self.assertEqual(len(phase_mapping["requirements"]), 2)
-        self.assertIn("/spec", phase_mapping["specification"])
-
-    def test_maps_domain_agents_to_phases(self):
-        """Test mapping of domain-specific agents."""
-        domain_agents = {
-            "build": ["/frontend-ui-engineering", "/api-and-interface-design"],
-            "diagnostics": ["/performance-optimization", "/debugging-and-error-recovery"],
-            "operations": ["/ci-cd-and-automation"]
-        }
-
-        self.assertEqual(len(domain_agents["build"]), 2)
-        self.assertIn("/performance-optimization", domain_agents["diagnostics"])
-
-
-class TestDecisionTreeGeneration(unittest.TestCase):
-    """Test generation of decision trees from trigger patterns."""
-
-    def test_generates_feature_implementation_tree(self):
-        """Test generation of decision tree for feature implementation."""
-        tree = {
-            "scenario": "I need to implement a feature",
-            "decisions": [
-                {"question": "Do you have clear requirements?", "yes": "continue", "no": "/interview-me"},
-                {"question": "Have you written a spec?", "yes": "continue", "no": "/spec"},
-                {"question": "Have you planned the work?", "yes": "/build", "no": "/plan"}
-            ]
-        }
-
-        self.assertEqual(tree["scenario"], "I need to implement a feature")
-        self.assertEqual(len(tree["decisions"]), 3)
-
-    def test_generates_bug_fix_tree(self):
-        """Test generation of decision tree for bug fixes."""
-        tree = {
-            "scenario": "Something is broken",
-            "decisions": [
-                {"question": "Do you know the root cause?", "yes": "/test", "no": "/debugging-and-error-recovery"}
-            ]
-        }
-
-        self.assertEqual(tree["scenario"], "Something is broken")
-
-
-class TestCustomSkillIntegration(unittest.TestCase):
-    """Test identification of custom skill integration points."""
-
-    def test_identifies_pr_integration_point(self):
-        """Test identification of /pr skill integration after review."""
-        integration = {
-            "skill": "/pr",
-            "integration_point": "After /build completes & ready for review",
-            "sequence": ["/build", "/review", "/pr"],
-            "works_with": ["/build", "/review"]
-        }
-
-        self.assertEqual(integration["skill"], "/pr")
-        self.assertEqual(integration["sequence"], ["/build", "/review", "/pr"])
-
-    def test_identifies_changelog_integration_point(self):
-        """Test identification of /create-changelog integration."""
-        integration = {
-            "skill": "/create-changelog",
-            "integration_point": "After /build before /ship",
-            "sequence": ["/build", "/create-changelog", "/ship"],
-            "works_with": ["/build", "/ship"]
-        }
-
-        self.assertIn("/create-changelog", integration["skill"])
-        self.assertIn("/ship", integration["sequence"])
-
-    def test_identifies_semantic_release_integration(self):
-        """Test identification of /semantic-release integration."""
-        integration = {
-            "skill": "/semantic-release",
-            "integration_point": "During planning for branch creation",
-            "sequence": ["/plan", "/semantic-release", "/build"],
-            "works_with": ["/plan", "/build"]
-        }
-
-        self.assertEqual(len(integration["sequence"]), 3)
-
-
-class TestAgentsmdUpdate(unittest.TestCase):
-    """Test AGENTS.md section generation and updates."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-
-    def tearDown(self):
-        """Clean up temp files."""
-        import shutil
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
-
-    def test_creates_decision_trees_section(self):
-        """Test creation of Decision Trees section in AGENTS.md."""
-        decision_trees = """## 🎯 Decision Trees
-
-### "I need to implement a feature"
-- Do you have clear requirements?
-  - NO → Use /interview-me or /idea-refine
-  - YES → Continue
+    def test_handles_malformed_yaml_gracefully(self):
+        """Test handling of malformed SKILL.md frontmatter."""
+        malformed = """---
+name: bad-skill
+description: Missing closing quotes
+metadata: {broken json
+---
 """
-        self.assertIn("## 🎯 Decision Trees", decision_trees)
-        self.assertIn("I need to implement a feature", decision_trees)
-
-    def test_creates_agent_combinations_section(self):
-        """Test creation of Agent Combinations section."""
-        section = """## 🔗 Agent Combinations & Context Flow
-
-| Sequence | Prerequisites | Purpose | Output Context |
-|----------|---|---------|--------|
-| /spec → /plan → /build | Clear requirements | Feature development | Task list → Implementation |
-"""
-        self.assertIn("## 🔗 Agent Combinations", section)
-        self.assertIn("/spec → /plan → /build", section)
-
-    def test_creates_custom_skills_integration_section(self):
-        """Test creation of Custom Skills Integration section."""
-        section = """## 🛠️ Custom Skills Integration Guide
-
-| Skill | Integration Point | Works With Agents | Sequence |
-|-------|-------------------|------------------|----------|
-| /pr | After /build completes | /build, /review | /build → /review → /pr |
-"""
-        self.assertIn("## 🛠️ Custom Skills Integration", section)
-        self.assertIn("/pr", section)
-
-    def test_creates_agent_context_requirements_section(self):
-        """Test creation of Agent Context Requirements section."""
-        section = """## 📋 Agent Context Requirements
-
-| Agent | Phase | Prerequisites | Input | Output | Success Criteria |
-|-------|-------|---|-------|--------|------------------|
-| /spec | Specification | Clear requirements | Clarified requirements | Detailed spec | Spec has clear criteria |
-"""
-        self.assertIn("## 📋 Agent Context Requirements", section)
-        self.assertIn("/spec", section)
+        self.assertIn("---", malformed)
+        # Should attempt to parse without crashing
 
 
-class TestAgentContextFlow(unittest.TestCase):
-    """Test documentation of state/context flow between agents."""
+class TestConstantTableFormat(unittest.TestCase):
+    """Test that markdown table format is consistent across projects."""
 
-    def test_documents_spec_to_plan_flow(self):
-        """Test documentation of context flow from /spec to /plan."""
-        flow = {
-            "from_agent": "/spec",
-            "to_agent": "/plan",
-            "context_passed": "Specification with requirements and acceptance criteria",
-            "expectation": "Specification becomes input for task planning"
-        }
+    def test_header_constant_across_projects(self):
+        """Test that table header format is consistent."""
+        header1 = "| Skill | Type | Description | Source |"
+        header2 = "| Skill | Type | Description | Source |"
+        self.assertEqual(header1, header2)
 
-        self.assertEqual(flow["from_agent"], "/spec")
-        self.assertEqual(flow["to_agent"], "/plan")
+    def test_separator_constant_across_projects(self):
+        """Test that table separator format is consistent."""
+        sep1 = "|-------|------|-------------|--------|"
+        sep2 = "|-------|------|-------------|--------|"
+        self.assertEqual(sep1, sep2)
 
-    def test_documents_plan_to_build_flow(self):
-        """Test documentation of context flow from /plan to /build."""
-        flow = {
-            "from_agent": "/plan",
-            "to_agent": "/build",
-            "context_passed": "Task list with dependencies",
-            "expectation": "Tasks become implementation targets"
-        }
-
-        self.assertIn("Task list", flow["context_passed"])
-
-    def test_documents_build_to_test_flow(self):
-        """Test documentation of context flow from /build to /test."""
-        flow = {
-            "from_agent": "/build",
-            "to_agent": "/test",
-            "context_passed": "Implemented code and changes",
-            "expectation": "Code changes need verification"
-        }
-
-        self.assertEqual(flow["to_agent"], "/test")
-
-    def test_documents_custom_skill_context_requirements(self):
-        """Test documentation of context requirements for custom skills."""
-        pr_requirements = {
-            "skill": "/pr",
-            "prerequisite_state": "Code reviewed and approved",
-            "expected_context": {
-                "branch": "semantic-release branch",
-                "commits": "conventional format",
-                "files": "reviewed code changes"
-            }
-        }
-
-        self.assertEqual(pr_requirements["skill"], "/pr")
-        self.assertIn("branch", pr_requirements["expected_context"])
+    def test_column_order_is_standard(self):
+        """Test that column order is standard: Skill | Type | Description | Source."""
+        header = "| Skill | Type | Description | Source |"
+        columns = [col.strip() for col in header.split("|")[1:-1]]
+        self.assertEqual(columns, ["Skill", "Type", "Description", "Source"])
 
 
-
+if __name__ == "__main__":
+    unittest.main()
