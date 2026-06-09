@@ -1,5 +1,5 @@
 ---
-name: align-skills-documentation
+name: document-skills
 description: |
   Discovers all available skills and generates a dedicated SKILLS.md file in the project root with a comprehensive table organized by skill type. Extracts skills from three sources: custom skills in .claude/skills/, open-source skills from skills-lock.json (anthropics/skills), and agent skills from enabled plugins (addyosmani/agent-skills). Generates a clean, consistent markdown table format reusable across projects with columns: Skill | Type | Description | Source. Use this skill to maintain a single source of truth for skills documentation, track what's available in your project, and ensure consistent documentation structure.
 license: MIT

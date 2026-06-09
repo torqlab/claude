@@ -8,7 +8,7 @@ Project-specific skills maintained in `./.claude/skills/`.
 
 | Skill | Type | Description | Source |
 |-------|------|-------------|--------|
-| **align-skills-documentation** | Custom | Discovers all available skills and generates a dedicated SKILLS.md file in the project root with a... | [./.claude/skills/align-skills-documentation/SKILL.md](./.claude/skills/align-skills-documentation/SKILL.md) |
+| **document-skills** | Custom | Discovers all available skills and generates a dedicated SKILLS.md file in the project root with a... | [./.claude/skills/document-skills/SKILL.md](./.claude/skills/document-skills/SKILL.md) |
 | **git-branch** | Custom | Create git branches with semantic-release naming conventions for the current repository. | [./.claude/skills/git-branch/SKILL.md](./.claude/skills/git-branch/SKILL.md) |
 | **github-mcp-setup** | Custom | Configure GitHub Model Context Protocol (MCP) server for Claude Code using GitHub App... | [./.claude/skills/github-mcp-setup/SKILL.md](./.claude/skills/github-mcp-setup/SKILL.md) |
 | **pr** | Custom | Agent-driven GitHub PR creation workflow aligned with semantic-release conventions. | [./.claude/skills/pr/SKILL.md](./.claude/skills/pr/SKILL.md) |

@@ -218,7 +218,7 @@ This collection provides custom skills for semantic versioning, branch managemen
 | **git-branch** | Create git branches with semantic-release naming conventions for the current repository | `/git-branch` |
 | **pr** | Agent-driven GitHub PR creation workflow aligned with semantic-release conventions | `/pr` |
 | **github-mcp-setup** | Configure GitHub Model Context Protocol (MCP) server for Claude Code using GitHub App authentication | `/github-mcp-setup` |
-| **align-skills-documentation** | Discovers all available skills and generates a dedicated SKILLS.md file in the project root with a comprehensive table organized by skill type | `/align-skills-documentation` |
+| **document-skills** | Discovers all available skills and generates a dedicated SKILLS.md file in the project root with a comprehensive table organized by skill type | `/document-skills` |
 
 ### Skill Integration with Agent Workflow
 
@@ -230,13 +230,13 @@ How custom project-specific skills integrate with agent-skills:
 | **git-branch** | At start of `/build` | `/plan`, `/build` | `/plan` → `/git-branch` (create) → `/build` |
 | **pr** | After `/build` when ready for review | `/build`, `/review`, `/ship` | `/build` → `/review` → `/pr` (create) → `/ship` |
 | **github-mcp-setup** | Before any `/pr` usage | `/pr` | Setup first, then use `/pr` |
-| **align-skills-documentation** | Before releases or during maintenance | Any workflow | Use after adding new skills |
+| **document-skills** | Before releases or during maintenance | Any workflow | Use after adding new skills |
 
 **Integration strategy**:
 - **Branch creation**: Use `/semantic-release` or `/git-branch` early in `/build` phase
 - **Code review integration**: `/review` provides feedback context for `/pr` creation
 - **Release workflow**: Complete `/build` → `/review` → `/pr` → `/ship` sequence
-- **Documentation**: Keep `/align-skills-documentation` up to date after skill additions
+- **Documentation**: Keep `/document-skills` up to date after skill additions
 
 ### Open-Source Skills (from NPM)
 
