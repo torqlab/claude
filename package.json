@@ -34,5 +34,9 @@
     "@commitlint/config-conventional": "^21.0.2",
     "husky": "^9.0.0",
     "validate-branch-name": "^1.3.2"
+  },
+  "validate-branch-name": {
+    "pattern": "^(feat|fix|chore|docs|test|refactor|perf)/\\d+-.+$|^(master|main|develop)$",
+    "errorMsg": "Branch name must follow pattern: <type>/<ticket_id>-<description>\n\nExamples:\n  feat/123-add-feature\n  fix/42-resolve-bug\n  chore/99-update-deps\n\nAllowed types: feat, fix, chore, docs, test, refactor, perf\nTicket ID must be numeric (required).\n\nSee: .claude/skills/semantic-release/SKILL.md for details"
   }
 }
