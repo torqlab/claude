@@ -1,0 +1,205 @@
+{
+  "version": "1.0.0",
+  "name": "js-project-structure",
+  "description": "Evaluation tests for js-project-structure skill",
+  "tests": [
+    {
+      "id": "test-1-project-creation",
+      "name": "Create new local project",
+      "description": "Initialize a new JavaScript project locally without remote GitHub repo",
+      "steps": [
+        "Run: bash scripts/init-project.sh test-lib-local empty-scope 'A test library' no",
+        "Verify: test-lib-local directory created",
+        "Verify: package.json exists with name 'test-lib-local'",
+        "Verify: All required files present (tsconfig.json, eslint.config.mjs, .prettierrc, etc.)",
+        "Verify: .git directory initialized",
+        "Verify: Initial commit created with message 'chore: initialize project from torq template'",
+        "Verify: node_modules installed"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "files": [
+          "test-lib-local/package.json",
+          "test-lib-local/tsconfig.json",
+          "test-lib-local/eslint.config.mjs",
+          "test-lib-local/.prettierrc",
+          "test-lib-local/commitlint.config.js",
+          "test-lib-local/.releaserc.json",
+          "test-lib-local/.github/workflows/verify.yml",
+          "test-lib-local/.github/workflows/publish.yml",
+          "test-lib-local/.husky/commit-msg",
+          "test-lib-local/.husky/pre-push"
+        ],
+        "gitBranch": "main",
+        "gitCommits": "≥1"
+      }
+    },
+    {
+      "id": "test-2-scoped-package",
+      "name": "Create scoped npm package",
+      "description": "Initialize project with @scope namespace",
+      "steps": [
+        "Run: bash scripts/init-project.sh test-scoped '@torqlab' 'A scoped test lib' no",
+        "Verify: package.json name is '@torqlab/test-scoped'",
+        "Verify: All configuration files customized",
+        "Verify: Git initialized and first commit created"
+      ],
+      "expected": {
+        "packageName": "@torqlab/test-scoped",
+        "files": [
+          "test-scoped/package.json"
+        ]
+      }
+    },
+    {
+      "id": "test-3-validation-setup",
+      "name": "Validate project setup",
+      "description": "Run validation checks on initialized project",
+      "steps": [
+        "Create test project via init-project.sh",
+        "Run: bash scripts/validate-setup.sh test-lib-local",
+        "Verify: All checks pass (0 errors)"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "checksPass": [
+          "configuration files",
+          "directories",
+          "git repository",
+          "git hooks",
+          "dependencies",
+          "typescript",
+          "eslint",
+          "prettier"
+        ]
+      }
+    },
+    {
+      "id": "test-4-husky-hooks",
+      "name": "Test commit-msg hook",
+      "description": "Verify commitlint validation works",
+      "steps": [
+        "Create test project",
+        "cd into project",
+        "Try bad commit: git commit --allow-empty -m 'bad message'",
+        "Verify: Commit is rejected by hook",
+        "Try good commit: git commit --allow-empty -m 'feat(core): add feature'",
+        "Verify: Commit succeeds"
+      ],
+      "expected": {
+        "badCommitRejected": true,
+        "goodCommitAccepted": true,
+        "hookInstalled": true
+      }
+    },
+    {
+      "id": "test-5-branch-validation",
+      "name": "Test branch name validation",
+      "description": "Verify branch naming convention is enforced",
+      "steps": [
+        "Create test project",
+        "cd into project",
+        "Create branch with bad name: git checkout -b bad-branch-name",
+        "Try to push (dry-run to origin): pre-push hook should validate",
+        "Create branch with good name: git checkout -b feat/1-test-feature",
+        "Verify branch name is accepted by validate-branch-name"
+      ],
+      "expected": {
+        "badBranchRejected": true,
+        "goodBranchAccepted": true
+      }
+    },
+    {
+      "id": "test-6-build-pipeline",
+      "name": "Test build scripts",
+      "description": "Verify build process works",
+      "steps": [
+        "Create test project",
+        "cd into project",
+        "Run: bun run build",
+        "Verify: dist/ directory created",
+        "Verify: dist/index.mjs (ESM) exists",
+        "Verify: dist/index.cjs (CommonJS) exists",
+        "Verify: dist/index.d.ts (types) exists"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "outputDir": "dist",
+        "files": [
+          "dist/index.mjs",
+          "dist/index.cjs",
+          "dist/index.d.ts"
+        ]
+      }
+    },
+    {
+      "id": "test-7-linting",
+      "name": "Test ESLint integration",
+      "description": "Verify linting works without errors",
+      "steps": [
+        "Create test project",
+        "cd into project",
+        "Run: bun run lint",
+        "Verify: No ESLint errors (exit code 0)"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "errors": 0
+      }
+    },
+    {
+      "id": "test-8-formatting",
+      "name": "Test Prettier integration",
+      "description": "Verify code formatting is correct",
+      "steps": [
+        "Create test project",
+        "cd into project",
+        "Run: bun run format:check",
+        "Verify: Code already formatted (exit code 0)"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "message": "All matched files use Prettier code style"
+      }
+    },
+    {
+      "id": "test-9-tests",
+      "name": "Test runner (Bun)",
+      "description": "Verify test execution works",
+      "steps": [
+        "Create test project",
+        "cd into project",
+        "Run: bun test",
+        "Verify: Tests execute (at least placeholder test)"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "testsRun": "≥1"
+      }
+    },
+    {
+      "id": "test-10-config-files",
+      "name": "Validate config files",
+      "description": "Verify all config files are valid",
+      "steps": [
+        "Create test project",
+        "Validate package.json: JSON parse succeeds",
+        "Validate tsconfig.json: JSON parse succeeds",
+        "Validate .releaserc.json: JSON parse succeeds",
+        "Validate commitlint.config.js: Can be imported",
+        "Validate eslint.config.mjs: Can be imported",
+        "Validate .prettierrc: JSON parse succeeds"
+      ],
+      "expected": {
+        "allValid": true,
+        "parseErrors": 0
+      }
+    }
+  ],
+  "cleanup": {
+    "description": "Remove test artifacts after evaluation",
+    "commands": [
+      "rm -rf test-lib-local test-scoped test-lib-local-remote"
+    ]
+  }
+}
