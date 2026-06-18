@@ -47,7 +47,7 @@ echo "🔐 Checking git configuration..."
 if [ -d ".git" ]; then
   echo "  ✅ Git repository initialized"
   BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
-  echo "     Current branch: $branch"
+  echo "     Current branch: $BRANCH"
 else
   echo "  ⚠️  Git repository not initialized"
 fi
