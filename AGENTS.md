@@ -13,12 +13,12 @@ This is a **project-level Claude collection** that serves as a centralized sourc
 - **Skills**: Comprehensive skill inventory organized by type (custom, open-source, agent skills)
 - **Workflows**: Structured development patterns for requirements, implementation, testing, and deployment
 - **Configurations**: Claude Code settings, hooks, and project conventions
-- **Documentation**: [SKILLS.md](./SKILLS.md) for complete skills reference, README.md for setup and usage
+- **Documentation**: [AI.md](./AI.md) for complete skills reference, README.md for setup and usage
 
 ## Quick Links
 
 - **[README.md](./README.md)** — Complete setup guide, workflow patterns, and skill integration
-- **[SKILLS.md](./SKILLS.md)** — All available skills organized by type with decision trees
+- **[AI.md](./AI.md)** — All available AI tools
 
 ## Repository Structure
 
@@ -29,7 +29,7 @@ torq/claude/
 │   ├── settings.json        # Claude configuration
 │   └── settings.local.json  # Local Claude overrides
 ├── README.md                # Setup, workflows, and skill integration
-├── SKILLS.md                # Complete skills reference with decision trees
+├── AI.md                # Complete AI tools reference with decision trees
 ├── package.json             # Project metadata
 ├── skills-lock.json         # Open-source skills registry
 └── .nvmrc                   # Node version specification
@@ -39,7 +39,7 @@ torq/claude/
 
 For complete documentation on setup, workflows, and skill integration, see [README.md](./README.md).
 
-For detailed skill documentation, see [SKILLS.md](./SKILLS.md).
+For detailed AI tools documentation, see [AI.md](./AI.md).
 
 For agent-skills reference, see [github.com/addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/main).
 

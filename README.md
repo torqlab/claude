@@ -12,7 +12,7 @@ This is a **project-level Claude collection** that serves as a centralized sourc
 
 ## What's Included
 
-- **[SKILLS.md](./SKILLS.md)** — Complete reference for all available skills organized by type (custom, open-source, agent skills) with decision trees for workflow selection
+- **[AI.md](./AI.md)** — Complete reference for all available AI tools
 - **Addy Osmani Workflow** — Structured development methodology with specialized agents for each phase
 - **Custom Skills** — Project-specific skills for semantic versioning, branch management, PR creation, and documentation
 - **Configurations** — Claude Code settings, hooks, and project conventions in `.claude/`
@@ -207,18 +207,6 @@ Common agent workflow sequences and how context flows between them:
 **Reference**: [Addy Osmani's agent-skills repository](https://github.com/addyosmani/agent-skills)
 
 ## Adding Skills to This Collection
-
-### Project-Specific Skills
-
-This collection provides custom skills for semantic versioning, branch management, and documentation:
-
-| Skill | Purpose | Usage |
-|-------|---------|-------|
-| **semantic-release** | Agent-driven workflow for creating git branches and conventional commits aligned with semantic versioning | `/semantic-release` |
-| **git-branch** | Create git branches with semantic-release naming conventions for the current repository | `/git-branch` |
-| **pr** | Agent-driven GitHub PR creation workflow aligned with semantic-release conventions | `/pr` |
-| **github-mcp-setup** | Configure GitHub Model Context Protocol (MCP) server for Claude Code using GitHub App authentication | `/github-mcp-setup` |
-| **document-skills** | Discovers all available skills and generates a dedicated SKILLS.md file in the project root with a comprehensive table organized by skill type | `/document-skills` |
 
 ### Skill Integration with Agent Workflow
 
