@@ -1,0 +1,123 @@
+name: Test js-project-structure Skill
+
+on:
+  push:
+    branches:
+      - main
+      - feat/**
+    paths:
+      - '.claude/skills/js-project-structure/**'
+      - '.github/workflows/test-js-project-structure.yml'
+  pull_request:
+    paths:
+      - '.claude/skills/js-project-structure/**'
+      - '.github/workflows/test-js-project-structure.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test js-project-structure Skill
+
+    strategy:
+      matrix:
+        node-version: ['24.x']
+        python-version: ['3.11']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+
+      - name: Configure git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Run unit tests
+        working-directory: .claude/skills/js-project-structure
+        run: |
+          python -m unittest discover -s . -p 'test_*.py' -v
+
+      - name: Run integration tests
+        working-directory: .claude/skills/js-project-structure
+        run: |
+          python -m pytest test_js_project_structure.py -v --tb=short
+
+      - name: Test local project creation
+        working-directory: /tmp
+        run: |
+          bash $GITHUB_WORKSPACE/.claude/skills/js-project-structure/scripts/init-project.sh test-local '' 'Test library' no
+          cd test-local
+          [ -f package.json ] && echo "✓ package.json exists"
+          [ -f tsconfig.json ] && echo "✓ tsconfig.json exists"
+          [ -d .git ] && echo "✓ .git initialized"
+          [ -d src ] && echo "✓ src directory exists"
+
+      - name: Test scoped project creation
+        working-directory: /tmp
+        run: |
+          bash $GITHUB_WORKSPACE/.claude/skills/js-project-structure/scripts/init-project.sh test-scoped '@test' 'Scoped test library' no
+          cd test-scoped
+          [ -f package.json ] && grep -q '"name": "@test/test-scoped"' package.json && echo "✓ scoped package name correct"
+
+      - name: Validate project setup
+        working-directory: /tmp/test-local
+        run: |
+          bash $GITHUB_WORKSPACE/.claude/skills/js-project-structure/scripts/validate-setup.sh .
+
+      - name: Test SKILL.md validity
+        run: |
+          SKILL_FILE=".claude/skills/js-project-structure/SKILL.md"
+          [ -f "$SKILL_FILE" ] && echo "✓ SKILL.md exists"
+          grep -q "^---$" "$SKILL_FILE" && grep -q "^name:" "$SKILL_FILE" && echo "✓ SKILL.md has valid frontmatter"
+          grep -q "## Overview" "$SKILL_FILE" && echo "✓ SKILL.md has Overview section"
+          grep -q "## Initialization Workflow" "$SKILL_FILE" && echo "✓ SKILL.md has Workflow section"
+          grep -q "## Examples" "$SKILL_FILE" && echo "✓ SKILL.md has Examples section"
+
+      - name: Verify evals.json
+        run: |
+          EVALS_FILE=".claude/skills/js-project-structure/evals/evals.json"
+          [ -f "$EVALS_FILE" ] && echo "✓ evals.json exists"
+          python3 -m json.tool "$EVALS_FILE" > /dev/null && echo "✓ evals.json is valid JSON"
+          python3 -c "
+          import json
+          with open('$EVALS_FILE') as f:
+              data = json.load(f)
+              assert 'tests' in data, 'Missing tests array'
+              assert len(data['tests']) >= 5, f'Need at least 5 tests, got {len(data[\"tests\"])}'
+              print(f'✓ evals.json has {len(data[\"tests\"])} tests')
+          "
+
+      - name: Test cleanup
+        if: always()
+        run: |
+          rm -rf /tmp/test-local /tmp/test-scoped
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            .claude/skills/js-project-structure/evals/evals.json
+            test-*.log
+          retention-days: 30

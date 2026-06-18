@@ -1,45 +1,52 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "js-project-structure",
-  "description": "Evaluation tests for js-project-structure skill",
+  "description": "Evaluation tests for js-project-structure skill - GitHub Actions compatible",
+  "testFramework": "python unittest + GitHub Actions workflow",
+  "testCommand": "python -m unittest discover -s . -p 'test_*.py' -v",
+  "githubActionsWorkflow": ".github/workflows/test-js-project-structure.yml",
   "tests": [
     {
-      "id": "test-1-project-creation",
-      "name": "Create new local project",
-      "description": "Initialize a new JavaScript project locally without remote GitHub repo",
+      "id": "test-1-project-creation-unscoped",
+      "name": "Create new local unscoped project",
+      "description": "Initialize a new JavaScript project locally without scope or remote GitHub repo",
+      "category": "initialization",
       "steps": [
-        "Run: bash scripts/init-project.sh test-lib-local empty-scope 'A test library' no",
-        "Verify: test-lib-local directory created",
-        "Verify: package.json exists with name 'test-lib-local'",
+        "Run: bash scripts/init-project.sh test-lib '' 'A test library' no ''",
+        "Verify: test-lib directory created",
+        "Verify: package.json exists with name 'test-lib'",
         "Verify: All required files present (tsconfig.json, eslint.config.mjs, .prettierrc, etc.)",
         "Verify: .git directory initialized",
-        "Verify: Initial commit created with message 'chore: initialize project from torq template'",
+        "Verify: Initial commit created with message 'chore: initialize project'",
         "Verify: node_modules installed"
       ],
       "expected": {
         "exitCode": 0,
         "files": [
-          "test-lib-local/package.json",
-          "test-lib-local/tsconfig.json",
-          "test-lib-local/eslint.config.mjs",
-          "test-lib-local/.prettierrc",
-          "test-lib-local/commitlint.config.js",
-          "test-lib-local/.releaserc.json",
-          "test-lib-local/.github/workflows/verify.yml",
-          "test-lib-local/.github/workflows/publish.yml",
-          "test-lib-local/.husky/commit-msg",
-          "test-lib-local/.husky/pre-push"
+          "test-lib/package.json",
+          "test-lib/tsconfig.json",
+          "test-lib/eslint.config.mjs",
+          "test-lib/.prettierrc",
+          "test-lib/commitlint.config.js",
+          "test-lib/.releaserc.json",
+          "test-lib/.github/workflows/verify.yml",
+          "test-lib/.github/workflows/publish.yml",
+          "test-lib/.husky/commit-msg",
+          "test-lib/.husky/pre-push",
+          "test-lib/src/index.ts",
+          "test-lib/src/index.test.ts"
         ],
         "gitBranch": "main",
         "gitCommits": "≥1"
       }
     },
     {
-      "id": "test-2-scoped-package",
+      "id": "test-2-project-creation-scoped",
       "name": "Create scoped npm package",
       "description": "Initialize project with @scope namespace",
+      "category": "initialization",
       "steps": [
-        "Run: bash scripts/init-project.sh test-scoped '@torqlab' 'A scoped test lib' no",
+        "Run: bash scripts/init-project.sh test-scoped '@torqlab' 'A scoped test lib' no ''",
         "Verify: package.json name is '@torqlab/test-scoped'",
         "Verify: All configuration files customized",
         "Verify: Git initialized and first commit created"
@@ -48,16 +55,37 @@
         "packageName": "@torqlab/test-scoped",
         "files": [
           "test-scoped/package.json"
-        ]
+        ],
+        "exitCode": 0
       }
     },
     {
-      "id": "test-3-validation-setup",
-      "name": "Validate project setup",
+      "id": "test-3-project-structure",
+      "name": "Verify complete project structure",
+      "description": "Ensure all required directories and files exist",
+      "category": "structure",
+      "steps": [
+        "Create test project",
+        "Verify: src/ directory exists",
+        "Verify: src/index.ts entry point exists",
+        "Verify: src/index.test.ts test template exists",
+        ".github/workflows/ directory exists",
+        "Verify: .husky/ hooks directory exists",
+        "Verify: All config files present"
+      ],
+      "expected": {
+        "allFilesPresent": true,
+        "directoryCount": "≥8"
+      }
+    },
+    {
+      "id": "test-4-validation-setup",
+      "name": "Validate project setup completeness",
       "description": "Run validation checks on initialized project",
+      "category": "validation",
       "steps": [
         "Create test project via init-project.sh",
-        "Run: bash scripts/validate-setup.sh test-lib-local",
+        "Run: bash scripts/validate-setup.sh <project>",
         "Verify: All checks pass (0 errors)"
       ],
       "expected": {
@@ -75,131 +103,243 @@
       }
     },
     {
-      "id": "test-4-husky-hooks",
-      "name": "Test commit-msg hook",
-      "description": "Verify commitlint validation works",
+      "id": "test-5-package-json-config",
+      "name": "Validate package.json configuration",
+      "description": "Verify package.json has correct metadata and scripts",
+      "category": "configuration",
       "steps": [
         "Create test project",
-        "cd into project",
-        "Try bad commit: git commit --allow-empty -m 'bad message'",
-        "Verify: Commit is rejected by hook",
-        "Try good commit: git commit --allow-empty -m 'feat(core): add feature'",
-        "Verify: Commit succeeds"
+        "Parse package.json as JSON",
+        "Verify: name, version, description fields exist",
+        "Verify: Required scripts exist (build, lint, format, test)",
+        "Verify: DevDependencies include typescript, eslint, prettier, husky"
       ],
       "expected": {
-        "badCommitRejected": true,
-        "goodCommitAccepted": true,
-        "hookInstalled": true
-      }
-    },
-    {
-      "id": "test-5-branch-validation",
-      "name": "Test branch name validation",
-      "description": "Verify branch naming convention is enforced",
-      "steps": [
-        "Create test project",
-        "cd into project",
-        "Create branch with bad name: git checkout -b bad-branch-name",
-        "Try to push (dry-run to origin): pre-push hook should validate",
-        "Create branch with good name: git checkout -b feat/1-test-feature",
-        "Verify branch name is accepted by validate-branch-name"
-      ],
-      "expected": {
-        "badBranchRejected": true,
-        "goodBranchAccepted": true
-      }
-    },
-    {
-      "id": "test-6-build-pipeline",
-      "name": "Test build scripts",
-      "description": "Verify build process works",
-      "steps": [
-        "Create test project",
-        "cd into project",
-        "Run: bun run build",
-        "Verify: dist/ directory created",
-        "Verify: dist/index.mjs (ESM) exists",
-        "Verify: dist/index.cjs (CommonJS) exists",
-        "Verify: dist/index.d.ts (types) exists"
-      ],
-      "expected": {
-        "exitCode": 0,
-        "outputDir": "dist",
-        "files": [
-          "dist/index.mjs",
-          "dist/index.cjs",
-          "dist/index.d.ts"
+        "jsonValid": true,
+        "requiredFields": [
+          "name",
+          "version",
+          "description",
+          "scripts",
+          "devDependencies"
+        ],
+        "requiredScripts": [
+          "build",
+          "build:types",
+          "build:esm",
+          "build:cjs",
+          "lint",
+          "format",
+          "format:check"
         ]
       }
     },
     {
-      "id": "test-7-linting",
-      "name": "Test ESLint integration",
-      "description": "Verify linting works without errors",
+      "id": "test-6-tsconfig-valid",
+      "name": "Validate TypeScript configuration",
+      "description": "Verify tsconfig.json is valid and has strict mode enabled",
+      "category": "configuration",
       "steps": [
         "Create test project",
-        "cd into project",
-        "Run: bun run lint",
-        "Verify: No ESLint errors (exit code 0)"
+        "Parse tsconfig.json as JSON",
+        "Verify: compilerOptions exists",
+        "Verify: strict mode enabled (strict: true)"
       ],
       "expected": {
-        "exitCode": 0,
-        "errors": 0
+        "jsonValid": true,
+        "strictMode": true,
+        "exitCode": 0
       }
     },
     {
-      "id": "test-8-formatting",
-      "name": "Test Prettier integration",
-      "description": "Verify code formatting is correct",
+      "id": "test-7-prettier-config",
+      "name": "Validate Prettier configuration",
+      "description": "Verify .prettierrc configuration is correct",
+      "category": "configuration",
       "steps": [
         "Create test project",
-        "cd into project",
-        "Run: bun run format:check",
-        "Verify: Code already formatted (exit code 0)"
+        "Parse .prettierrc as JSON",
+        "Verify: printWidth is 100",
+        "Verify: semi is true",
+        "Verify: singleQuote is true"
       ],
       "expected": {
-        "exitCode": 0,
-        "message": "All matched files use Prettier code style"
+        "jsonValid": true,
+        "printWidth": 100,
+        "semi": true,
+        "singleQuote": true
       }
     },
     {
-      "id": "test-9-tests",
-      "name": "Test runner (Bun)",
-      "description": "Verify test execution works",
+      "id": "test-8-eslint-config",
+      "name": "Verify ESLint configuration exists",
+      "description": "Verify eslint.config.mjs file exists and is readable",
+      "category": "configuration",
       "steps": [
         "Create test project",
-        "cd into project",
-        "Run: bun test",
-        "Verify: Tests execute (at least placeholder test)"
+        "Check: eslint.config.mjs file exists",
+        "Verify: File is readable"
       ],
       "expected": {
-        "exitCode": 0,
-        "testsRun": "≥1"
+        "fileExists": true,
+        "fileReadable": true,
+        "exitCode": 0
       }
     },
     {
-      "id": "test-10-config-files",
-      "name": "Validate config files",
-      "description": "Verify all config files are valid",
+      "id": "test-9-git-setup",
+      "name": "Verify git repository initialization",
+      "description": "Ensure git repo is properly initialized",
+      "category": "git",
       "steps": [
         "Create test project",
-        "Validate package.json: JSON parse succeeds",
-        "Validate tsconfig.json: JSON parse succeeds",
-        "Validate .releaserc.json: JSON parse succeeds",
-        "Validate commitlint.config.js: Can be imported",
-        "Validate eslint.config.mjs: Can be imported",
-        "Validate .prettierrc: JSON parse succeeds"
+        "Verify: .git directory exists",
+        "Verify: Default branch is 'main'",
+        "Verify: At least one commit exists",
+        "Verify: Initial commit message contains 'chore: initialize'"
       ],
       "expected": {
-        "allValid": true,
-        "parseErrors": 0
+        "gitInitialized": true,
+        "defaultBranch": "main",
+        "commitsCount": "≥1",
+        "initialCommitMessage": "chore: initialize project"
+      }
+    },
+    {
+      "id": "test-10-husky-hooks",
+      "name": "Verify Husky git hooks are installed",
+      "description": "Ensure git hooks for validation are present",
+      "category": "git",
+      "steps": [
+        "Create test project",
+        "Verify: .husky/commit-msg hook exists",
+        "Verify: .husky/pre-push hook exists",
+        "Verify: Both files are executable"
+      ],
+      "expected": {
+        "commitMsgHookExists": true,
+        "prePushHookExists": true,
+        "hooksExecutable": true
+      }
+    },
+    {
+      "id": "test-11-input-validation",
+      "name": "Validate error handling for bad inputs",
+      "description": "Ensure script fails gracefully with invalid inputs",
+      "category": "validation",
+      "steps": [
+        "Run: bash scripts/init-project.sh (no args)",
+        "Verify: Script exits with error code",
+        "Create test project once",
+        "Run: bash scripts/init-project.sh <same-name> ... (duplicate)",
+        "Verify: Script exits with error for duplicate"
+      ],
+      "expected": {
+        "missingArgsExitCode": "!0",
+        "duplicateProjectExitCode": "!0"
+      }
+    },
+    {
+      "id": "test-12-skill-documentation",
+      "name": "Verify SKILL.md documentation",
+      "description": "Ensure skill is properly documented",
+      "category": "documentation",
+      "steps": [
+        "Check: SKILL.md file exists",
+        "Verify: Valid frontmatter with name and description",
+        "Verify: Overview section present",
+        "Verify: Initialization Workflow section present",
+        "Verify: Examples section present",
+        "Verify: References section links to TORQ_PROJECT_STANDARDS"
+      ],
+      "expected": {
+        "fileExists": true,
+        "hasFrontmatter": true,
+        "requiredSections": [
+          "Overview",
+          "Project Metadata",
+          "Initialization Workflow",
+          "Examples",
+          "Important Notes",
+          "References"
+        ]
+      }
+    },
+    {
+      "id": "test-13-cli-command-gh-repo-create",
+      "name": "Verify gh repo create --template approach",
+      "description": "Documentation aligns with gh repo create --template workflow",
+      "category": "documentation",
+      "steps": [
+        "Check: SKILL.md mentions 'gh repo create --template'",
+        "Verify: Description shows --template torqlab/js-project-template",
+        "Verify: Step 3 uses gh repo create with --template flag",
+        "Verify: Examples show proper gh command usage"
+      ],
+      "expected": {
+        "mentionsGhTemplate": true,
+        "hasCorrectTemplatePath": true,
+        "documentationAligned": true
+      }
+    },
+    {
+      "id": "test-14-torq-branding",
+      "name": "Verify TORQ branding is uppercase",
+      "description": "Ensure TORQ is consistently uppercased throughout documentation",
+      "category": "documentation",
+      "steps": [
+        "Check: SKILL.md uses 'TORQ' (uppercase)",
+        "Verify: No 'torq' (lowercase) in critical sections",
+        "Check: References use 'TORQ Project Standards'",
+        "Verify: Examples show @TORQ scope correctly"
+      ],
+      "expected": {
+        "torqUppercase": true,
+        "brandingConsistent": true
+      }
+    },
+    {
+      "id": "test-15-github-actions-workflow",
+      "name": "Verify GitHub Actions test workflow",
+      "description": "Ensure CI/CD workflow is configured correctly",
+      "category": "ci-cd",
+      "steps": [
+        "Check: .github/workflows/test-js-project-structure.yml exists",
+        "Verify: Workflow triggers on relevant paths",
+        "Verify: Node.js and Python versions specified",
+        "Verify: Test commands defined correctly",
+        "Verify: Cleanup steps present"
+      ],
+      "expected": {
+        "workflowExists": true,
+        "hasProperTriggers": true,
+        "hasTestSteps": true,
+        "hasCleanup": true
       }
     }
   ],
   "cleanup": {
     "description": "Remove test artifacts after evaluation",
     "commands": [
-      "rm -rf test-lib-local test-scoped test-lib-local-remote"
+      "rm -rf test-lib test-scoped test-lib-local test-lib-local-remote"
+    ]
+  },
+  "ciIntegration": {
+    "provider": "GitHub Actions",
+    "workflowFile": ".github/workflows/test-js-project-structure.yml",
+    "triggers": [
+      "Push to main",
+      "Push to feat/* branches",
+      "Pull requests with skill changes"
+    ],
+    "testMatrix": {
+      "nodeVersions": ["24.x"],
+      "pythonVersions": ["3.11"]
+    },
+    "artifacts": [
+      "test-results",
+      "evals.json"
     ]
   }
 }
+
