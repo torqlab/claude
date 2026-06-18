@@ -1,13 +1,32 @@
 ---
 name: document-skills
 description: |
-  Discovers all available skills and generates a dedicated SKILLS.md file in the project root with a comprehensive table organized by skill type. Extracts skills from three sources: custom skills in .claude/skills/, open-source skills from skills-lock.json (anthropics/skills), and agent skills from enabled plugins (addyosmani/agent-skills). Generates a clean, consistent markdown table format reusable across projects with columns: Skill | Type | Description | Source. Use this skill to maintain a single source of truth for skills documentation, track what's available in your project, and ensure consistent documentation structure.
+  Discovers all available skills and generates a dedicated SKILLS.md file in the project root with a comprehensive table organized by skill type. Extracts skills from three sources: custom skills in .kiro/skills/ and .claude/skills/, open-source skills from skills-lock.json with GitHub links, and agent skills from enabled plugins. Generates a clean, consistent markdown table format reusable across projects with columns: Skill | Type | Description | Source. Use this skill to maintain a single source of truth for skills documentation, track what's available in your project, and ensure consistent documentation structure.
 license: MIT
 metadata:
   author: Mr.B.Lab
 ---
 
 # Skills Documentation Generation Skill
+
+## ⚠️ CRITICAL: GENERIC AND PROJECT-AGNOSTIC DESIGN
+
+**This skill MUST NEVER contain project-specific information or hardcoded references.**
+
+✅ **ALLOWED**:
+- Generic file paths like `.kiro/skills/`, `.claude/skills/`, `skills-lock.json`, `.claude/settings.json`
+- Generic decision tree templates based on discovered skills
+- Generic workflow descriptions
+- Dynamic generation based on discovered skill names
+
+❌ **FORBIDDEN**:
+- Hardcoded skill names (e.g., "spec", "plan", "build" — discover from project first!)
+- Project-specific tool references (e.g., "Vite", "React", "Three.js", "npm")
+- Hardcoded project names or domains
+- Assumptions about which skills exist
+- Any content that doesn't work for projects with different skill sets
+
+**Why?** This skill must work identically for ANY project (3D configurators, APIs, CLIs, desktop apps, etc.). All content must be generated dynamically based on discovered skills, never from hardcoded lists.
 
 ## Overview
 
@@ -16,9 +35,9 @@ This skill discovers all available skills from multiple sources and generates a 
 ## What This Skill Does
 
 1. **Discovers all available skills** from:
-   - Custom project skills in `.claude/skills/<skill-name>/SKILL.md`
-   - Open-source skills defined in `skills-lock.json` (from anthropics/skills)
-   - Enabled plugins in `.claude/settings.json` (agent-skills@addy-agent-skills)
+   - Custom project skills in `.kiro/skills/<skill-name>/SKILL.md` and `.claude/skills/<skill-name>/SKILL.md`
+   - Open-source skills defined in `skills-lock.json` with GitHub repository source links
+   - Enabled plugins like agent-skills from addyosmani/agent-skills
 
 2. **Extracts skill metadata**:
    - Skill name and description from SKILL.md frontmatter
@@ -30,14 +49,14 @@ This skill discovers all available skills from multiple sources and generates a 
    - Three sections organized by skill type
    - Consistent markdown table format: `| Skill | Type | Description | Source |`
    - Proper source attribution links
-   - Decision tree section for skill selection guidance
+   - **Dynamic decision trees** based on discovered skills (NOT hardcoded)
+   - Always regenerated from scratch (no stale data)
 
-4. **Generates decision trees** for skill selection:
-   - "I need to implement a feature" workflow
-   - "Something is broken (bug or test failure)" workflow
-   - "Performance is an issue" workflow
-   - "Security concern or compliance requirement" workflow
-   - "Refactoring or design work" workflow
+4. **Generates decision trees** dynamically:
+   - Analyzes discovered skills to identify available types
+   - Creates workflows for common scenarios (implementation, debugging, quality, performance, security)
+   - Only mentions skills that ACTUALLY exist in the project
+   - Always up-to-date when skills are added/removed
 
 5. **Deduplicates skills** appearing in multiple sources:
    - Open-source skills (skills-lock.json) take priority
@@ -51,11 +70,14 @@ This skill discovers all available skills from multiple sources and generates a 
 
 ## When to Use
 
-- **After adding new skills**: Run this to update SKILLS.md
-- **Before releases**: Verify skill inventory is documented
-- **During audits**: Track what skills are available
-- **Onboarding**: Generate reference documentation
+- **After adding new skills**: Run this to update SKILLS.md with new skills
+- **After removing skills**: Run this to clean up references (old skills are removed, new ones added)
+- **Before releases**: Verify skill inventory is documented and current
+- **During audits**: Track what skills are available in your project
+- **Onboarding**: Generate reference documentation for new team members
 - **Maintenance**: Keep SKILLS.md in sync as skills evolve
+
+**Note**: SKILLS.md is always **completely regenerated from scratch** to ensure it reflects the current state of skills in your project. No stale or orphaned skill references will remain.
 
 ## Core Workflow
 
@@ -64,10 +86,16 @@ This skill discovers all available skills from multiple sources and generates a 
 The skill scans the project for all available skills:
 
 ```
+.kiro/skills/                 → Custom skills (read SKILL.md from each)
 .claude/skills/               → Custom skills (read SKILL.md from each)
-skills-lock.json              → NPM-based open-source skills
+skills-lock.json              → Open-source skills with source repository info
 .claude/settings.json         → Enabled plugins (agent skills)
 ```
+
+**Categorization Logic**:
+- Any skill found in `.kiro/skills/` or `.claude/skills/` that is NOT in `skills-lock.json` → **Custom**
+- Any skill found in `skills-lock.json` → **Open-source** (source repository extracted and linked)
+- Any skill from enabled plugins → **Agent Skill**
 
 ### Step 2: Metadata Extraction
 
@@ -78,10 +106,10 @@ From each skill's SKILL.md frontmatter, extract:
 
 ### Step 3: Categorization & Deduplication
 
-Classify each skill:
-- **Custom**: Found in `.claude/skills/<name>/` (unless also in skills-lock.json)
-- **Open-source**: Listed in `skills-lock.json` (source: anthropics/skills)
-- **Agent Skill**: From enabled plugins (source: addyosmani/agent-skills)
+Classify each skill based on skills-lock.json:
+- **Custom**: Found in `.kiro/skills/` or `.claude/skills/` but NOT in `skills-lock.json`
+- **Open-source**: Listed in `skills-lock.json` (GitHub source repository extracted and linked for each)
+- **Agent Skill**: From enabled plugins
 
 ### Step 4: SKILLS.md Generation
 
@@ -137,9 +165,9 @@ This format is:
 ## Source Attribution
 
 Always link to authoritative sources:
-- **Custom**: `./.claude/skills/<name>/SKILL.md` (local link)
-- **Open-source**: `https://github.com/anthropics/skills` (GitHub repo)
-- **Agent Skills**: `https://github.com/addyosmani/agent-skills` (GitHub repo)
+- **Custom**: `./.kiro/skills/<name>/SKILL.md` or `./.claude/skills/<name>/SKILL.md` (local link)
+- **Open-source**: Dynamic GitHub link extracted from `skills-lock.json` source field (e.g., `https://github.com/anthropics/skills`, `https://github.com/EnzeD/r3f-skills`, etc.)
+- **Skills from Claude Plugins**: Dynamic GitHub link extracted from the Claude plugin information (e.g., `https://github.com/addyosmani/agent-skills` for the `addyosmani/agent-skills` Claude plugin)
 
 ## Example Output
 
