@@ -6,11 +6,11 @@ on:
       - main
       - feat/**
     paths:
-      - '.claude/skills/js-project-structure/**'
+      - '.agents/skills/js-project-structure/**'
       - '.github/workflows/test-js-project-structure.yml'
   pull_request:
     paths:
-      - '.claude/skills/js-project-structure/**'
+      - '.agents/skills/js-project-structure/**'
       - '.github/workflows/test-js-project-structure.yml'
 
 jobs:
@@ -53,19 +53,19 @@ jobs:
           git config --global user.email "actions@github.com"
 
       - name: Run unit tests
-        working-directory: .claude/skills/js-project-structure
+        working-directory: .agents/skills/js-project-structure
         run: |
           python -m unittest discover -s . -p 'test_*.py' -v
 
       - name: Run integration tests
-        working-directory: .claude/skills/js-project-structure
+        working-directory: .agents/skills/js-project-structure
         run: |
           python -m pytest test_js_project_structure.py -v --tb=short
 
       - name: Test local project creation
         working-directory: /tmp
         run: |
-          bash $GITHUB_WORKSPACE/.claude/skills/js-project-structure/scripts/init-project.sh test-local '' 'Test library' no
+          bash $GITHUB_WORKSPACE/.agents/skills/js-project-structure/scripts/init-project.sh test-local '' 'Test library' no
           cd test-local
           [ -f package.json ] && echo "✓ package.json exists"
           [ -f tsconfig.json ] && echo "✓ tsconfig.json exists"
@@ -75,18 +75,18 @@ jobs:
       - name: Test scoped project creation
         working-directory: /tmp
         run: |
-          bash $GITHUB_WORKSPACE/.claude/skills/js-project-structure/scripts/init-project.sh test-scoped '@test' 'Scoped test library' no
+          bash $GITHUB_WORKSPACE/.agents/skills/js-project-structure/scripts/init-project.sh test-scoped '@test' 'Scoped test library' no
           cd test-scoped
           [ -f package.json ] && grep -q '"name": "@test/test-scoped"' package.json && echo "✓ scoped package name correct"
 
       - name: Validate project setup
         working-directory: /tmp/test-local
         run: |
-          bash $GITHUB_WORKSPACE/.claude/skills/js-project-structure/scripts/validate-setup.sh .
+          bash $GITHUB_WORKSPACE/.agents/skills/js-project-structure/scripts/validate-setup.sh .
 
       - name: Test SKILL.md validity
         run: |
-          SKILL_FILE=".claude/skills/js-project-structure/SKILL.md"
+          SKILL_FILE=".agents/skills/js-project-structure/SKILL.md"
           [ -f "$SKILL_FILE" ] && echo "✓ SKILL.md exists"
           grep -q "^---$" "$SKILL_FILE" && grep -q "^name:" "$SKILL_FILE" && echo "✓ SKILL.md has valid frontmatter"
           grep -q "## Overview" "$SKILL_FILE" && echo "✓ SKILL.md has Overview section"
@@ -95,7 +95,7 @@ jobs:
 
       - name: Verify evals.json
         run: |
-          EVALS_FILE=".claude/skills/js-project-structure/evals/evals.json"
+          EVALS_FILE=".agents/skills/js-project-structure/evals/evals.json"
           [ -f "$EVALS_FILE" ] && echo "✓ evals.json exists"
           python3 -m json.tool "$EVALS_FILE" > /dev/null && echo "✓ evals.json is valid JSON"
           python3 -c "
@@ -118,6 +118,6 @@ jobs:
         with:
           name: test-results
           path: |
-            .claude/skills/js-project-structure/evals/evals.json
+            .agents/skills/js-project-structure/evals/evals.json
             test-*.log
           retention-days: 30
