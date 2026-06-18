@@ -1,0 +1,89 @@
+{
+  "skill_name": "document-ai",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "kiro-hook-agent-skill-chain",
+      "prompt": "Generate AI.md for the Kiro platform. The project should discover the 'review-code' hook that calls 'code-review-agent' which uses 'code-review-excellence' skill. All three should appear in the Agent Tools Graph showing the chain: hook → agent → skill.",
+      "expected_output": "AI.md with Agent Tools Graph section containing a Mermaid diagram showing: review-code hook (🪝 blue) → code-review-agent (🤖 green) with edge labeled 'calls' → code-review-excellence skill (💡 orange) with edge labeled 'uses'. Graph should show node details including trigger type for hook and skill type.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "multiple-hooks-same-agent",
+      "prompt": "Generate AI.md. The project has multiple hooks that call the same agent. For example: 'post-task-code-review' and 'review-code' hooks both trigger 'code-review-agent'. The graph should show both hooks pointing to the same agent with 'calls'/'triggers' edge labels.",
+      "expected_output": "AI.md with graph showing multiple hooks (post-task-code-review, review-code, pre-code-review-check) connected to their target agents. Each hook should be color-coded blue with trigger type, each agent green, and edges clearly labeled with relationship type.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "isolated-entities",
+      "prompt": "Generate AI.md for Kiro platform. Include hooks, agents, and skills that may not be connected to each other. Unconnected hooks should appear alone, agents not called by hooks should be isolated, skills not used by agents should be isolated. Include them all in the graph without warnings or special annotations.",
+      "expected_output": "AI.md with complete graph including isolated nodes. Each isolated entity (hook, agent, skill) appears as a standalone node without warnings. Graph shows all discovered entities regardless of connection status.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "eval_name": "agent-with-multiple-skills",
+      "prompt": "Generate AI.md. An agent uses multiple skills. For example, 'post-task-code-review-agent' uses both 'code-review-excellence' skill and potentially other skills. Show all agent→skill relationships with 'uses' edge labels.",
+      "expected_output": "AI.md with graph showing agent node connected to multiple skill nodes via 'uses' edges. Each connection is clear and properly labeled. All skills referenced by agent are shown.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "eval_name": "kiro-platform-specific-discovery",
+      "prompt": "Generate AI.md for Kiro platform. Parse .kiro/hooks/*.kiro.hook files and extract hook names, trigger types, and agent references. Parse .kiro/agents/*.agent.json files to extract agent names and skills arrays. Verify that all discovered relationships are accurate and the graph reflects actual project configuration.",
+      "expected_output": "AI.md with accurate hook/agent discovery. All hook trigger types should be correct (userTriggered, postTaskExecution, etc.). All agent→skill relationships should match the agent JSON files. Graph should reflect actual project state.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "eval_name": "graph-node-annotations",
+      "prompt": "Generate AI.md. Each node in the Agent Tools Graph should have rich annotations: name, type, description, and for hooks also the trigger type. Verify that node labels include all this information formatted clearly for readability.",
+      "expected_output": "AI.md with graph nodes showing complete information. Example hook node format: '<b>review-code</b><br/>Type: Manual<br/>Trigger: userTriggered<br/>Comprehensive code review...' All nodes follow similar pattern with appropriate information.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "eval_name": "sub-graph-clustering",
+      "prompt": "Generate AI.md. Group related hooks, agents, and skills into visual clusters (sub-graphs) in the Mermaid diagram. For example, code review workflow should be in one cluster, task validation in another. Each cluster should be visually distinct with a descriptive label.",
+      "expected_output": "AI.md with Mermaid graph containing sub-graphs. Example: 'subgraph CodeReview[\"Code Review Workflow\"]' grouping review-code hook, code-review-agent, and code-review-excellence skill. Clustering makes related workflows visually apparent.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "eval_name": "malformed-json-handling",
+      "prompt": "Generate AI.md. Test error handling when a hook or agent JSON file is malformed or missing a required field. The skill should log a warning, skip the malformed file, and continue processing other entities without crashing.",
+      "expected_output": "AI.md generated successfully despite malformed files. Console output shows warnings about skipped files. Graph contains only valid entities. No crashes or incomplete output.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "eval_name": "broken-skill-reference",
+      "prompt": "Generate AI.md. An agent references a skill that doesn't exist. The skill should detect this and either skip the edge or highlight it as broken. Graph should handle gracefully without failing.",
+      "expected_output": "AI.md generated. Broken skill references are either skipped or marked with warning color/notation in graph. No crashes. Console output notes unresolved references.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "eval_name": "skills-inventory-unchanged",
+      "prompt": "Generate AI.md and verify that existing skills inventory (Custom Skills, Open-source Skills, Agent Skills sections with tables) is still generated correctly and hasn't been changed by the new Agent Tools Graph feature.",
+      "expected_output": "AI.md with all original sections intact: Custom Skills table, Open-source Skills table, Agent Skills table, Decision Trees section. Then followed by new Agent Tools Graph section. Original functionality preserved.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "eval_name": "complete-workflow-visualization",
+      "prompt": "Generate AI.md. Create a complete visualization showing: multiple hooks (with different trigger types) → multiple agents (with descriptions) → multiple skills (with types). Graph should clearly show the entire automation infrastructure in the project with proper color coding, labels, and organization.",
+      "expected_output": "AI.md with comprehensive Mermaid graph showing all automation infrastructure. Hooks in blue, agents in green, skills in orange. All relationships labeled. Sub-graphs organized by workflow. Graph is visually rich and communicates the complete automation story.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "eval_name": "claude-platform-support",
+      "prompt": "Generate AI.md for Claude platform. Parse .claude/hooks/ and .claude/agents/ directories (if they exist). Apply same discovery logic as Kiro platform but adapted to Claude's configuration structure. Verify graph generation works for Claude platform.",
+      "expected_output": "AI.md generated for Claude platform. If .claude/hooks/ and .claude/agents/ don't exist, skill handles gracefully with explanation. If they do exist, relationships are discovered and graphed correctly using same visual style as Kiro.",
+      "files": []
+    }
+  ]
+}

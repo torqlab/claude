@@ -1,6 +1,13 @@
 {
   "version": 1,
   "skills": {
+    "document-ai": {
+      "source": "mrbalov/ai",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/document-ai/SKILL.md",
+      "computedHash": "876073958b76c4d55cc46839233aba1312316b544e2635e7254b99cf22f642c0"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "ref": "main",
