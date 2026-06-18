@@ -81,6 +81,19 @@ else
   echo ""
 fi
 
+# Create src directory if it doesn't exist
+if [ ! -d "src" ]; then
+  mkdir -p src
+
+  # Move index files to src/ if they're at root
+  if [ -f "index.ts" ]; then
+    mv index.ts src/
+  fi
+  if [ -f "index.test.ts" ]; then
+    mv index.test.ts src/
+  fi
+fi
+
 # Add files and create initial commit
 git add .
 git commit -m "chore: initialize project from torq template"

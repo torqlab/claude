@@ -28,18 +28,18 @@ jobs:
 
       - name: Run document-skills tests
         run: |
-          cd .claude/skills/document-skills
+          cd .agents/skills/document-skills
           python -m pytest test_document_skills.py test_integration.py test_orphaned_skills.py -v --tb=short
         continue-on-error: true
 
       - name: Run all Python tests in skills
         run: |
-          find .claude/skills -name "test_*.py" -exec python -m pytest {} -v --tb=short \;
+          find .agents/skills -name "test_*.py" -exec python -m pytest {} -v --tb=short \;
         continue-on-error: true
 
       - name: Generate test report
         if: always()
         run: |
           echo "=== Agent Skills Test Summary ==="
-          find .claude/skills -name "test_*.py" | wc -l | xargs echo "Test files found:"
+          find .agents/skills -name "test_*.py" | wc -l | xargs echo "Test files found:"
           echo "✓ All agent skills tests completed"
