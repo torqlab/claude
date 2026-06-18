@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Integration test for document-skills skill.
+Integration test for document-ai skill.
 Demonstrates end-to-end workflow: discovery → extraction → categorization → README update.
 """
 

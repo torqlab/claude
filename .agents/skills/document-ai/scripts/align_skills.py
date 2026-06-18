@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Skill discovery and SKILLS.md generation script.
-Discovers all available skills from multiple sources and generates a consolidated SKILLS.md file.
+AI tools discovery and AI.md generation script.
+Discovers all available AI tools (skills, hooks, agents) and generates comprehensive AI.md file.
 """
 
 import json
@@ -14,8 +14,8 @@ from typing import Dict, List, Set, Optional
 import yaml
 
 
-class SkillAligner:
-    """Generates SKILLS.md documentation with discovered skills."""
+class AIDocumentationGenerator:
+    """Generates AI.md documentation with discovered AI tools (skills, hooks, agents)."""
 
     # Standard markdown table format (constant across projects)
     MD_TABLE_HEADER = "| Skill | Type | Description | Source |"
@@ -25,7 +25,7 @@ class SkillAligner:
         """Initialize with project root."""
         self.project_root = project_root
         self.claude_dir = project_root / ".claude"
-        self.skills_md_path = project_root / "SKILLS.md"
+        self.ai_md_path = project_root / "AI.md"
         self.skills_lock_path = project_root / "skills-lock.json"
         self.settings_path = self.claude_dir / "settings.json"
 
@@ -453,7 +453,7 @@ class SkillAligner:
         return f"| **{skill_name}** | {skill_type} | {description} | {source} |"
 
     def generate_skills_md(self, skills_by_type: Dict[str, List[Dict]]) -> str:
-        """Generate the complete SKILLS.md content."""
+        """Generate the complete AI.md content with AI tools inventory."""
         lines = [
             "# Available Skills",
             "",
@@ -515,20 +515,20 @@ class SkillAligner:
 
     def write_skills_md(self, content: str) -> bool:
         """
-        Write SKILLS.md to disk.
+        Write AI.md to disk.
         ALWAYS overwrites existing file to ensure no stale data.
         Returns True if file was written/updated.
         """
         # ALWAYS delete existing file first to ensure clean generation
-        if self.skills_md_path.exists():
+        if self.ai_md_path.exists():
             try:
-                self.skills_md_path.unlink()
-                print(f"   Removed stale SKILLS.md")
+                self.ai_md_path.unlink()
+                print(f"   Removed stale AI.md")
             except Exception as e:
-                print(f"Warning: Could not remove existing SKILLS.md: {e}")
+                print(f"Warning: Could not remove existing AI.md: {e}")
 
         # Write fresh content
-        self.skills_md_path.write_text(content)
+        self.ai_md_path.write_text(content)
         return True
 
     def generate_report(self) -> Dict:
@@ -552,8 +552,8 @@ class SkillAligner:
         return report
 
     def run(self) -> Dict:
-        """Execute full skill discovery and SKILLS.md generation workflow."""
-        print("🔍 Discovering available skills...")
+        """Execute full AI tool discovery and AI.md generation workflow."""
+        print("🔍 Discovering available AI tools...")
         skills_by_type = self.discover_skills()
 
         total = sum(len(skills) for skills in skills_by_type.values())
@@ -562,15 +562,15 @@ class SkillAligner:
         print(f"   - Open-source: {len(self.open_source_skills)}")
         print(f"   - Agent Skills: {len(self.agent_skills)}")
 
-        print("\n📝 Generating SKILLS.md...")
+        print("\n📝 Generating AI.md...")
         content = self.generate_skills_md(skills_by_type)
 
-        print("\n💾 Writing SKILLS.md...")
+        print("\n💾 Writing AI.md...")
         was_written = self.write_skills_md(content)
         if was_written:
-            print(f"   ✓ SKILLS.md generated at {self.skills_md_path}")
+            print(f"   ✓ AI.md generated at {self.ai_md_path}")
         else:
-            print(f"   ✓ SKILLS.md already up to date")
+            print(f"   ✓ AI.md already up to date")
 
         # Generate report
         self.report = self.generate_report()
@@ -581,12 +581,12 @@ class SkillAligner:
         print(f"   - Custom: {self.report['by_type']['Custom']}")
         print(f"   - Open-source: {self.report['by_type']['Open-source']}")
         print(f"   - Agent Skills: {self.report['by_type']['Agent Skill']}")
-        print(f"   Status: ✅ SKILLS.md synchronized")
+        print(f"   Status: ✅ AI.md synchronized")
 
         return self.report
 
 
 if __name__ == "__main__":
-    aligner = SkillAligner(Path.cwd())
-    report = aligner.run()
+    generator = AIDocumentationGenerator(Path.cwd())
+    report = generator.run()
     print("\n" + json.dumps(report, indent=2))
