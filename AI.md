@@ -20,7 +20,6 @@ Custom skills are project-specific tools created by your team for this repositor
 | **js-project-structure** | Project analysis | Analyze and understand JavaScript/TypeScript project structure, dependencies, and architecture |
 | **pr** | GitHub workflow | Agent-driven GitHub PR creation workflow aligned with semantic-release conventions; validate commits, generate PR titles and bodies, and manage PR creation with human approval |
 | **semantic-release** | Release workflow | Create git branches and conventional commits aligned with semantic-release for automated versioning and changelog generation |
-| **skill-creator** | Skill development | Create new skills, modify and improve existing skills, and measure skill performance with evals and benchmarks |
 
 ---
 
@@ -32,6 +31,7 @@ Open-source skills are maintained in external repositories and installed into th
 |-------|--------|-------------|
 | **document-ai** | [mrbalov/ai](https://github.com/mrbalov/ai) | Discovers all available AI tools (skills, hooks, agents) and generates comprehensive AI.md with inventory, decision trees, and Agent Tools Graph showing automation infrastructure and document dependencies |
 | **frontend-design** | [anthropics/skills](https://github.com/anthropics/skills) | Design system documentation and frontend UI component documentation generation |
+| **skill-creator** | [anthropics/skills](https://github.com/anthropics/skills) | Create new skills, modify and improve existing skills, and measure skill performance with evals and benchmarks |
 
 ---
 
