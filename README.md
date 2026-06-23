@@ -298,15 +298,4 @@ torq/claude/
 1. Create a directory in `./.claude/skills/<skill-name>/`
 2. Write `SKILL.md` with proper frontmatter
 3. Include documentation in `references/` and helper scripts in `scripts/`
-4. Test with the `skill-creator` skill
-
-## Version & Metadata
-
-**Repository**: [@torqlab/claude](https://github.com/torqlab/claude)  
-**License**: MIT  
-**Maintainer**: Mr.B.Lab  
-**Node**: 24.x
-
----
-
-**Last updated**: 2026-06-09
+4. Test with the `skill-creator` 
