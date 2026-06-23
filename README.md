@@ -13,7 +13,7 @@ This is a **project-level Claude collection** that serves as a centralized sourc
 ## What's Included
 
 - **[AI.md](./AI.md)** — Complete reference for all available AI tools
-- **Addy Osmani Workflow** — Structured development methodology with specialized agents for each phase
+- **[Addy Osmani Workflow](https://github.com/addyosmani/agent-skills)** — Structured development methodology with specialized agents for each phase
 - **Custom Skills** — Project-specific skills for semantic versioning, branch management, PR creation, and documentation
 - **Configurations** — Claude Code settings, hooks, and project conventions in `.claude/`
 - **Documentation** — Setup guides, workflow patterns, and integration examples
